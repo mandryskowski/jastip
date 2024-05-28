@@ -1,12 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_driver/flutter_driver.dart';
+import 'package:flutter_driver/flutter_driver.dart' as Fd;
 
 void main() {
-  group('MyApp', () {
-    FlutterDriver driver;
+  group('Jastip', () {
+    late Fd.FlutterDriver driver;
 
     setUpAll(() async {
-      driver = await FlutterDriver.connect();
+      driver = await Fd.FlutterDriver.connect();
     });
 
     tearDownAll(() async {
@@ -17,7 +17,7 @@ void main() {
 
     test('Check if app is running', () async {
       // Check if a specific widget is present on the screen
-      expect(await driver.getText(find.text('Welcome')), 'Welcome');
+      expect(await driver.getText(Fd.find.text('Welcome')), 'Welcome'); // Fully qualify find method
     });
 
     // Add more integration tests as needed
