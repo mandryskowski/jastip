@@ -25,7 +25,9 @@ jobs:
         flutter-version: ${{ matrix.flutter-version }}
 
     - name: Install dependencies
-      run: flutter pub get
+      run: |
+        pwd
+        flutter pub get
 
     - name: Set up JDK
       uses: actions/setup-java@v3
