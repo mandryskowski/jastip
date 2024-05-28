@@ -70,14 +70,17 @@ jobs:
         adb wait-for-device
 
     - name: Connect to emulator
-      run: flutter devices
+      run: |
+        flutter devices
+        flutter emulators
+        flutter doctor
 
     - name: Run tests
       env:
         DISPLAY: ":0"
       run: |
         cd frontend/jastip
-        flutter drive --target=test_driver/app.dart -d linux
+        flutter drive --target=test_driver/app.dart
 
     - name: Build APK
       run: |
