@@ -45,13 +45,12 @@ jobs:
         sudo mv /usr/local/android-sdk/cmdline-tools/cmdline-tools /usr/local/android-sdk/cmdline-tools/latest
         echo "ANDROID_SDK_ROOT=/usr/local/android-sdk" >> $GITHUB_ENV
         echo "PATH=$PATH:/usr/local/android-sdk/cmdline-tools/latest/bin:/usr/local/android-sdk/platform-tools" >> $GITHUB_ENV
-        echo "yes" | sudo /usr/local/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
-        sudo /usr/local/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-30" "emulator" "system-images;android-30;default;arm64-v8a"
+        sudo yes | sudo /usr/local/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
+        sudo yes | sudo /usr/local/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-30" "emulator" "system-images;android-30;default;arm64-v8a"
 
     - name: List installed system images
       run: |
         /usr/local/android-sdk/cmdline-tools/latest/bin/sdkmanager --list
-        ls -la /usr/local/android-sdk/system-images/android-30/default/arm64-v8a
 
     - name: Start emulator
       run: |
