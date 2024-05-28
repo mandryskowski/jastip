@@ -83,6 +83,7 @@ jobs:
         DISPLAY: ":0"
       run: |
         cd frontend/jastip
+        sudo chown -R $USER:$USER /usr/local/android-sdk
         flutter drive --target=test_driver/app.dart
 
     - name: Build APK
