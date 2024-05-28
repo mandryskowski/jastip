@@ -89,7 +89,7 @@ jobs:
         flutter doctor
         flutter config --android-sdk /usr/local/android-sdk/
         flutter doctor -v
-        flutter drive --target=test_driver/app_test.dart
+        flutter drive --target=test_driver/app.dart
 
     - name: Build APK
       run: |
