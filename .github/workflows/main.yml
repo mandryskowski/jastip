@@ -56,7 +56,7 @@ jobs:
     - name: Install system image
       run: |
         sudo chown $USER: $ANDROID_HOME -R
-        sudo yes | sudo /usr/local/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-33" "emulator" "system-images;android-33;google_apis;x86_64"
+        sudo yes | sudo /usr/local/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-33" "build-tools;30.0.3" "emulator" "system-images;android-33;google_apis;x86_64"
 
     - name: List installed system images
       run: |
