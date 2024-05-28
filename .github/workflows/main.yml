@@ -68,11 +68,6 @@ jobs:
         echo "no" | /usr/local/android-sdk/cmdline-tools/latest/bin/avdmanager create avd --force --name "test" --package "system-images;android-30;google_apis;x86_64" --device "pixel"
         $ANDROID_SDK_ROOT/emulator/emulator -avd test -no-snapshot -no-window -no-audio -gpu swiftshader -accel on -qemu -m 2048 &
         adb wait-for-device
-        
-    - name: Build APK
-      run: |
-        cd frontend/jastip
-        flutter build apk
 
     - name: Run tests
       env:
@@ -80,3 +75,8 @@ jobs:
       run: |
         cd frontend/jastip
         flutter drive --target=test_driver/app.dart
+
+    - name: Build APK
+      run: |
+        cd frontend/jastip
+        flutter build apk
