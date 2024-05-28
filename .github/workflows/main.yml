@@ -46,12 +46,12 @@ jobs:
         echo "ANDROID_SDK_ROOT=/usr/local/android-sdk" >> $GITHUB_ENV
         echo "PATH=$PATH:/usr/local/android-sdk/cmdline-tools/latest/bin:/usr/local/android-sdk/platform-tools" >> $GITHUB_ENV
         sudo yes | /usr/local/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
-        /usr/local/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-30" "emulator" "system-images;android-30;default;x86_64"
+        /usr/local/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-30" "emulator" "system-images;android-30;google_apis;x86_64"
 
-    - name: List installed packages and system images
+    - name: List installed system images
       run: |
         /usr/local/android-sdk/cmdline-tools/latest/bin/sdkmanager --list
-        ls -la /usr/local/android-sdk/system-images/android-30/default/x86_64
+        ls -la /usr/local/android-sdk/system-images/android-30/google_apis/x86_64
 
     - name: Start emulator
       run: |
