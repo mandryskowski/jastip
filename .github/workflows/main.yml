@@ -72,8 +72,11 @@ jobs:
     - name: Connect to emulator
       run: |
         flutter devices
-        flutter emulators
         flutter doctor
+        flutter config --android-sdk /usr/local/android-sdk
+        flutter doctor
+        sudo yes | flutter doctor --android-licenses
+        flutter emulators
 
     - name: Run tests
       env:
