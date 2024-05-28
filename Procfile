@@ -1,1 +1,1 @@
-web: sbt run -Dhttp.port=$PORT
+web: target/universal/stage/bin/jastip
