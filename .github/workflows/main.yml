@@ -48,7 +48,9 @@ jobs:
         sudo yes | /usr/local/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
 
     - name: Install system image
-      run: sudo yes | /usr/local/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-30" "emulator" "system-images;android-30;google_apis;x86_64"
+      run: |
+        sudo chown $USER: $ANDROID_HOME -R
+        sudo yes | sudo /usr/local/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-30" "emulator" "system-images;android-30;google_apis;x86_64"
 
     - name: List installed system images
       run: |
