@@ -1,22 +1,64 @@
-# Note: In a yml each level is padded by 2 spaces
-name: Flutter
+name: Flutter CI
 
 on:
-  # Runs this action when you push on master
   push:
-    branches: [ "master" ]
-  # Runs this when a PR against master is created
+    branches: [ main ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ main ]
 
 jobs:
-  flutter_job:
+  build:
+    runs-on: ubuntu-latest
 
-    # The machine, we can also use windows-latest or ubuntu-latest
-    # We are choosing macos-latest because we will be also building for iOS
-    runs-on: windows-latest
+    strategy:
+      matrix:
+        flutter-version: [ "2.10.4" ] # Change this to the desired Flutter version
+        api-level: [ 29 ] # Change this to the desired API level
 
     steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-      # Clones the project on the machine
-      - uses: actions/checkout@v4
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'zulu'
+        java-version: '11'
+
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: ${{ matrix.flutter-version }}
+
+    - name: Install Android SDK
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y openjdk-11-jdk wget tar unzip
+        sudo mkdir -p /usr/local/android-sdk
+        wget -q https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip
+        sudo unzip -q commandlinetools-linux-7583922_latest.zip -d /usr/local/android-sdk
+        sudo rm commandlinetools-linux-7583922_latest.zip
+        sudo mkdir -p /usr/local/android-sdk/cmdline-tools
+        sudo mv /usr/local/android-sdk/cmdline-tools /usr/local/android-sdk/cmdline-tools/latest
+        sudo /usr/local/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=/usr/local/android-sdk "platform-tools" "platforms;android-${{ matrix.api-level }}" "build-tools;30.0.3" "system-images;android-${{ matrix.api-level }};default;x86_64" "emulator"
+
+    - name: Set up Android emulator
+      run: |
+        sudo /usr/local/android-sdk/cmdline-tools/latest/bin/sdkmanager --update
+        echo "y" | sudo /usr/local/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
+        sudo /usr/local/android-sdk/emulator/emulator -list-avds
+        sudo /usr/local/android-sdk/emulator/emulator -avd test -no-window -no-audio -no-boot-anim -gpu off &
+
+    - name: Wait for Android emulator to start
+      run: |
+        adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done;'
+      timeout-minutes: 10
+
+    - name: Install dependencies
+      run: flutter pub get
+
+    - name: Run tests
+      run: flutter test
+
+    - name: Run integration tests
+      run: flutter drive --target=test_driver/app.dart
