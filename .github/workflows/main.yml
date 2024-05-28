@@ -13,7 +13,7 @@ jobs:
 
     strategy:
       matrix:
-        flutter-version: [ "2.10.4" ] # Change this to the desired Flutter version
+        flutter-version: [ "3.4.1" ] # Change this to the desired Flutter version
 
     steps:
     - name: Checkout repository
