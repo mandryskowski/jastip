@@ -39,7 +39,7 @@ jobs:
         sudo unzip -q commandlinetools-linux-7583922_latest.zip -d /usr/local/android-sdk
         sudo rm commandlinetools-linux-7583922_latest.zip
         sudo mkdir -p /usr/local/android-sdk/cmdline-tools
-        sudo mv /usr/local/android-sdk/cmdline-tools /usr/local/android-sdk/cmdline-tools/latest
+        sudo mv /usr/local/android-sdk/cmdline-tools/* /usr/local/android-sdk/cmdline-tools/latest
         sudo /usr/local/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=/usr/local/android-sdk "platform-tools" "platforms;android-${{ matrix.api-level }}" "build-tools;30.0.3" "system-images;android-${{ matrix.api-level }};default;x86_64" "emulator"
 
     - name: Set up Android emulator
