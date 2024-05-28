@@ -84,6 +84,7 @@ jobs:
       run: |
         cd frontend/jastip
         sudo chown -R $USER:$USER /usr/local/android-sdk/
+        sudo yes | flutter doctor --android-licenses
         export PATH=$PATH:/usr/local/android-sdk/build-tools/30.0.3/
         flutter doctor
         flutter config --android-sdk /usr/local/android-sdk/
