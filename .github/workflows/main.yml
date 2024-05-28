@@ -83,10 +83,10 @@ jobs:
         DISPLAY: ":0"
       run: |
         cd frontend/jastip
-        sudo chown -R $USER:$USER /usr/local/android-sdk
-        export PATH=$PATH:/usr/local/android-sdk/build-tools/30.0.3
+        sudo chown -R $USER:$USER /usr/local/android-sdk/
+        export PATH=$PATH:/usr/local/android-sdk/build-tools/30.0.3/
         flutter doctor
-        flutter config --android-sdk /usr/local/android-sdk
+        flutter config --android-sdk /usr/local/android-sdk/
         flutter doctor -v
         flutter drive --target=test_driver/app.dart
 
