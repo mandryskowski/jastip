@@ -33,14 +33,13 @@ jobs:
     - name: Install Android SDK
       run: |
         sudo apt-get update
-        sudo apt-get install -y openjdk-11-jdk wget tar unzip
-        sudo mkdir -p /usr/local/android-sdk
-        wget -q https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip
-        sudo unzip -q commandlinetools-linux-7583922_latest.zip -d /usr/local/android-sdk
-        sudo rm commandlinetools-linux-7583922_latest.zip
+        sudo apt-get install -y wget unzip
+        wget -q https://dl.google.com/android/repository/commandlinetools-linux-8092744_latest.zip -O cmdline-tools.zip
         sudo mkdir -p /usr/local/android-sdk/cmdline-tools
-        sudo mv /usr/local/android-sdk/cmdline-tools/* /usr/local/android-sdk/cmdline-tools/latest
-        sudo /usr/local/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=/usr/local/android-sdk "platform-tools" "platforms;android-${{ matrix.api-level }}" "build-tools;30.0.3" "system-images;android-${{ matrix.api-level }};default;x86_64" "emulator"
+        sudo unzip -q cmdline-tools.zip -d /usr/local/android-sdk/cmdline-tools
+        sudo mv /usr/local/android-sdk/cmdline-tools/cmdline-tools /usr/local/android-sdk/cmdline-tools/latest
+        sudo yes | /usr/local/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
+        /usr/local/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-30" "emulator" "system-images;android-30;default;x86_64"
 
     - name: Set up Android emulator
       run: |
