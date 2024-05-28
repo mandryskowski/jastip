@@ -4,7 +4,7 @@ name := "Jastip"
 
 version := "0.1"
 
-scalaVersion := "2.13.6"
+scalaVersion := "2.13.8"
 
 libraryDependencies ++= Seq(
   "com.typesafe.slick" %% "slick" % "3.3.3",
