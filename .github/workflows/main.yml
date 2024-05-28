@@ -69,12 +69,15 @@ jobs:
         $ANDROID_SDK_ROOT/emulator/emulator -avd test -no-snapshot -no-window -no-audio -gpu swiftshader -accel on -qemu -m 2048 &
         adb wait-for-device
 
+    - name: Connect to emulator
+      run: flutter devices
+
     - name: Run tests
       env:
         DISPLAY: ":0"
       run: |
         cd frontend/jastip
-        flutter drive --target=test_driver/app.dart
+        flutter drive --target=test_driver/app.dart -d linux
 
     - name: Build APK
       run: |
