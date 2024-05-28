@@ -51,7 +51,6 @@ jobs:
     - name: List installed system images
       run: |
         /usr/local/android-sdk/cmdline-tools/latest/bin/sdkmanager --list
-        ls -la /usr/local/android-sdk/system-images/android-30/google_apis/x86_64
 
     - name: Start emulator
       run: |
