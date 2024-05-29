@@ -16,11 +16,6 @@ jobs:
         flutter-version: [ "3.22.1" ] # Change this to the desired Flutter version
 
     steps:
-    - shell: bash
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AwsAccessKeyId }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AwsSecretAccessKey }}
-        BUCKETEER: ${{ secrets.Bucketeer }}
     - name: Checkout repository
       uses: actions/checkout@v2
 
@@ -89,6 +84,10 @@ jobs:
         flutter build apk
 
     - name: Deploy APK
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        BUCKETEER: ${{ secrets.BUCKETEER }}
       run: |
         aws configure set $AWS_ACCESS_KEY_ID
         aws configure set $AWS_SECRET_ACCESS_KEY
