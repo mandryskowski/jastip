@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:jastip/FormBox.dart';
-import 'package:jastip/Listing.dart';
 import 'package:jastip/ListingPage.dart';
-import "package:jastip/LoadingPage.dart";
 import 'package:jastip/PageHeader.dart';
 
 class BlankPage extends StatelessWidget {
-  const BlankPage({super.key});
+  BlankPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +15,7 @@ class BlankPage extends StatelessWidget {
           PageHeader(title: 'JASTIP+'),
           Expanded(
             //width: 300,
-            child: Formbox(title: "Where to?", fields: ["City", "City","City","City","City","City","City", "Name", "Date"], constraints: BoxConstraints(maxWidth: 0.9 * MediaQuery.sizeOf(context).width), checkboxTitles: ["fragile?", "skibidi?", "toilet?"]),
+            child: Formbox(title: "Where to?", fields: ["From", "To", "Date", "Width", "Height", "Length"], constraints: BoxConstraints(maxWidth: 0.9 * MediaQuery.sizeOf(context).width), checkboxTitles: ["fragile?", "skibidi?", "toilet?"]),
           )
         ],
       ),
@@ -26,7 +23,7 @@ class BlankPage extends StatelessWidget {
         onPressed: () {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => ListingPage(orderedBySize: false, orderedByDate: false,)),
+            MaterialPageRoute(builder: (context) => ListingPage.generic()),
           );
         },
         child: const Icon(Icons.arrow_forward),

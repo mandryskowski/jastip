@@ -19,9 +19,7 @@ class Orderingbar extends StatelessWidget {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => ListingPage(
-                                orderedBySize: true,
-                                orderedByDate: false)));
+                            builder: (context) => ListingPage.generic()));
                   },
                   child: Container(
                       padding: const EdgeInsets.symmetric(
@@ -51,10 +49,8 @@ class Orderingbar extends StatelessWidget {
           Expanded(
               child: GestureDetector(
                   onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => FilterPage()));
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => FilterPage()));
                   },
                   child: Container(
                       padding: const EdgeInsets.symmetric(

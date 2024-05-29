@@ -7,14 +7,33 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class ListingPage extends StatelessWidget {
-  const ListingPage({
+  ListingPage({
     super.key,
     required this.orderedBySize,
     required this.orderedByDate,
+    required this.startCity,
+    required this.endCity,
+    required this.endDate,
+    required this.dimensions,
   });
 
-  final bool orderedBySize;
-  final bool orderedByDate;
+  static ListingPage generic() {
+    return ListingPage(
+      orderedBySize: true,
+      orderedByDate: false,
+      startCity: '',
+      endCity: '',
+      endDate: DateTime.now(),
+      dimensions: Dimension.generic(),
+    );
+  }
+
+  final String startCity;
+  final String endCity;
+  final DateTime endDate;
+  final Dimension dimensions;
+  bool orderedBySize;
+  bool orderedByDate;
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +43,8 @@ class ListingPage extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return CircularProgressIndicator();
         } else if (snapshot.hasError) {
-          return Scaffold(body: Center(child: Text('Error: ${snapshot.error}')));
+          return Scaffold(
+              body: Center(child: Text('Error: ${snapshot.error}')));
         } else if (snapshot.hasData) {
           List<Listing> listings = snapshot.data!;
           return Scaffold(
@@ -56,7 +76,8 @@ class ListingPage extends StatelessWidget {
               onPressed: () {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => const LoadingScreen()),
+                  MaterialPageRoute(
+                      builder: (context) => const LoadingScreen()),
                 );
               },
               child: const Icon(Icons.refresh),
@@ -69,20 +90,31 @@ class ListingPage extends StatelessWidget {
       },
     );
   }
-  
-  Future<List<Listing>> fetchData() async{
-    final response = await http.get(Uri.parse('https://jastip-backend-3b036fb5403c.herokuapp.com/bids-json'));
+
+  Future<List<Listing>> fetchData() async {
+    final response = await http.get(
+        Uri.parse(
+            'https://jastip-backend-3b036fb5403c.herokuapp.com/bids-json'),
+        headers: {
+          'orderedBySize': orderedBySize.toString(),
+          'orderedByDate': orderedByDate.toString(),
+          'startCity': startCity,
+          'endCity': endCity,
+          'length': dimensions.length.toString(),
+          'width': dimensions.width.toString(),
+          'height': dimensions.height.toString(),
+          'endDate': endDate.toString()
+        });
     if (response.statusCode == 200) {
       print(response.body);
       Iterable list = json.decode(response.body);
-      return List<Listing>.from(list.map((listing) => Listing.fromJson(listing)));
+      return List<Listing>.from(
+          list.map((listing) => Listing.fromJson(listing)));
     } else {
       print(response.statusCode);
       throw Exception('Failed to load data');
     }
   }
-
-
 }
 
 class ListingWidget extends StatelessWidget {
@@ -97,17 +129,19 @@ class ListingWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(3.0),
-      decoration: BoxDecoration(
-        border: Border.all(color: const Color(0xFFDA2222))
-      ),
-      child: Column(
-        children: [
-          Align(alignment: Alignment.centerLeft, child:Text("${listing.source} -> ${listing.destination}")),
-          Align(alignment: Alignment.centerRight, child:Text(listing.dimensions.toString())),
-          Align(alignment: Alignment.bottomRight, child:Text(listing.dateTime.toString())),
-        ]
-      ),
+      decoration:
+          BoxDecoration(border: Border.all(color: const Color(0xFFDA2222))),
+      child: Column(children: [
+        Align(
+            alignment: Alignment.centerLeft,
+            child: Text("${listing.source} -> ${listing.destination}")),
+        Align(
+            alignment: Alignment.centerRight,
+            child: Text(listing.dimensions.toString())),
+        Align(
+            alignment: Alignment.bottomRight,
+            child: Text(listing.dateTime.toString())),
+      ]),
     );
-
   }
 }

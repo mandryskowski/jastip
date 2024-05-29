@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:jastip/Listing.dart';
+import 'package:jastip/ListingPage.dart';
 
 class Formbox extends StatefulWidget {
   const Formbox({
@@ -19,13 +21,15 @@ class Formbox extends StatefulWidget {
 }
 
 class _FormboxState extends State<Formbox> {
-  final List<TextEditingController> _controllers = [];
+  final Map<String, TextEditingController> _controllers = {};
   final Map<String, bool> _checkboxValues = {};
 
   @override
   void initState() {
     super.initState();
-    _controllers.addAll(widget.fields.map((_) => TextEditingController()));
+    for (var title in widget.fields) {
+      _controllers[title] = TextEditingController();
+    }
     for (var title in widget.checkboxTitles) {
       _checkboxValues[title] = false;
     }
@@ -33,20 +37,43 @@ class _FormboxState extends State<Formbox> {
 
   @override
   void dispose() {
-    for (var controller in _controllers) {
-      controller.dispose();
+     for (var entry in _controllers.entries) {
+      entry.value.dispose();
     }
     super.dispose();
   }
 
   void _submit() {
-    for (var controller in _controllers) {
-      print(controller.text);
+    for (var entry in _controllers.entries) {
+      print('${entry.key}: ${entry.value.text}');
     }
     for (var entry in _checkboxValues.entries) {
       print('${entry.key}: ${entry.value}');
     }
+    try {
+      Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => ListingPage(
+        orderedByDate: false,
+        orderedBySize: false,
+        startCity: _controllers['From']!.text,
+        endCity: _controllers['To']!.text,
+        endDate: DateTime.parse(_controllers['Date']!.text),
+        dimensions: Dimension(
+          height: int.parse(_controllers['Height']!.text),
+          width: int.parse(_controllers['Width']!.text),
+          length: int.parse(_controllers['Length']!.text),
+        ),
+      )),
+    );
     // Add your submit logic here
+    } catch(e) {
+      print(e);
+      Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => ListingPage.generic()),
+    );
+    } 
   }
 
   @override
@@ -76,7 +103,7 @@ class _FormboxState extends State<Formbox> {
                   widget.fields.length,
                   (index) => SearchBarWidget(
                     text: widget.fields[index],
-                    controller: _controllers[index],
+                    controller: _controllers[widget.fields[index]]!,
                   ),
                 ),
                 ...List.generate(
@@ -92,9 +119,9 @@ class _FormboxState extends State<Formbox> {
                   ),
                 ),
                 SubmitButton(
-                      onPressed: _submit,
-                      buttonText: 'Submit', // Specify the text for the button
-                    ),
+                  onPressed: _submit,
+                  buttonText: 'Submit', // Specify the text for the button
+                ),
               ],
             ),
           ),

@@ -39,6 +39,10 @@ class Dimension {
     required this.height,
   });
 
+  static Dimension generic() {
+    return Dimension(length: 10, width: 10, height: 10);
+  }
+
   String toString() {
     return "${length}x${width}x${height} cm";
   }
