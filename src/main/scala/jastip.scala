@@ -44,7 +44,7 @@ object Main extends App {
     } ~
     path("android") {
       get {
-        redirect("https://" + config.getString("androidFile"), StatusCodes.PermanentRedirect)
+        redirect("https://" + config.getString("bucket") + ".s3.amazonaws.com/public/hello.html", StatusCodes.PermanentRedirect)
       }
     }
 
