@@ -143,15 +143,6 @@ jobs:
       run: |
         sbt stage
 
-    - name: Install Heroku CLI
-      run: |
-        curl https://cli-assets.heroku.com/install.sh | sh
-
-    - name: Authenticate with Heroku
-      env:
-        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-      run: |
-        echo $HEROKU_API_KEY | heroku auth:token
 
     - name: Deploy to Heroku
       env:
@@ -159,6 +150,8 @@ jobs:
       run: |
         git remote add heroku https://git.heroku.com/jastip-backend.git
         git subtree split --prefix backend -b backend-split
-        git push heroku backend-split:master
+        git checkout backend-split
+        dpl --provider=heroku --app=jastip-backend --api-key=$HEROKU_API_KEY
+        git checkout master
         git branch -D backend-split
 
