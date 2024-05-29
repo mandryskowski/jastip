@@ -42,7 +42,20 @@ object Main extends App {
 
   val port = sys.env.getOrElse("PORT", "8080").toInt
   val bindingFuture = Http().newServerAt("0.0.0.0", port).bind(route)
-  println(s"Server online at http://localhost:$port/\nPress RETURN to stop...")
-  StdIn.readLine()
-  bindingFuture.flatMap(_.unbind()).onComplete(_ => system.terminate())
+  
+  bindingFuture.onComplete {
+    case Success(binding) =>
+      println(s"Server online at http://localhost:${binding.localAddress.getPort}/")
+    case Failure(exception) =>
+      println(s"Failed to bind HTTP server: ${exception.getMessage}")
+      system.terminate()
+  }
+
+  sys.addShutdownHook {
+    bindingFuture
+      .flatMap(_.unbind())
+      .onComplete { _ =>
+        system.terminate()
+      }
+  }
 }
