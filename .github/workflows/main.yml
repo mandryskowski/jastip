@@ -144,14 +144,10 @@ jobs:
         distribution: 'zulu'
         java-version: '11'
 
-    - name: Install CocoaPods
-      run: |
-        sudo gem install cocoapods
-
     - name: Install iOS dependencies
       run: |
-        cd frontend/jastip/ios
-        pod install
+        cd frontend/jastip
+        flutter precache --ios
 
     - name: Build IPA
       run: |
