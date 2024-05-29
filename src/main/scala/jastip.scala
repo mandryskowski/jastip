@@ -40,6 +40,11 @@ object Main extends App {
           }
         }
       }
+    } ~
+    path("android") {
+      get {
+        redirect("https://" + androidFile, StatusCodes.PermanentRedirect)
+      }
     }
 
   val port = sys.env.getOrElse("PORT", "8080").toInt
