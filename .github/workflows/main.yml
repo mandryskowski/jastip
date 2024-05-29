@@ -167,7 +167,7 @@ jobs:
         aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
         aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
         aws configure set region us-east-1
-        aws s3 cp frontend/jastip/build/ios/ipa/Runner.ipa s3://$BUCKETEER/public/jastip.ipa
+        aws s3 cp frontend/jastip/build/ios/iphoneos/Runner.app s3://$BUCKETEER/public/jastip.ipa
 
     - name: Run unit tests
       run: |
