@@ -148,11 +148,7 @@ jobs:
       env:
         HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
       run: |
-        git remote add heroku https://git.heroku.com/jastip-backend.git
         git subtree split --prefix backend -b backend-split
-        
-        # Deploy to Heroku
-        git push heroku backend-split:master --force
         
         git checkout master
         git branch -D backend-split
