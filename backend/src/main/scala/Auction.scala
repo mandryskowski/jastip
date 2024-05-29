@@ -16,7 +16,7 @@ class Auctions(tag: Tag) extends Table[Auction](tag, "auctions") {
   def arrival = column[java.sql.Timestamp]("arrival")
   def auctionEnd = column[java.sql.Timestamp]("auction_end")
   def startingPrice = column[Double]("starting_price")
-  def bids = column[List[Long]]("bid_id")
+  def bids = column[List[Long]]("bid_ids")
 
   def * = (auctionId, userId, length, width, height, fragile, description, departure, arrival, auctionEnd,
     startingPrice, bids) <> (Auction.tupled, Auction.unapply)
