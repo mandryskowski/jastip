@@ -16,6 +16,11 @@ jobs:
         flutter-version: [ "3.22.1" ] # Change this to the desired Flutter version
 
     steps:
+    - shell: bash
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AwsAccessKeyId }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AwsSecretAccessKey }}
+        BUCKETEER: ${{ secrets.Bucketeer }}
     - name: Checkout repository
       uses: actions/checkout@v2
 
@@ -78,8 +83,22 @@ jobs:
         sudo yes | flutter doctor --android-licenses
         flutter emulators
 
+    - name: Build APK
+      run: |
+        cd frontend/jastip
+        flutter build apk
+
+    - name: Deploy APK
+      run: |
+        aws configure set $AWS_ACCESS_KEY_ID
+        aws configure set $AWS_SECRET_ACCESS_KEY
+        aws s3 cp build/app/outputs/flutter-apk/app-release.apk s3://$BUCKETEER/public/jastip.apk
+
     - name: Run unit tests
-      run: flutter test
+      run: |
+        cd frontend/jastip
+        flutter test
+        
 #    - name: Run integration tests
 #      env:
 #        DISPLAY: ":0"
@@ -94,7 +113,4 @@ jobs:
 #        flutter clean
 #        flutter drive --target=test_driver/app.dart
 
-    - name: Build APK
-      run: |
-        cd frontend/jastip
-        flutter build apk
+
