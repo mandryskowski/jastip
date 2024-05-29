@@ -74,6 +74,40 @@ object Main extends App {
         }
       }
     } ~
+    path("auctions-json-modified") {
+      get {
+        val auctionsQuery = TableQuery[Auctions]
+        val bidsQuery = TableQuery[Bids]
+
+        val joinedQuery = for {
+          (auction, bid) <- auctionsQuery joinLeft bidsQuery on (_.auctionId === _.auctionId)
+        } yield (auction, bid.map(_.price))
+
+        val auctionsWithPricesQuery = joinedQuery.result.map { result =>
+          result.groupBy(_._1).map { case (auction, bids) =>
+            AuctionWithPrices(
+              auction.auctionId,
+              auction.userId,
+              auction.length,
+              auction.width,
+              auction.height,
+              auction.fragile,
+              auction.description,
+              auction.departure,
+              auction.arrival,
+              auction.auctionEnd,
+              auction.startingPrice,
+              bids.flatMap(_._2).toList
+            )
+          }.toSeq
+        }
+
+        val auctionsWithPricesFuture: Future[Seq[AuctionWithPrices]] = db.run(auctionsWithPricesQuery)
+        onSuccess(auctionsWithPricesFuture) { auctionsList =>
+          complete(auctionsList)
+        }
+      }
+    } ~
     path("android") {
       get {
         redirect("https://" + config.getString("bucket") + ".s3.amazonaws.com/public/jastip.apk", StatusCodes.PermanentRedirect)
