@@ -5,6 +5,8 @@ import akka.http.scaladsl.server.Directives._
 import slick.jdbc.PostgresProfile.api._
 import scala.concurrent.Future
 import scala.io.StdIn
+import scala.util.{Failure, Success}
+import com.typesafe.config.ConfigFactory
 
 case class User(id: Int, username: String)
 
@@ -42,7 +44,7 @@ object Main extends App {
 
   val port = sys.env.getOrElse("PORT", "8080").toInt
   val bindingFuture = Http().newServerAt("0.0.0.0", port).bind(route)
-  
+
   bindingFuture.onComplete {
     case Success(binding) =>
       println(s"Server online at http://localhost:${binding.localAddress.getPort}/")
