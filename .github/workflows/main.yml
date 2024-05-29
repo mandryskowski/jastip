@@ -8,7 +8,7 @@ on:
 
 
 jobs:
-  build:
+  deploy-frontend-android:
     runs-on: ubuntu-latest
 
     strategy:
