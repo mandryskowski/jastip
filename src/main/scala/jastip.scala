@@ -19,6 +19,7 @@ class Users(tag: Tag) extends Table[User](tag, "users") {
 object Main extends App {
   implicit val system: ActorSystem = ActorSystem("my-system")
   implicit val executionContext = system.dispatcher
+  val config = ConfigFactory.load()
 
   val db = Database.forConfig("databaseUrl")
 
