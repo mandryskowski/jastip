@@ -5,35 +5,44 @@ import 'package:jastip/Listing.dart';
 import 'package:jastip/LoadingPage.dart';
 
 class ListingPage extends StatelessWidget {
-  const ListingPage({
+  ListingPage({
     super.key,
     required this.listings,
+    required this.orderedBySize,
+    required this.orderedByDate,
   });
 
-  final List<Listing> listings;
+  final bool orderedBySize;
+  final bool orderedByDate;
+
+  List<Listing> listings;
   @override
   Widget build(BuildContext context) {
+      if(orderedBySize) {
+        listings = listings.reversed.toList();
+      }
 
       return Scaffold(
         body: Column(
           children: [
             PageHeader(title: "JASTIP+"),
             Orderingbar(),
-            Expanded(child:Container(
-              color: const Color.fromARGB(255, 255, 255, 255), // Set background color as needed
-              child: SingleChildScrollView(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: List.generate(
-                      listings.length, 
-                      (index) => ListingWidget(listing: listings[index])
+            Expanded(
+                child:Container(
+                  color: const Color.fromARGB(255, 255, 255, 255), // Set background color as needed
+                  child: SingleChildScrollView(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: List.generate(
+                          listings.length, 
+                          (index) => ListingWidget(listing: listings[index])
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
             ))
           ]
         ),
