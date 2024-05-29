@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:jastip/FormBox.dart';
+import 'package:jastip/Listing.dart';
+import 'package:jastip/ListingPage.dart';
 import "package:jastip/LoadingPage.dart";
 import 'package:jastip/PageHeader.dart';
 
@@ -22,10 +24,10 @@ class BlankPage extends StatelessWidget {
         onPressed: () {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const LoadingScreen()),
+            MaterialPageRoute(builder: (context) => ListingPage(listings: Listing.aLotOfListings(),)),
           );
         },
-        child: const Icon(Icons.refresh),
+        child: const Icon(Icons.arrow_forward),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
