@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:jastip/FormBox.dart';
-import 'package:jastip/Listing.dart';
-import 'package:jastip/ListingPage.dart';
-import "package:jastip/LoadingPage.dart";
+import 'package:jastip/LoadingPage.dart';
 import 'package:jastip/PageHeader.dart';
 
-class BlankPage extends StatelessWidget {
-  const BlankPage({super.key});
+class FilterPage extends StatelessWidget {
+  const FilterPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -16,8 +13,7 @@ class BlankPage extends StatelessWidget {
         children: [
           PageHeader(title: 'JASTIP+'),
           Expanded(
-            //width: 300,
-            child: Formbox(title: "Where to?", fields: ["City", "City","City","City","City","City","City", "Name", "Date"], constraints: BoxConstraints(maxWidth: 300),),
+            child: Text("This is a filter page")
           )
         ],
       ),
@@ -25,7 +21,7 @@ class BlankPage extends StatelessWidget {
         onPressed: () {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => ListingPage(listings: Listing.aLotOfListings(), orderedBySize: false, orderedByDate: false,)),
+            MaterialPageRoute(builder: (context) => LoadingScreen(),)
           );
         },
         child: const Icon(Icons.arrow_forward),
