@@ -1,1 +1,1 @@
-web: backend/target/universal/stage/bin/jastip
+web: cd backend && target/universal/stage/bin/jastip
