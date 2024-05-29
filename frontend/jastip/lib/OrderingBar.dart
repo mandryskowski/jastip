@@ -20,7 +20,6 @@ class Orderingbar extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                             builder: (context) => ListingPage(
-                                listings: Listing.aLotOfListings(),
                                 orderedBySize: true,
                                 orderedByDate: false)));
                   },
