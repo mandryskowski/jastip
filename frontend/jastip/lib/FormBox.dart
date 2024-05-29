@@ -1,50 +1,102 @@
 import 'package:flutter/material.dart';
 
-class Formbox extends StatelessWidget {
+class Formbox extends StatefulWidget {
   const Formbox({
     Key? key,
     required this.title,
     required this.fields,
+    this.checkboxTitles = const [],
     this.constraints = const BoxConstraints(),
   }) : super(key: key);
 
   final String title;
   final List<String> fields;
+  final List<String> checkboxTitles;
   final BoxConstraints constraints;
 
   @override
+  _FormboxState createState() => _FormboxState();
+}
+
+class _FormboxState extends State<Formbox> {
+  final List<TextEditingController> _controllers = [];
+  final Map<String, bool> _checkboxValues = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _controllers.addAll(widget.fields.map((_) => TextEditingController()));
+    for (var title in widget.checkboxTitles) {
+      _checkboxValues[title] = false;
+    }
+  }
+
+  @override
+  void dispose() {
+    for (var controller in _controllers) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
+  void _submit() {
+    for (var controller in _controllers) {
+      print(controller.text);
+    }
+    for (var entry in _checkboxValues.entries) {
+      print('${entry.key}: ${entry.value}');
+    }
+    // Add your submit logic here
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return ConstrainedBox(
-      constraints: constraints,
-      child: Container(
-        color: const Color.fromRGBO(217, 217, 217, 100), // Set background color as needed
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
+    return Center( // Center the Formbox to apply margin
+      child: ConstrainedBox(
+        constraints: widget.constraints,
+        child: Container(
+          color: const Color.fromRGBO(217, 217, 217, 100), // Set background color as needed
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(15.0),
+                  child: Text(
+                    widget.title,
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
                   ),
                 ),
-              ),
-              ...List.generate(
-                fields.length,
-                (index) => SearchBarWidget(text: fields[index]),
-              ),
-              SubmitButton(
-                onPressed: () {
-                  // Add your submit action here
-                  print("Submit button pressed");
-                },
-                buttonText: 'Submit', // Specify the text for the button
-              ),
-            ],
+                ...List.generate(
+                  widget.fields.length,
+                  (index) => SearchBarWidget(
+                    text: widget.fields[index],
+                    controller: _controllers[index],
+                  ),
+                ),
+                ...List.generate(
+                  widget.checkboxTitles.length,
+                  (index) => CheckboxWidget(
+                    title: widget.checkboxTitles[index],
+                    value: _checkboxValues[widget.checkboxTitles[index]]!,
+                    onChanged: (bool? value) {
+                      setState(() {
+                        _checkboxValues[widget.checkboxTitles[index]] = value!;
+                      });
+                    },
+                  ),
+                ),
+                SubmitButton(
+                      onPressed: _submit,
+                      buttonText: 'Submit', // Specify the text for the button
+                    ),
+              ],
+            ),
           ),
         ),
       ),
@@ -56,23 +108,32 @@ class SearchBarWidget extends StatelessWidget {
   const SearchBarWidget({
     Key? key,
     required this.text,
+    required this.controller,
   }) : super(key: key);
 
   final String text;
+  final TextEditingController controller;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.all(15.0),
+      margin: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0), // Reduced vertical margin
       padding: const EdgeInsets.all(3.0),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Align(alignment: Alignment.centerLeft, child: Text(text)),
-          Center(
-            child: SearchBar(
-              hintText: text,
+          Text(
+            text,
+            style: const TextStyle(
+              fontSize: 18, // Increased text size
+              fontWeight: FontWeight.bold,
             ),
-          )
+          ),
+          const SizedBox(height: 5.0), // Small spacing between text and search bar
+          SearchBar(
+            hintText: text,
+            controller: controller,
+          ),
         ],
       ),
     );
@@ -81,15 +142,18 @@ class SearchBarWidget extends StatelessWidget {
 
 class SearchBar extends StatelessWidget {
   final String hintText;
+  final TextEditingController controller;
 
   const SearchBar({
     Key? key,
     required this.hintText,
+    required this.controller,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return TextField(
+      controller: controller,
       decoration: InputDecoration(
         hintText: hintText,
         border: OutlineInputBorder(
@@ -101,6 +165,43 @@ class SearchBar extends StatelessWidget {
     );
   }
 }
+
+class CheckboxWidget extends StatelessWidget {
+  const CheckboxWidget({
+    Key? key,
+    required this.title,
+    required this.value,
+    required this.onChanged,
+  }) : super(key: key);
+
+  final String title;
+  final bool value;
+  final ValueChanged<bool?> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
+      child: Row(
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(width: 10.0),
+          Checkbox(
+            value: value,
+            onChanged: onChanged,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 
 class SubmitButton extends StatefulWidget {
   final VoidCallback onPressed;

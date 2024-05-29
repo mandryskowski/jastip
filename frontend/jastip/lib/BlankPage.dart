@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:jastip/FormBox.dart';
 import 'package:jastip/Listing.dart';
 import 'package:jastip/ListingPage.dart';
@@ -12,12 +13,12 @@ class BlankPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: const Column(
+      body: Column(
         children: [
           PageHeader(title: 'JASTIP+'),
           Expanded(
             //width: 300,
-            child: Formbox(title: "Where to?", fields: ["City", "City","City","City","City","City","City", "Name", "Date"], constraints: BoxConstraints(maxWidth: 300),),
+            child: Formbox(title: "Where to?", fields: ["City", "City","City","City","City","City","City", "Name", "Date"], constraints: BoxConstraints(maxWidth: 0.9 * MediaQuery.sizeOf(context).width), checkboxTitles: ["fragile?", "skibidi?", "toilet?"]),
           )
         ],
       ),
