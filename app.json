@@ -2,7 +2,7 @@
     "name": "Jastip",
     "description": "Easily share luggage space when you are travelling",
     "scripts": {
-      "postdeploy": "cd backend && target/universal/stage/bin/jastip"
+      "postdeploy": "cd backend && sbt stage"
     },
     "env": {
       "BUILDPACK_URL": "https://github.com/heroku/heroku-buildpack-scala"
