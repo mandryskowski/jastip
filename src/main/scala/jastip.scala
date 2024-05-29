@@ -40,8 +40,9 @@ object Main extends App {
       }
     }
 
-  val bindingFuture = Http().newServerAt("0.0.0.0", 8080).bind(route)
-  println("Server online at http://localhost:8080/\nPress RETURN to stop...")
+  val port = sys.env.getOrElse("PORT", "8080").toInt
+  val bindingFuture = Http().newServerAt("0.0.0.0", port).bind(route)
+  println(s"Server online at http://localhost:$port/\nPress RETURN to stop...")
   StdIn.readLine()
   bindingFuture.flatMap(_.unbind()).onComplete(_ => system.terminate())
 }
