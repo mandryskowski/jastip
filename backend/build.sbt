@@ -13,7 +13,8 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-http" % "10.2.7",
   "com.typesafe.akka" %% "akka-actor" % "2.6.20",
   "com.typesafe.akka" %% "akka-stream" % "2.6.20",
-  "com.zaxxer" % "HikariCP" % "3.4.5"
+  "com.zaxxer" % "HikariCP" % "3.4.5",
+  "com.github.tminglei" %% "slick-pg" % "0.19.4"
 )
 
 enablePlugins(JavaAppPackaging)
