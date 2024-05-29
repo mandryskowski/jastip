@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:jastip/OrderingBar.dart';
 import 'package:jastip/PageHeader.dart';
 import 'package:jastip/Listing.dart';
 import 'package:jastip/LoadingPage.dart';
@@ -17,6 +18,7 @@ class ListingPage extends StatelessWidget {
         body: Column(
           children: [
             PageHeader(title: "JASTIP+"),
+            Orderingbar(),
             Expanded(child:Container(
               color: const Color.fromARGB(255, 255, 255, 255), // Set background color as needed
               child: SingleChildScrollView(
