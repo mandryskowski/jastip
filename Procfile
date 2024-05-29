@@ -1,1 +1,1 @@
-web: target/universal/stage/bin/jastip.bat
+web: target/universal/stage/bin/jastip
