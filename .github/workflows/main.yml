@@ -155,8 +155,9 @@ jobs:
         # Install Heroku CLI
         curl https://cli-assets.heroku.com/install.sh | sh
         
-        # Login to Heroku using the API key
-        echo "$HEROKU_API_KEY" | heroku auth:token
+        # Set up .netrc file for Git to use the Heroku API key
+        echo "machine git.heroku.com login $HEROKU_API_KEY password" > ~/.netrc
+        chmod 600 ~/.netrc
         
         # Deploy to Heroku
         git push heroku backend-split:master --force
