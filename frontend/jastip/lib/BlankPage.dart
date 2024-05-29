@@ -26,7 +26,7 @@ class BlankPage extends StatelessWidget {
         onPressed: () {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => ListingPage(listings: Listing.aLotOfListings(), orderedBySize: false, orderedByDate: false,)),
+            MaterialPageRoute(builder: (context) => ListingPage(orderedBySize: false, orderedByDate: false,)),
           );
         },
         child: const Icon(Icons.arrow_forward),

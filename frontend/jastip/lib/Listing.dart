@@ -19,7 +19,17 @@ class Listing {
   final String destination;
   final DateTime dateTime;
   final Dimension dimensions;
-  final int price;
+  final double price;
+
+  factory Listing.fromJson(Map<String, dynamic> json) {
+    return Listing(
+      source: json['auctionId'].toString(),
+      destination: json['bidId'].toString(),
+      dateTime: DateTime.parse(json['date']),
+      price: json['price'],
+      dimensions: Dimension(length: 10, width: 10, height: 10),
+    );
+  }
 }
 
 class Dimension {
