@@ -43,7 +43,7 @@ object Main extends App {
     } ~
     path("android") {
       get {
-        redirect("https://" + androidFile, StatusCodes.PermanentRedirect)
+        redirect("https://" + config.getString("androidFile"), StatusCodes.PermanentRedirect)
       }
     }
 
