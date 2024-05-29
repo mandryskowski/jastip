@@ -1,5 +1,0 @@
-{
-    "scripts": {
-      "heroku-postbuild": "cd backend && sbt stage"
-    }
-}
