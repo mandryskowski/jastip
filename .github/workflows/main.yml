@@ -168,7 +168,7 @@ jobs:
         aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
         aws configure set region us-east-1
         pwd
-        ls frontend/jastip/build/ -R
+        ls -R frontend/jastip/build/
         aws s3 cp frontend/jastip/build/ios/iphoneos/Runner.ipa s3://$BUCKETEER/public/jastip.ipa
 
     - name: Run unit tests
