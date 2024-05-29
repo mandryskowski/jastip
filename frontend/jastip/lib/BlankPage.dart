@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:jastip/FormBox.dart';
 import "package:jastip/LoadingPage.dart";
+import 'package:jastip/PageHeader.dart';
 
 class BlankPage extends StatelessWidget {
   const BlankPage({super.key});
@@ -8,14 +10,13 @@ class BlankPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: const Center(
-        child: Text(
-          'Blank Page',
-          style: TextStyle(
-            fontSize: 24,
-            color: Colors.black,
-          ),
-        ),
+      body: const Column(
+        children: [
+          PageHeader(title: 'JASTIP+'),
+          Expanded(
+            child: Formbox(fields: ["City", "City","City","City","City","City","City", "Name", "Date"]),
+          )
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {

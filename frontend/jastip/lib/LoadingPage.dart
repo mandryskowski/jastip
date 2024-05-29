@@ -45,8 +45,8 @@ class _LoadingScreenState extends State<LoadingScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                'Jastip+',
-                style: GoogleFonts.patrickHand(
+                'JASTIP+',
+                style: GoogleFonts.caveat(
                   textStyle: const TextStyle(
                     color: Colors.white,
                     fontSize: 40,
@@ -64,7 +64,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
               const SizedBox(height: 20), // Adds some space between the two text widgets
               Text(
                 'Connecting you to home',
-                style: GoogleFonts.patrickHand(
+                style: GoogleFonts.caveat(
                   textStyle: const TextStyle(
                     color: Colors.white,
                     fontSize: 20,
