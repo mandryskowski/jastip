@@ -76,35 +76,38 @@ object Main extends App {
     } ~
     path("auctions-json-modified") {
       get {
-        val auctionsQuery = TableQuery[Auctions]
-        val bidsQuery = TableQuery[Bids]
+        parameters(Symbol("fragile").as[Boolean], Symbol("departureCity").as[String], Symbol("arrivalCity").as[String]) { (fragileParam, departureCityParam, arrivalCityParam) =>
 
-        val joinedQuery = for {
-          (auction, bid) <- auctionsQuery joinLeft bidsQuery on (_.auctionId === _.auctionId)
-        } yield (auction, bid.map(_.price))
+          val auctionsQuery = TableQuery[Auctions].filter(_.fragile === fragileParam)
+          val bidsQuery = TableQuery[Bids]
 
-        val auctionsWithPricesQuery = joinedQuery.result.map { result =>
-          result.groupBy(_._1).map { case (auction, bids) =>
-            AuctionWithPrices(
-              auction.auctionId,
-              auction.userId,
-              auction.length,
-              auction.width,
-              auction.height,
-              auction.fragile,
-              auction.description,
-              auction.departure,
-              auction.arrival,
-              auction.auctionEnd,
-              auction.startingPrice,
-              bids.flatMap(_._2).toList
-            )
-          }.toSeq
-        }
+          val joinedQuery = for {
+            (auction, bid) <- auctionsQuery joinLeft bidsQuery on (_.auctionId === _.auctionId)
+          } yield (auction, bid.map(_.price))
 
-        val auctionsWithPricesFuture: Future[Seq[AuctionWithPrices]] = db.run(auctionsWithPricesQuery)
-        onSuccess(auctionsWithPricesFuture) { auctionsList =>
-          complete(auctionsList)
+          val auctionsWithPricesQuery = joinedQuery.result.map { result =>
+            result.groupBy(_._1).map { case (auction, bids) =>
+              AuctionWithPrices(
+                auction.auctionId,
+                auction.userId,
+                auction.length,
+                auction.width,
+                auction.height,
+                auction.fragile,
+                auction.description,
+                auction.departure,
+                auction.arrival,
+                auction.auctionEnd,
+                auction.startingPrice,
+                bids.flatMap(_._2).toList
+              )
+            }.toSeq
+          }
+
+          val auctionsWithPricesFuture: Future[Seq[AuctionWithPrices]] = db.run(auctionsWithPricesQuery)
+          onSuccess(auctionsWithPricesFuture) { auctionsList =>
+            complete(auctionsList)
+          }
         }
       }
     } ~
