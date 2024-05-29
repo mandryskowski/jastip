@@ -151,10 +151,15 @@ jobs:
         git remote add heroku https://git.heroku.com/jastip-backend.git
         git subtree split --prefix backend -b backend-split
         git checkout backend-split
-        gem install dpl --user-install
-        echo 'export PATH="$HOME/.local/share/gem/ruby/3.0.0/bin:$PATH"' >> $GITHUB_ENV
-        source $GITHUB_ENV
-        dpl --provider=heroku --app=jastip-backend --api-key=$HEROKU_API_KEY
+        
+        # Install Heroku CLI
+        curl https://cli-assets.heroku.com/install.sh | sh
+        
+        # Login to Heroku using the API key
+        echo "$HEROKU_API_KEY" | heroku auth:token
+        
+        # Deploy to Heroku
+        git push heroku backend-split:master --force
+        
         git checkout master
         git branch -D backend-split
-
