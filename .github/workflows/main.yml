@@ -116,6 +116,67 @@ jobs:
 #        flutter doctor -v
 #        flutter clean
 #        flutter drive --target=test_driver/app.dart
+
+  deploy-frontend-ios:
+    runs-on: macos-latest
+
+    strategy:
+      matrix:
+        flutter-version: [ "3.22.1" ] # Change this to the desired Flutter version
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: ${{ matrix.flutter-version }}
+
+    - name: Install dependencies
+      run: |
+        cd frontend/jastip
+        flutter pub get
+
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'zulu'
+        java-version: '11'
+
+    - name: Install CocoaPods
+      run: |
+        sudo gem install cocoapods
+
+    - name: Install iOS dependencies
+      run: |
+        cd frontend/jastip/ios
+        pod install
+
+    - name: Build IPA
+      run: |
+        cd frontend/jastip
+        flutter build ios --release --no-codesign
+        
+    - name: Install AWS CLI
+      run: |
+        brew install awscli
+
+    - name: Deploy IPA
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        BUCKETEER: ${{ secrets.BUCKETEER }}
+      run: |
+        aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+        aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+        aws configure set region us-east-1
+        aws s3 cp frontend/jastip/build/ios/ipa/Runner.ipa s3://$BUCKETEER/public/jastip.ipa
+
+    - name: Run unit tests
+      run: |
+        cd frontend/jastip
+        flutter test
  
   deploy-backend:
     runs-on: ubuntu-latest
