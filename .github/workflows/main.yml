@@ -152,7 +152,8 @@ jobs:
         git subtree split --prefix backend -b backend-split
         git checkout backend-split
         gem install dpl --user-install
-        export PATH="$(ruby -r rubygems -e 'puts Gem.user_dir')/bin:$PATH"
+        echo 'export PATH="$HOME/.local/share/gem/ruby/3.0.0/bin:$PATH"' >> $GITHUB_ENV
+        source $GITHUB_ENV
         dpl --provider=heroku --app=jastip-backend --api-key=$HEROKU_API_KEY
         git checkout master
         git branch -D backend-split
