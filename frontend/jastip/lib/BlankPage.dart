@@ -16,7 +16,8 @@ class BlankPage extends StatelessWidget {
         children: [
           PageHeader(title: 'JASTIP+'),
           Expanded(
-            child: Formbox(fields: ["City", "City","City","City","City","City","City", "Name", "Date"]),
+            //width: 300,
+            child: Formbox(title: "Where to?", fields: ["City", "City","City","City","City","City","City", "Name", "Date"], constraints: BoxConstraints(maxWidth: 300),),
           )
         ],
       ),
