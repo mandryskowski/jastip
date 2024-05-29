@@ -76,9 +76,9 @@ object Main extends App {
     } ~
     path("auctions-json-modified") {
       get {
-        parameters(Symbol("fragile").as[Boolean], Symbol("departureCity").as[String], Symbol("arrivalCity").as[String]) { (fragileParam, departureCityParam, arrivalCityParam) =>
+        extract(_.request.uri.query()) { params =>
 
-          val auctionsQuery = TableQuery[Auctions].filter(_.fragile === fragileParam)
+          val auctionsQuery = TableQuery[Auctions].filter(_.fragile === (params.getOrElse("fragile", "no") == "yes"))
           val bidsQuery = TableQuery[Bids]
 
           val joinedQuery = for {
