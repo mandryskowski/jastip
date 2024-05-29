@@ -21,3 +21,6 @@ class Auctions(tag: Tag) extends Table[Auction](tag, "auctions") {
   def * = (auctionId, userId, length, width, height, fragile, description, departure, arrival, auctionEnd,
     startingPrice, bids) <> (Auction.tupled, Auction.unapply)
 }
+
+
+import BidJsonProtocol._

@@ -20,7 +20,6 @@ object Main extends App {
   val db = Database.forConfig("databaseUrl")
 
   val users = TableQuery[Users]
-  val auctions = TableQuery[Auctions]
 
   val route =
     path("users") {
@@ -41,6 +40,7 @@ object Main extends App {
     } ~
     path("auctions") {
       get {
+        val auctions = TableQuery[Auctions]
         val auctionsFuture: Future[Seq[Auction]] = db.run(auctions.result)
         onSuccess(auctionsFuture) { auctionsList =>
           complete(auctionsList.map(_.toString).mkString(", "))
@@ -62,6 +62,15 @@ object Main extends App {
         val bidsFuture: Future[Seq[Bid]] = db.run(bids.result)
         onSuccess(bidsFuture) { bidsList =>
           complete(bidsList) // Automatically converts to JSON
+        }
+      }
+    } ~
+    path("auctions-json") {
+      get {
+        val auctions = TableQuery[Auctions]
+        val auctionsFuture: Future[Seq[Auction]] = db.run(auctions.result)
+        onSuccess(auctionsFuture) { auctionsList =>
+          complete(auctionsList)
         }
       }
     } ~
