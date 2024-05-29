@@ -19,6 +19,7 @@ class Users(tag: Tag) extends Table[User](tag, "users") {
 object Main extends App {
   implicit val system: ActorSystem = ActorSystem("my-system")
   implicit val executionContext = system.dispatcher
+  val config = ConfigFactory.load()
 
   val db = Database.forConfig("databaseUrl")
 
@@ -43,7 +44,7 @@ object Main extends App {
     } ~
     path("android") {
       get {
-        redirect("https://" + config.getString("androidFile"), StatusCodes.PermanentRedirect)
+        redirect("https://" + config.getString("bucket") + ".s3.amazonaws.com/public/jastip.apk", StatusCodes.PermanentRedirect)
       }
     }
 
