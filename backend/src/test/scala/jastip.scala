@@ -7,7 +7,7 @@ import akka.actor.ActorSystem
 import java.sql.Timestamp
 import MyPostgresProfile.api._
 
-// Assuming you have an AuctionRepository class
+// Should fail the pipeline
 class AuctionRepositorySpec extends AnyFlatSpec with Matchers {
   // Define a test database
   val db = Database.forConfig("testDatabase")
@@ -24,7 +24,7 @@ class AuctionRepositorySpec extends AnyFlatSpec with Matchers {
     Await.result(auctionRepo.insert(testAuction), 2.seconds)
 
     // Retrieve the auction
-    val retrievedAuction = Await.result(auctionRepo.findById(1L), 2.seconds)
+    val retrievedAuction = Await.result(auctionRepo.findById(8L), 2.seconds) // find invalid id (should fail the test)
 
     // Verify the auction
     retrievedAuction shouldEqual Some(testAuction)
