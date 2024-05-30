@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'FormElement.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -144,7 +145,7 @@ class _FormboxState extends State<Formbox> {
                             return Expanded(
                               child: Padding(
                                 padding: paddingHorizontal5,
-                                child: SearchBar(
+                                child: SearchBarJastip(
                                   hint: field,
                                   controller: _controllers[field.dbQueryParam]!,
                                 ),
@@ -178,111 +179,6 @@ class _FormboxState extends State<Formbox> {
         ),
       ),
     );
-  }
-}
-
-class SearchBar extends StatelessWidget {
-  final SearchBarContentsTuple hint;
-  final TextEditingController controller;
-
-  const SearchBar({
-    Key? key,
-    required this.hint,
-    required this.controller,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    if (hint.type == DateTime) {
-      return DateSearchBar(hintText: hint.content, controller: controller);
-    }
-    return TextField(
-      controller: controller,
-      inputFormatters: [
-        FilteringTextInputFormatter.allow(regExpFormatter[hint.type] as Pattern)
-      ],
-      decoration: InputDecoration(
-        hintText: hint.content,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-        filled: true,
-        fillColor: backgroundColor,
-      ),
-    );
-  }
-}
-
-class SearchBarContentsTuple {
-  String content;
-  Type type;
-  String dbQueryParam;
-
-  SearchBarContentsTuple(this.content, this.type, this.dbQueryParam);
-}
-
-class DateSearchBar extends StatefulWidget {
-  final String hintText;
-  final TextEditingController controller;
-
-  const DateSearchBar({
-    Key? key,
-    required this.hintText,
-    required this.controller,
-  }) : super(key: key);
-
-  @override
-  _DateSearchBarState createState() => _DateSearchBarState();
-}
-
-class _DateSearchBarState extends State<DateSearchBar> {
-  final _dateFormatRegex = RegExp(r'^\d{4}-\d{2}-\d{2}$'); // YYYY-MM-DD format
-  
-  _selectDate(BuildContext context) async {
-    DateTime? selectedDate = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
-    );
-
-    if (selectedDate != null) {
-      setState(() {
-        widget.controller.text = "${selectedDate.toLocal()}".split(' ')[0] + " 12:00:00";
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            GestureDetector(
-              onTap: () {
-                _selectDate(context);
-              },
-              child: AbsorbPointer(
-                child: TextField(
-                  controller: widget.controller,
-                  decoration: InputDecoration(
-                    hintText: widget.hintText,
-                    prefixIcon: Icon(Icons.calendar_today),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-    );
-  }
-
-  bool _isValidDate(String input) {
-    return input == '' || _dateFormatRegex.hasMatch(input);
   }
 }
 
