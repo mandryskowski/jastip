@@ -44,8 +44,7 @@ object Main extends App {
       get {
         extract(_.request.uri.query()) { params =>
 
-          val xd = TableQuery[Auctions]
-          val initialQuery = xd.filter(_.auctionId >= 0L) // dummy filter to fix scala errors...
+          val initialQuery = TableQuery[Auctions].take(params.get("limit").map(_.toInt).getOrElse(100))
 
           val filters: Seq[(String, Auctions => String => Rep[Boolean])] = Seq(
             "fragile" -> ((auction: Auctions) => (v: String) => auction.fragile === (v == "yes")),
@@ -62,25 +61,17 @@ object Main extends App {
               case Some(value) => query.filter(filterFunc(_)(value))
               case None => query
             }
-          }.sortBy(_.auctionId)
-
-          val sortedQuery = (params.get("orderedByDate") match {
-            case Some("yes") => filteredQuery.sortBy(_.auctionEnd)
-            case _ => params.get("orderedBySize") match {
-              case Some("yes") => filteredQuery.sortBy(_.length)
-              case _ => filteredQuery
-            }
-          }).take(params.get("limit").map(_.toInt).getOrElse(100))         
+          }
 
 
-          val auctionsQuery = sortedQuery
+          val auctionsQuery = filteredQuery
           val bidsQuery = TableQuery[Bids]
 
           val joinedQuery = for {
             (auction, bid) <- auctionsQuery joinLeft bidsQuery on (_.auctionId === _.auctionId)
           } yield (auction, bid.map(_.price))
 
-          val auctionsWithPricesQuery = joinedQuery.result.map { result =>
+          val auctionsWithPricesQuery = joinedQuery.sortBy(_._1.auctionId).result.map { result =>
             result.groupBy(_._1).map { case (auction, bids) =>
               AuctionWithPrices(
                 auction.auctionId,
@@ -100,9 +91,25 @@ object Main extends App {
               )
             }.toSeq
           }
+            
+            
+          /*val sortedQuery = (params.get("orderedByDate") match {
+            case Some("yes") => println("orderedByDate")
+                                auctionsWithPricesQuery.sortBy(_.auctionEnd)
+            case _ => params.get("orderedBySize") match {
+              case Some("yes") => println("orderedBySize")
+                                  auctionsWithPricesQuery.sortBy(_.length)
+              case _ => auctionsWithPricesQuery.sortBy(_.auctionId)
+            }
+          }) */
 
           val auctionsWithPricesFuture: Future[Seq[AuctionWithPrices]] = db.run(auctionsWithPricesQuery)
-          onSuccess(auctionsWithPricesFuture) { auctionsList =>
+          val sortedAuctionsWithPricesFuture = (params.get("orderedBy") match {
+            case Some("date") => auctionsWithPricesFuture.map(_.sortBy(_.auctionEnd).reverse)
+            case Some("size") => auctionsWithPricesFuture.map(_.sortBy(_.length).reverse)
+            case _ => auctionsWithPricesFuture.map(_.sortBy(_.auctionId).reverse)
+          }) 
+          onSuccess(sortedAuctionsWithPricesFuture) { auctionsList =>
             complete(auctionsList)
           }
         }
