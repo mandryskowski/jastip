@@ -50,8 +50,8 @@ object Main extends App {
 
           val filters: Seq[(String, Auctions => String => Rep[Boolean])] = Seq(
             "fragile" -> ((auction: Auctions) => (v: String) => (auction.fragile === true) || (auction.fragile === (v == "true"))),
-            "startCity" -> ((auction: Auctions) => (v: String) => auction.from.toLowerCase === v.toLowerCase),
-            "endCity" -> ((auction: Auctions) => (v: String) => auction.to.toLowerCase === v.toLowerCase),
+            "startCity" -> ((auction: Auctions) => (v: String) => auction.from.toLowerCase like s"%${v.toLowerCase}%"),
+            "endCity" -> ((auction: Auctions) => (v: String) => auction.to.toLowerCase like s"%${v.toLowerCase}%"),
             "endDate" -> ((auction: Auctions) => (v: String) => {
                 val date = Timestamp.valueOf(LocalDate.parse(v).plusDays(1).atStartOfDay())
                 auction.auctionEnd.between(Timestamp.from(date.toInstant().minusSeconds(86400 * 30)), date)
@@ -109,11 +109,11 @@ object Main extends App {
         }
       } ~
       post {
-        entity(as[PostAuction]) { auctionWithoutId =>
+        entity(as[PostAuction]) { postAuction =>
           val auctions = TableQuery[Auctions]
-          val auctionToInsert = Auction(0, 1, auctionWithoutId.length, auctionWithoutId.width,
-            auctionWithoutId.height, auctionWithoutId.fragile, auctionWithoutId.description, auctionWithoutId.from, auctionWithoutId.to, auctionWithoutId.departure,
-            auctionWithoutId.arrival, auctionWithoutId.auctionEnd, auctionWithoutId.startingPrice, List.empty)
+          val auctionToInsert = Auction(0, 1, postAuction.length, postAuction.width,
+            postAuction.height, postAuction.fragile, postAuction.description, postAuction.from, postAuction.to, postAuction.departure,
+            postAuction.arrival, Timestamp.from(postAuction.arrival.toInstant().minusSeconds(86400 * postAuction.daysBefore)), postAuction.startingPrice, List.empty)
           val insertAuctionFuture: Future[Long] = db.run((auctions returning auctions.map(_.auctionId)) += auctionToInsert)
           onSuccess(insertAuctionFuture) { auctionId =>
             complete(StatusCodes.Created, s"Auction created with ID: $auctionId")

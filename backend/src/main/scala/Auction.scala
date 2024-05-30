@@ -6,7 +6,7 @@ case class Auction(auctionId: Long, userId: Int, length: Float, width: Float, he
 
 case class PostAuction(length: Float, width: Float, height: Float, fragile: Boolean,
                     description: String, from : String, to : String, departure: java.sql.Timestamp, arrival: java.sql.Timestamp,
-                    auctionEnd: java.sql.Timestamp, startingPrice: Double)
+                    startingPrice: Double, daysBefore : Int)
 
 case class AuctionWithPrices(
   auctionId: Long,
