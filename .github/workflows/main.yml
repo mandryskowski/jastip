@@ -3,6 +3,7 @@ name: Flutter CI
 on:
   push:
     branches:
+      - master
       - frontend
       - backend
   pull_request:
@@ -12,7 +13,7 @@ on:
 
 jobs:
   deploy-frontend-android:
-    if: github.ref == 'refs/heads/frontend' || github.base_ref == 'frontend'
+    if: github.ref == 'refs/heads/frontend' || github.base_ref == 'frontend' || github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
 
     strategy:
@@ -122,7 +123,7 @@ jobs:
 #        flutter drive --target=test_driver/app.dart
  
   deploy-backend:
-    if: github.ref == 'refs/heads/backend' || github.base_ref == 'backend'
+    if: github.ref == 'refs/heads/backend' || github.base_ref == 'backend' || github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
 
     steps:
@@ -153,4 +154,12 @@ jobs:
         HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
       run: |
         git subtree split --prefix backend -b backend-split
-        git branch
+        git branch -D backend-split
+
+    - name: Deploy to Heroku
+      uses: akhileshns/heroku-deploy@v3.13.15 # This is the action
+      with:
+        heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+        heroku_app_name: "jastip-backend" #Must be unique in Heroku
+        heroku_email: "andryskowski.michal@gmail.com"
+        appdir: "backend/"
