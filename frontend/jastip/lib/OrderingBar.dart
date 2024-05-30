@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:jastip/Constants.dart';
 import 'package:jastip/FilterPage.dart';
 import 'package:jastip/Listing.dart';
 import 'package:jastip/ListingPage.dart';
 
 class Orderingbar extends StatelessWidget {
-  const Orderingbar({super.key});
+  Orderingbar({super.key, required this.args, required this.orderIndex});
+  
+  Map<String, String> args;
+  int orderIndex;
 
   @override
   Widget build(BuildContext context) {
+    String orderBy = "Ordered by: ${orderings[orderIndex]}";
+
     return Container(
       //padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
       child: Row(
@@ -16,10 +22,12 @@ class Orderingbar extends StatelessWidget {
           Expanded(
               child: GestureDetector(
                   onTap: () {
+                    orderIndex = (orderIndex + 1) % orderings.length;
+                    args['orderedBy'] = orderings[orderIndex].toLowerCase();
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => ListingPage.generic()));
+                            builder: (context) => ListingPage(args: args, orderingIndex: orderIndex)));
                   },
                   child: Container(
                       padding: const EdgeInsets.symmetric(
@@ -33,7 +41,7 @@ class Orderingbar extends StatelessWidget {
                         const SizedBox(width: 10),
                         Center(
                             child: Text(
-                          "Order By",
+                          orderBy,
                           style: GoogleFonts.caveat(
                             color: Colors.white,
                             fontSize: 20,
