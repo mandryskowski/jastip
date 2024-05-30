@@ -20,14 +20,14 @@ class BlankPage extends StatelessWidget {
                 title: "Where to?",
                 fields: [
                   MapEntry('Destination', [
-                    SearchBarContentsTuple('From', String),
-                    SearchBarContentsTuple('To', String)
+                    SearchBarContentsTuple('From', String, 'startCity'),
+                    SearchBarContentsTuple('To', String, 'endCity')
                   ]),
-                  MapEntry('Date', [SearchBarContentsTuple('When', DateTime)]),
+                  MapEntry('Date', [SearchBarContentsTuple('When', DateTime, 'endDate')]),
                   MapEntry('Dimensions', [
-                    SearchBarContentsTuple('Length', int),
-                    SearchBarContentsTuple('Width', int),
-                    SearchBarContentsTuple('Height', int),
+                    SearchBarContentsTuple('Length', int, 'length'),
+                    SearchBarContentsTuple('Width', int, 'width'),
+                    SearchBarContentsTuple('Height', int, 'height'),
                   ])
                 ],
                 constraints: BoxConstraints(
