@@ -8,12 +8,12 @@ class CarrierContent extends StatelessWidget {
       title: "Trip details",
       fields: [
         MapEntry('Destination', [
-          SearchBarContentsTuple('From', String, 'startCity'),
-          SearchBarContentsTuple('To', String, 'endCity')
+          SearchBarContentsTuple('From', String, 'from'),
+          SearchBarContentsTuple('To', String, 'to')
         ]),
         MapEntry('Package timeline', [
-          SearchBarContentsTuple('Departure', String, 'departureDate'),
-          SearchBarContentsTuple('Arrival', String, 'arrivalDate')
+          SearchBarContentsTuple('Departure', DateTime, 'departure'),
+          SearchBarContentsTuple('Arrival', DateTime, 'arrival')
         ]),
         MapEntry('Package dimensions', [
           SearchBarContentsTuple('Length', int, 'length'),
@@ -21,20 +21,21 @@ class CarrierContent extends StatelessWidget {
           SearchBarContentsTuple('Height', int, 'height'),
         ]),
         MapEntry('Package weight', [
-          SearchBarContentsTuple('Weight', String, 'weight'),
+          SearchBarContentsTuple('Weight', int, 'weight'),
         ]),
         MapEntry('Starting price', [
-          SearchBarContentsTuple('Price', String, 'startingPrice'),
+          SearchBarContentsTuple('Price', int, 'startingPrice'),
         ]),
         MapEntry('Auction length', [
-          SearchBarContentsTuple('Days', String, 'auctionEnds'),
+          SearchBarContentsTuple('Days', int, 'daysBefore'),
         ]),
         MapEntry('Additional information', [
-          SearchBarContentsTuple('', String, 'info'),
+          SearchBarContentsTuple('Text', String, 'description'),
         ]),
       ],
+      httpMethod: "POST",
       constraints: BoxConstraints(
           maxWidth: 0.9 * MediaQuery.sizeOf(context).width),
-      checkboxTitles: ["fragile?", "skibidi?", "toilet?"]);
+      checkboxTitles: ["fragile", "skibidi?", "toilet?"]);
   }
 }
