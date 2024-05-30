@@ -33,3 +33,6 @@ const TextStyle searchBarTextStyle = TextStyle(
 const EdgeInsets paddingAll15 = EdgeInsets.all(15.0);
 const EdgeInsets paddingHorizontal5 = EdgeInsets.symmetric(horizontal: 5.0);
 const EdgeInsets paddingVertical10 = EdgeInsets.symmetric(vertical: 10.0);
+
+// Const available orderings
+const List<String> orderings = ["Default", "Size", "Date"];
