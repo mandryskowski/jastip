@@ -49,7 +49,7 @@ object Main extends App {
           val initialQuery = TableQuery[Auctions].take(params.get("limit").map(_.toInt).getOrElse(100))
 
           val filters: Seq[(String, Auctions => String => Rep[Boolean])] = Seq(
-            "fragile" -> ((auction: Auctions) => (v: String) => auction.fragile === (v == "yes")),
+            "fragile" -> ((auction: Auctions) => (v: String) => (auction.fragile === true) || (auction.fragile === (v == "true"))),
             "startCity" -> ((auction: Auctions) => (v: String) => auction.from.toLowerCase === v.toLowerCase),
             "endCity" -> ((auction: Auctions) => (v: String) => auction.to.toLowerCase === v.toLowerCase),
             "endDate" -> ((auction: Auctions) => (v: String) => {
@@ -96,17 +96,6 @@ object Main extends App {
               )
             }.toSeq
           }
-            
-            
-          /*val sortedQuery = (params.get("orderedByDate") match {
-            case Some("yes") => println("orderedByDate")
-                                auctionsWithPricesQuery.sortBy(_.auctionEnd)
-            case _ => params.get("orderedBySize") match {
-              case Some("yes") => println("orderedBySize")
-                                  auctionsWithPricesQuery.sortBy(_.length)
-              case _ => auctionsWithPricesQuery.sortBy(_.auctionId)
-            }
-          }) */
 
           val auctionsWithPricesFuture: Future[Seq[AuctionWithPrices]] = db.run(auctionsWithPricesQuery)
           val sortedAuctionsWithPricesFuture = (params.get("orderedBy") match {
