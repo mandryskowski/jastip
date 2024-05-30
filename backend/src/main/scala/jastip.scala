@@ -11,6 +11,8 @@ import scala.collection.Seq
 import com.typesafe.config.ConfigFactory
 import MyPostgresProfile.api._
 import BidJsonProtocol._
+import slick.lifted.{ProvenShape, TableQuery}
+import java.sql.Timestamp
 
 object Main extends App {
   implicit val system: ActorSystem = ActorSystem("my-system")
@@ -40,60 +42,38 @@ object Main extends App {
     } ~
     path("auctions") {
       get {
-        val auctions = TableQuery[Auctions]
-        val auctionsFuture: Future[Seq[Auction]] = db.run(auctions.result)
-        onSuccess(auctionsFuture) { auctionsList =>
-          complete(auctionsList)
-        }
-      } ~
-      post {
-        entity(as[AuctionWithoutId]) { auctionWithoutId =>
-          val auctions = TableQuery[Auctions]
-          val auctionToInsert = Auction(0, auctionWithoutId.userId, auctionWithoutId.length, auctionWithoutId.width,
-            auctionWithoutId.height, auctionWithoutId.fragile, auctionWithoutId.description, auctionWithoutId.from, auctionWithoutId.to, auctionWithoutId.departure,
-            auctionWithoutId.arrival, auctionWithoutId.auctionEnd, auctionWithoutId.startingPrice, auctionWithoutId.bids)
-          val insertAuctionFuture: Future[Long] = db.run((auctions returning auctions.map(_.auctionId)) += auctionToInsert)
-          onSuccess(insertAuctionFuture) { auctionId =>
-            complete(StatusCodes.Created, s"Auction created with ID: $auctionId")
-          }
-        }
-      }
-    } ~
-    path("bids") {
-      get {
-        val bids = TableQuery[Bids]
-        val bidsFuture: Future[Seq[Bid]] = db.run(bids.result)
-        onSuccess(bidsFuture) { bidsList =>
-          complete(bidsList.map(_.toString).mkString(", "))
-        }
-      }
-    } ~
-    path("bids-json") {
-      get {
-        val bids = TableQuery[Bids]
-        val bidsFuture: Future[Seq[Bid]] = db.run(bids.result)
-        onSuccess(bidsFuture) { bidsList =>
-          complete(bidsList) // Automatically converts to JSON
-        }
-      }
-    } ~
-    path("auctions-json") {
-      get {
-        val auctions = TableQuery[Auctions]
-        val auctionsFuture: Future[Seq[Auction]] = db.run(auctions.result)
-        onSuccess(auctionsFuture) { auctionsList =>
-          complete(auctionsList)
-        }
-      }
-    } ~
-    path("auctions-json-modified") {
-      get {
         extract(_.request.uri.query()) { params =>
 
-          val auctionsQuery = params.get("fragile") match {
-            case Some(v) => TableQuery[Auctions].filter(auction => auction.fragile === (v == "yes"))
-            case _ => TableQuery[Auctions]
-          }
+          val xd = TableQuery[Auctions]
+          val initialQuery = xd.filter(_.auctionId >= 0L) // dummy filter to fix scala errors...
+
+          val filters: Seq[(String, Auctions => String => Rep[Boolean])] = Seq(
+            "fragile" -> ((auction: Auctions) => (v: String) => auction.fragile === (v == "yes")),
+            "startCity" -> ((auction: Auctions) => (v: String) => auction.from === v),
+            "endCity" -> ((auction: Auctions) => (v: String) => auction.to === v),
+            "endDate" -> ((auction: Auctions) => (v: String) => auction.auctionEnd === Timestamp.valueOf(v)),
+            "length" -> ((auction: Auctions) => (v: String) => auction.length >= v.toFloat),
+            "width" -> ((auction: Auctions) => (v: String) => auction.width >= v.toFloat),
+            "height" -> ((auction: Auctions) => (v: String) => auction.height >= v.toFloat)
+          )
+
+          val filteredQuery = filters.foldLeft(initialQuery) { case (query, (paramName, filterFunc)) =>
+            params.get(paramName) match {
+              case Some(value) => query.filter(filterFunc(_)(value))
+              case None => query
+            }
+          }.sortBy(_.auctionId)
+
+          val sortedQuery = (params.get("orderedByDate") match {
+            case Some("yes") => filteredQuery.sortBy(_.auctionEnd)
+            case _ => params.get("orderedBySize") match {
+              case Some("yes") => filteredQuery.sortBy(_.length)
+              case _ => filteredQuery
+            }
+          }).take(params.get("limit").map(_.toInt).getOrElse(100))         
+
+
+          val auctionsQuery = sortedQuery
           val bidsQuery = TableQuery[Bids]
 
           val joinedQuery = for {
@@ -126,6 +106,18 @@ object Main extends App {
             complete(auctionsList)
           }
         }
+      } ~
+      post {
+        entity(as[AuctionWithoutId]) { auctionWithoutId =>
+          val auctions = TableQuery[Auctions]
+          val auctionToInsert = Auction(0, auctionWithoutId.userId, auctionWithoutId.length, auctionWithoutId.width,
+            auctionWithoutId.height, auctionWithoutId.fragile, auctionWithoutId.description, auctionWithoutId.from, auctionWithoutId.to, auctionWithoutId.departure,
+            auctionWithoutId.arrival, auctionWithoutId.auctionEnd, auctionWithoutId.startingPrice, auctionWithoutId.bids)
+          val insertAuctionFuture: Future[Long] = db.run((auctions returning auctions.map(_.auctionId)) += auctionToInsert)
+          onSuccess(insertAuctionFuture) { auctionId =>
+            complete(StatusCodes.Created, s"Auction created with ID: $auctionId")
+          }
+        }
       }
     } ~
     path("android") {
@@ -136,6 +128,24 @@ object Main extends App {
     path("ios") {
       get {
         complete("Coming soon! :)")
+      }
+    } ~
+    path("bids-json") {
+      get {
+        val bids = TableQuery[Bids]
+        val bidsFuture: Future[Seq[Bid]] = db.run(bids.result)
+        onSuccess(bidsFuture) { bidsList =>
+          complete(bidsList) // Automatically converts to JSON
+        }
+      }
+    } ~
+    path("bids") {
+      get {
+        val bids = TableQuery[Bids]
+        val bidsFuture: Future[Seq[Bid]] = db.run(bids.result)
+        onSuccess(bidsFuture) { bidsList =>
+          complete(bidsList.map(_.toString).mkString(", "))
+        }
       }
     }
 
