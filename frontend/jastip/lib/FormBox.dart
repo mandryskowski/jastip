@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:jastip/Listing.dart';
 import 'package:jastip/ListingPage.dart';
 
@@ -181,6 +182,9 @@ class SearchBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextField(
       controller: controller,
+      inputFormatters: [
+        TextInputFormatter.withFunction()
+      ],
       decoration: InputDecoration(
         hintText: hintText,
         border: OutlineInputBorder(
@@ -191,6 +195,13 @@ class SearchBar extends StatelessWidget {
       ),
     );
   }
+}
+
+class SearchBarContentsTuple {
+  String content;
+  Type type;
+
+  SearchBarContentsTuple(this.content, this.type);
 }
 
 class CheckboxWidget extends StatelessWidget {

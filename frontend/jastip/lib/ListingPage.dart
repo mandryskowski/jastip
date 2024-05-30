@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:jastip/FormBox.dart';
 import 'package:jastip/OrderingBar.dart';
 import 'package:jastip/PageHeader.dart';
 import 'package:jastip/Listing.dart';
@@ -9,31 +10,14 @@ import 'dart:convert';
 class ListingPage extends StatelessWidget {
   ListingPage({
     super.key,
-    required this.orderedBySize,
-    required this.orderedByDate,
-    required this.startCity,
-    required this.endCity,
-    required this.endDate,
-    required this.dimensions,
+    required this.args
   });
 
   static ListingPage generic() {
-    return ListingPage(
-      orderedBySize: true,
-      orderedByDate: false,
-      startCity: '',
-      endCity: '',
-      endDate: DateTime.now(),
-      dimensions: Dimension.generic(),
-    );
+    return ListingPage(args: {'startCity': SearchBarContentsTuple('London', String)});
   }
 
-  final String startCity;
-  final String endCity;
-  final DateTime endDate;
-  final Dimension dimensions;
-  bool orderedBySize;
-  bool orderedByDate;
+  final Map<String, SearchBarContentsTuple>args;
 
   @override
   Widget build(BuildContext context) {
@@ -94,17 +78,9 @@ class ListingPage extends StatelessWidget {
   Future<List<Listing>> fetchData() async {
     final response = await http.get(
         Uri.parse(
-            'https://jastip-backend-3b036fb5403c.herokuapp.com/bids-json'),
-        headers: {
-          'orderedBySize': orderedBySize.toString(),
-          'orderedByDate': orderedByDate.toString(),
-          'startCity': startCity,
-          'endCity': endCity,
-          'length': dimensions.length.toString(),
-          'width': dimensions.width.toString(),
-          'height': dimensions.height.toString(),
-          'endDate': endDate.toString()
-        });
+          "https://jastip-backend-3b036fb5403c.herokuapp.com/auctions${getParameters()}"
+        )
+      );
     if (response.statusCode == 200) {
       print(response.body);
       Iterable list = json.decode(response.body);
@@ -115,7 +91,16 @@ class ListingPage extends StatelessWidget {
       throw Exception('Failed to load data');
     }
   }
+String getParameters() {
+  StringBuffer sb = StringBuffer();
+  sb.write("?");
+  for(var entry in this.args.entries) {
+    sb.write("&${entry.key}=${entry.value.content.toString()}");
+  }
+  return sb.toString();
 }
+}
+
 
 class ListingWidget extends StatelessWidget {
   const ListingWidget({
