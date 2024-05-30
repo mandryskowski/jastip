@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:jastip/Constants.dart';
-import 'package:jastip/Listing.dart';
 import 'package:jastip/ListingPage.dart';
 
 class Formbox extends StatefulWidget {
   const Formbox({
-    Key? key,
+    super.key,
     required this.title,
     required this.fields,
     this.checkboxTitles = const [],
     this.constraints = const BoxConstraints(),
-  }) : super(key: key);
+  });
 
   final String title;
   final List<MapEntry<String, List<SearchBarContentsTuple>>> fields;
@@ -68,21 +67,17 @@ class _FormboxState extends State<Formbox> {
       child: ConstrainedBox(
         constraints: widget.constraints,
         child: Container(
-          color: const Color.fromRGBO(217, 217, 217, 100),
+          color: backgroundColorData,
           child: SingleChildScrollView(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Padding(
-                  padding: const EdgeInsets.all(15.0),
+                  padding: paddingAll15,
                   child: Text(
                     widget.title,
-                    style: const TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
+                    style: titleTextStyle,
                   ),
                 ),
                 ...widget.fields.map((group) {
@@ -94,18 +89,14 @@ class _FormboxState extends State<Formbox> {
                       children: [
                         Text(
                           group.key,
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: fieldTitleTextStyle,
                         ),
                         const SizedBox(height: 5.0),
                         Row(
                           children: group.value.map((field) {
                             return Expanded(
                               child: Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 5.0),
+                                padding: paddingHorizontal5,
                                 child: SearchBar(
                                   hint: field,
                                   controller: _controllers[field.content]!,
@@ -117,7 +108,7 @@ class _FormboxState extends State<Formbox> {
                       ],
                     ),
                   );
-                }).toList(),
+                }),
                 ...List.generate(
                   widget.checkboxTitles.length,
                   (index) => CheckboxWidget(
@@ -166,7 +157,7 @@ class SearchBar extends StatelessWidget {
           borderRadius: BorderRadius.circular(8.0),
         ),
         filled: true,
-        fillColor: Colors.white,
+        fillColor: backgroundColor,
       ),
     );
   }
@@ -199,10 +190,7 @@ class CheckboxWidget extends StatelessWidget {
         children: [
           Text(
             title,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+            style: searchBarTextStyle,
           ),
           const SizedBox(width: 10.0),
           Checkbox(
@@ -220,10 +208,10 @@ class SubmitButton extends StatefulWidget {
   final String buttonText;
 
   const SubmitButton({
-    Key? key,
+    super.key,
     required this.onPressed,
     required this.buttonText,
-  }) : super(key: key);
+  });
 
   @override
   _SubmitButtonState createState() => _SubmitButtonState();
@@ -235,7 +223,7 @@ class _SubmitButtonState extends State<SubmitButton> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(15.0),
+      padding: paddingAll15,
       child: ElevatedButton(
         onPressed: widget.onPressed,
         style: ButtonStyle(
@@ -246,20 +234,20 @@ class _SubmitButtonState extends State<SubmitButton> {
             (states) {
               if (states.contains(WidgetState.pressed)) {
                 // Darken color on press
-                return const Color.fromARGB(255, 153, 23, 23);
+                return pimaryColorDark;
               }
               // Default color
-              return const Color.fromARGB(255, 218, 34, 34);
+              return primaryColor;
             },
           ),
           foregroundColor: WidgetStateProperty.resolveWith<Color>(
             (states) {
               if (states.contains(WidgetState.pressed)) {
                 // Text color when pressed
-                return Colors.white;
+                return backgroundColorData;
               }
               // Default text color
-              return Colors.white;
+              return backgroundColor;
             },
           ),
           shadowColor: WidgetStateProperty.resolveWith<Color>(
@@ -271,10 +259,6 @@ class _SubmitButtonState extends State<SubmitButton> {
               // Default shadow color
               return Colors.black.withOpacity(0.4);
             },
-          ),
-          elevation: WidgetStateProperty.all<double>(4), // Add elevation
-          minimumSize: WidgetStateProperty.all<Size>(
-            const Size(0, 0),
           ),
         ),
         child: Text(widget.buttonText),
