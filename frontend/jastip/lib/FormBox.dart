@@ -30,7 +30,7 @@ class _FormboxState extends State<Formbox> {
     super.initState();
     for (var group in widget.fields) {
       for (var field in group.value) {
-        _controllers[field.content] = TextEditingController();
+        _controllers[field.dbQueryParam] = TextEditingController();
       }
     }
     for (var title in widget.checkboxTitles) {
@@ -99,7 +99,7 @@ class _FormboxState extends State<Formbox> {
                                 padding: paddingHorizontal5,
                                 child: SearchBar(
                                   hint: field,
-                                  controller: _controllers[field.content]!,
+                                  controller: _controllers[field.dbQueryParam]!,
                                 ),
                               ),
                             );
@@ -169,8 +169,9 @@ class SearchBar extends StatelessWidget {
 class SearchBarContentsTuple {
   String content;
   Type type;
+  String dbQueryParam;
 
-  SearchBarContentsTuple(this.content, this.type);
+  SearchBarContentsTuple(this.content, this.type, this.dbQueryParam);
 }
 
 class DateSearchBar extends StatefulWidget {
