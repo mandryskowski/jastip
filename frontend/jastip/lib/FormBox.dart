@@ -113,7 +113,7 @@ class _FormboxState extends State<Formbox> {
         child: Container(
           decoration: BoxDecoration(
           color: backgroundColorData,
-          borderRadius: BorderRadius.circular(30.0), // Rounded edges
+          borderRadius: BorderRadius.circular(15.0), // Rounded edges
           ),
           child: SingleChildScrollView(
             child: Column(

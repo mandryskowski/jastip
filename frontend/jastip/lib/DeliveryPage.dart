@@ -21,7 +21,7 @@ class DeliveryContent extends StatelessWidget {
       ],
       constraints: BoxConstraints(
           maxWidth: 0.9 * MediaQuery.sizeOf(context).width),
-      checkboxTitles: ["fragile?", "skibidi?", "toilet?"]);
+      checkboxTitles: ["fragile"]);
   }
 }
 
