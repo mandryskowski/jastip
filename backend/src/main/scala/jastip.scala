@@ -109,11 +109,11 @@ object Main extends App {
         }
       } ~
       post {
-        entity(as[AuctionWithoutId]) { auctionWithoutId =>
+        entity(as[PostAuction]) { auctionWithoutId =>
           val auctions = TableQuery[Auctions]
-          val auctionToInsert = Auction(0, auctionWithoutId.userId, auctionWithoutId.length, auctionWithoutId.width,
+          val auctionToInsert = Auction(0, 1, auctionWithoutId.length, auctionWithoutId.width,
             auctionWithoutId.height, auctionWithoutId.fragile, auctionWithoutId.description, auctionWithoutId.from, auctionWithoutId.to, auctionWithoutId.departure,
-            auctionWithoutId.arrival, auctionWithoutId.auctionEnd, auctionWithoutId.startingPrice, auctionWithoutId.bids)
+            auctionWithoutId.arrival, auctionWithoutId.auctionEnd, auctionWithoutId.startingPrice, List.empty)
           val insertAuctionFuture: Future[Long] = db.run((auctions returning auctions.map(_.auctionId)) += auctionToInsert)
           onSuccess(insertAuctionFuture) { auctionId =>
             complete(StatusCodes.Created, s"Auction created with ID: $auctionId")
