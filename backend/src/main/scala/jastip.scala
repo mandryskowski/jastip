@@ -13,6 +13,8 @@ import MyPostgresProfile.api._
 import BidJsonProtocol._
 import slick.lifted.{ProvenShape, TableQuery}
 import java.sql.Timestamp
+import java.sql.Date
+import java.time.LocalDate
 
 object Main extends App {
   implicit val system: ActorSystem = ActorSystem("my-system")
@@ -48,9 +50,12 @@ object Main extends App {
 
           val filters: Seq[(String, Auctions => String => Rep[Boolean])] = Seq(
             "fragile" -> ((auction: Auctions) => (v: String) => auction.fragile === (v == "yes")),
-            "startCity" -> ((auction: Auctions) => (v: String) => auction.from === v),
-            "endCity" -> ((auction: Auctions) => (v: String) => auction.to === v),
-            "endDate" -> ((auction: Auctions) => (v: String) => auction.auctionEnd === Timestamp.valueOf(v)),
+            "startCity" -> ((auction: Auctions) => (v: String) => auction.from.toLowerCase === v.toLowerCase),
+            "endCity" -> ((auction: Auctions) => (v: String) => auction.to.toLowerCase === v.toLowerCase),
+            "endDate" -> ((auction: Auctions) => (v: String) => {
+                val date = Timestamp.valueOf(LocalDate.parse(v).plusDays(1).atStartOfDay())
+                auction.auctionEnd.between(Timestamp.from(date.toInstant().minusSeconds(86400 * 30)), date)
+            }),
             "length" -> ((auction: Auctions) => (v: String) => auction.length >= v.toFloat),
             "width" -> ((auction: Auctions) => (v: String) => auction.width >= v.toFloat),
             "height" -> ((auction: Auctions) => (v: String) => auction.height >= v.toFloat)
