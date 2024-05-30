@@ -46,6 +46,11 @@ jobs:
         distribution: 'zulu'
         java-version: '11'
 
+    - name: Run unit tests
+      run: |
+        cd frontend/jastip
+        flutter test
+
     - name: Install Android SDK
       run: |
         sudo apt-get update
@@ -57,22 +62,6 @@ jobs:
         echo "ANDROID_SDK_ROOT=/usr/local/android-sdk" >> $GITHUB_ENV
         echo "PATH=$PATH:/usr/local/android-sdk/cmdline-tools/latest/bin:/usr/local/android-sdk/platform-tools" >> $GITHUB_ENV
         sudo yes | /usr/local/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
-
-    - name: Install system image
-      run: |
-        sudo chown $USER: $ANDROID_HOME -R
-        sudo yes | sudo /usr/local/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-34" "build-tools;30.0.3" "emulator" "system-images;android-34;google_apis;x86_64"
-
-    - name: List installed system images
-      run: |
-        /usr/local/android-sdk/cmdline-tools/latest/bin/sdkmanager --list
-
-    - name: Start emulator
-      run: |
-        sudo apt-get install -y qemu-kvm
-        echo "no" | /usr/local/android-sdk/cmdline-tools/latest/bin/avdmanager create avd --force --name "test" --package "system-images;android-34;google_apis;x86_64" --device "pixel"
-        $ANDROID_SDK_ROOT/emulator/emulator -avd test -no-snapshot -no-window -no-audio -gpu swiftshader -accel on -qemu -m 2048 &
-        adb wait-for-device
 
     - name: Connect to emulator
       run: |
@@ -102,11 +91,6 @@ jobs:
         aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
         aws configure set region us-east-1
         aws s3 cp frontend/jastip/build/app/outputs/flutter-apk/app-release.apk s3://$BUCKETEER/public/jastip.apk
-
-    - name: Run unit tests
-      run: |
-        cd frontend/jastip
-        flutter test
         
 #    - name: Run integration tests
 #      env:
