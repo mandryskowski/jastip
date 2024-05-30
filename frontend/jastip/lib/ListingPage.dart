@@ -113,17 +113,35 @@ class ListingWidget extends StatelessWidget {
       padding: const EdgeInsets.all(3.0),
       decoration:
           BoxDecoration(border: Border.all(color: const Color(0xFFDA2222))),
-      child: Column(children: [
-        Align(
-            alignment: Alignment.centerLeft,
-            child: Text("${listing.source} -> ${listing.destination}")),
-        Align(
-            alignment: Alignment.centerRight,
-            child: Text(listing.dimensions.toString())),
-        Align(
-            alignment: Alignment.bottomRight,
-            child: Text(listing.dateTime.toString())),
-      ]),
+      child: _listingChild(),
     );
+  }
+
+  Row _listingChild() {
+    return Row(
+          children: [
+            Expanded(child:Column(
+              children: [
+        Align(
+            alignment: Alignment(-1.0, -0.5),
+            child: Text("${listing.source} (${listing.departureDate.toString().split(" ")[0]})")),
+        Align(
+            alignment: Alignment(-1.0, 0.0),
+            child: Text("->")),
+        Align(
+            alignment: const Alignment(-1.0, 0.5),
+            child: Text("${listing.destination} (${listing.arrivalDate.toString().split(" ")[0]})")),
+          ])),
+          Expanded(child:Column(children: [Align(
+            alignment: Alignment(1.0, -1.0),
+            child: Text("Current bid: \$${listing.price}")),
+        Align(
+            alignment: Alignment(1.0, 0.5),
+            child: Text("Size: ${listing.dimensions}")),
+        Align(
+            alignment: Alignment(1.0, 1.0),
+            child: Text("End: ${listing.auctionEnd.toString().split(" ")[0]} ${listing.auctionEnd.toString().split(" ")[1].split('.')[0]} UTC"))
+          ]))]
+      );
   }
 }
