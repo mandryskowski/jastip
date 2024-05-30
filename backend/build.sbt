@@ -7,6 +7,7 @@ version := "0.1"
 scalaVersion := "2.13.8"
 
 libraryDependencies ++= Seq(
+  "org.scalatest" %% "scalatest" % "3.2.12" % Test,
   "com.typesafe.slick" %% "slick" % "3.3.3",
   "org.postgresql" % "postgresql" % "42.2.19",
   "com.typesafe.slick" %% "slick-hikaricp" % "3.3.3",

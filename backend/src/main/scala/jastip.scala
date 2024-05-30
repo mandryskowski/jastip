@@ -22,6 +22,7 @@ object Main extends App {
   val config = ConfigFactory.load()
 
   val db = Database.forConfig("databaseUrl")
+  val auctionRepository = new AuctionRepository(db)
 
   val users = TableQuery[Users]
 
@@ -45,86 +46,27 @@ object Main extends App {
     path("auctions") {
       get {
         extract(_.request.uri.query()) { params =>
-
-          val initialQuery = TableQuery[Auctions].take(params.get("limit").map(_.toInt).getOrElse(100))
-
-          val filters: Seq[(String, Auctions => String => Rep[Boolean])] = Seq(
-            "fragile" -> ((auction: Auctions) => (v: String) => (auction.fragile === true) || (auction.fragile === (v == "true"))),
-            "startCity" -> ((auction: Auctions) => (v: String) => auction.from.toLowerCase like s"%${v.toLowerCase}%"),
-            "endCity" -> ((auction: Auctions) => (v: String) => auction.to.toLowerCase like s"%${v.toLowerCase}%"),
-            "endDate" -> ((auction: Auctions) => (v: String) => {
-                val date = Timestamp.valueOf(v)
-                auction.auctionEnd.between(Timestamp.from(date.toInstant().minusSeconds(86400 * 30)), date)
-            }),
-            "length" -> ((auction: Auctions) => (v: String) => auction.length >= v.toFloat),
-            "width" -> ((auction: Auctions) => (v: String) => auction.width >= v.toFloat),
-            "height" -> ((auction: Auctions) => (v: String) => auction.height >= v.toFloat)
-          )
-
-          val filteredQuery = filters.foldLeft(initialQuery) { case (query, (paramName, filterFunc)) =>
-            params.get(paramName) match {
-              case Some(value) => query.filter(filterFunc(_)(value))
-              case None => query
-            }
-          }
-
-
-          val auctionsQuery = filteredQuery
-          val bidsQuery = TableQuery[Bids]
-
-          val joinedQuery = for {
-            (auction, bid) <- auctionsQuery joinLeft bidsQuery on (_.auctionId === _.auctionId)
-          } yield (auction, bid.map(_.price))
-
-          val auctionsWithPricesQuery = joinedQuery.sortBy(_._1.auctionId).result.map { result =>
-            result.groupBy(_._1).map { case (auction, bids) =>
-              AuctionWithPrices(
-                auction.auctionId,
-                auction.userId,
-                auction.length,
-                auction.width,
-                auction.height,
-                auction.fragile,
-                auction.description,
-                auction.from,
-                auction.to,
-                auction.departure,
-                auction.arrival,
-                auction.auctionEnd,
-                auction.startingPrice,
-                bids.flatMap(_._2).toList
-              )
-            }.toSeq
-          }
-
-          val auctionsWithPricesFuture: Future[Seq[AuctionWithPrices]] = db.run(auctionsWithPricesQuery)
-          val sortedAuctionsWithPricesFuture = (params.get("orderedBy") match {
-            case Some("date") => auctionsWithPricesFuture.map(_.sortBy(_.auctionEnd).reverse)
-            case Some("size") => auctionsWithPricesFuture.map(_.sortBy(_.length).reverse)
-            case _ => auctionsWithPricesFuture.map(_.sortBy(_.auctionId).reverse)
-          }) 
-          onSuccess(sortedAuctionsWithPricesFuture) { auctionsList =>
+          val limit = params.get("limit").map(_.toInt).getOrElse(100)
+          val auctionsFuture = auctionRepository.filterAuctions(params.toMap, limit)
+          val sortedAuctionsFuture = (params.get("orderedBy") match {
+            case Some("date") => auctionsFuture.map(_.sortBy(_.auctionEnd).reverse)
+            case Some("size") => auctionsFuture.map(_.sortBy(_.length).reverse)
+            case _ => auctionsFuture.map(_.sortBy(_.auctionId).reverse)
+          })
+          onSuccess(sortedAuctionsFuture) { auctionsList =>
             complete(auctionsList)
           }
         }
       } ~
       post {
         entity(as[PostAuction]) { postAuction =>
-          val auctions = TableQuery[Auctions]
-          val auctionToInsert = Auction(0, 1, postAuction.length, postAuction.width,
-            postAuction.height, postAuction.fragile, postAuction.description, postAuction.from, postAuction.to, postAuction.departure,
-            postAuction.arrival, Timestamp.from(postAuction.arrival.toInstant().minusSeconds(86400 * postAuction.daysBefore)), postAuction.startingPrice, List.empty)
-          val insertAuctionFuture: Future[Long] = db.run((auctions returning auctions.map(_.auctionId)) += auctionToInsert)
-          onSuccess(insertAuctionFuture) { auctionId =>
-            complete(StatusCodes.Created, s"Auction created with ID: $auctionId")
-          }
-        } ~
-        entity(as[PostAuctionStr]) { postAuction =>
-          val auctions = TableQuery[Auctions]
-          val auctionToInsert = Auction(0, 1, postAuction.length.toFloat, postAuction.width.toFloat,
-            postAuction.height.toFloat, postAuction.fragile.toBoolean, postAuction.description, postAuction.from, postAuction.to, postAuction.departure,
-            postAuction.arrival, Timestamp.from(postAuction.arrival.toInstant().minusSeconds(86400 * postAuction.daysBefore.toInt)), postAuction.startingPrice.toDouble, List.empty)
-          val insertAuctionFuture: Future[Long] = db.run((auctions returning auctions.map(_.auctionId)) += auctionToInsert)
+          val auctionToInsert = Auction(
+            0, 1, postAuction.length, postAuction.width, postAuction.height,
+            postAuction.fragile, postAuction.description, postAuction.from, postAuction.to,
+            postAuction.departure, postAuction.arrival,
+            Timestamp.from(postAuction.arrival.toInstant().minusSeconds(86400 * postAuction.daysBefore)), postAuction.startingPrice, List.empty
+          )
+          val insertAuctionFuture = auctionRepository.insert(auctionToInsert)
           onSuccess(insertAuctionFuture) { auctionId =>
             complete(StatusCodes.Created, s"Auction created with ID: $auctionId")
           }
