@@ -146,6 +146,9 @@ class SearchBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (hint.type == DateTime) {
+      return DateSearchBar(hintText: hint.content, controller: controller);
+    }
     return TextField(
       controller: controller,
       inputFormatters: [
@@ -168,6 +171,51 @@ class SearchBarContentsTuple {
   Type type;
 
   SearchBarContentsTuple(this.content, this.type);
+}
+
+class DateSearchBar extends StatefulWidget {
+  final String hintText;
+  final TextEditingController controller;
+
+  const DateSearchBar({
+    Key? key,
+    required this.hintText,
+    required this.controller,
+  }) : super(key: key);
+
+  @override
+  _DateSearchBarState createState() => _DateSearchBarState();
+}
+
+class _DateSearchBarState extends State<DateSearchBar> {
+  final _dateFormatRegex = RegExp(r'^\d{4}-\d{2}-\d{2}$'); // YYYY-MM-DD format
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: widget.controller,
+      decoration: InputDecoration(
+        hintText: widget.hintText,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+        filled: true,
+        fillColor: Colors.white,
+        errorText: !_isValidDate(widget.controller.text) ? 'Invalid date format. Use YYYY-MM-DD' : null,
+      ),
+      keyboardType: TextInputType.datetime,
+      inputFormatters: [
+        FilteringTextInputFormatter.allow(RegExp(r'[\d-]')), // Allow only numbers and hyphen
+      ],
+      onChanged: (value) {
+        setState(() {});
+      },
+    );
+  }
+
+  bool _isValidDate(String input) {
+    return input == '' || _dateFormatRegex.hasMatch(input);
+  }
 }
 
 class CheckboxWidget extends StatelessWidget {
