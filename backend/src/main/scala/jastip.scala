@@ -43,14 +43,14 @@ object Main extends App {
         val auctions = TableQuery[Auctions]
         val auctionsFuture: Future[Seq[Auction]] = db.run(auctions.result)
         onSuccess(auctionsFuture) { auctionsList =>
-          complete(auctionsList.map(_.toString).mkString(", "))
+          complete(auctionsList)
         }
-      }
+      } ~
       post {
         entity(as[AuctionWithoutId]) { auctionWithoutId =>
           val auctions = TableQuery[Auctions]
           val auctionToInsert = Auction(0, auctionWithoutId.userId, auctionWithoutId.length, auctionWithoutId.width,
-            auctionWithoutId.height, auctionWithoutId.fragile, auctionWithoutId.description, auctionWithoutId.departure,
+            auctionWithoutId.height, auctionWithoutId.fragile, auctionWithoutId.description, auctionWithoutId.from, auctionWithoutId.to, auctionWithoutId.departure,
             auctionWithoutId.arrival, auctionWithoutId.auctionEnd, auctionWithoutId.startingPrice, auctionWithoutId.bids)
           val insertAuctionFuture: Future[Long] = db.run((auctions returning auctions.map(_.auctionId)) += auctionToInsert)
           onSuccess(insertAuctionFuture) { auctionId =>
@@ -110,6 +110,8 @@ object Main extends App {
                 auction.height,
                 auction.fragile,
                 auction.description,
+                auction.from,
+                auction.to,
                 auction.departure,
                 auction.arrival,
                 auction.auctionEnd,

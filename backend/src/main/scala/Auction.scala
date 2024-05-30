@@ -1,11 +1,11 @@
 import MyPostgresProfile.api._
 
 case class Auction(auctionId: Long, userId: Int, length: Float, width: Float, height: Float, fragile: Boolean,
-                   description: String, departure: java.sql.Timestamp, arrival: java.sql.Timestamp,
+                   description: String, from : String, to : String, departure: java.sql.Timestamp, arrival: java.sql.Timestamp,
                    auctionEnd: java.sql.Timestamp, startingPrice: Double, bids: List[Int])
 
 case class AuctionWithoutId(userId: Int, length: Float, width: Float, height: Float, fragile: Boolean,
-                    description: String, departure: java.sql.Timestamp, arrival: java.sql.Timestamp,
+                    description: String, from : String, to : String, departure: java.sql.Timestamp, arrival: java.sql.Timestamp,
                     auctionEnd: java.sql.Timestamp, startingPrice: Double, bids: List[Int])
 
 case class AuctionWithPrices(
@@ -16,6 +16,8 @@ case class AuctionWithPrices(
   height: Float,
   fragile: Boolean,
   description: String,
+  from : String,
+  to : String,
   departure: java.sql.Timestamp,
   arrival: java.sql.Timestamp,
   auctionEnd: java.sql.Timestamp,
@@ -31,13 +33,15 @@ class Auctions(tag: Tag) extends Table[Auction](tag, "auctions") {
   def height = column[Float]("height")
   def fragile = column[Boolean]("fragile")
   def description = column[String]("description")
-  def departure = column[java.sql.Timestamp]("departure")
-  def arrival = column[java.sql.Timestamp]("arrival")
+  def departure = column[java.sql.Timestamp]("departure_time")
+  def arrival = column[java.sql.Timestamp]("arrival_time")
+  def from = column[String]("departure_city")
+  def to = column[String]("arrival_city")
   def auctionEnd = column[java.sql.Timestamp]("auction_end")
   def startingPrice = column[Double]("starting_price")
   def bids = column[List[Int]]("bid_ids")
 
-  def * = (auctionId, userId, length, width, height, fragile, description, departure, arrival, auctionEnd,
+  def * = (auctionId, userId, length, width, height, fragile, description, from, to, departure, arrival, auctionEnd,
     startingPrice, bids) <> (Auction.tupled, Auction.unapply)
 }
 
