@@ -8,13 +8,15 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class ListingPage extends StatelessWidget {
-  ListingPage({super.key, required this.args});
+
+  ListingPage({super.key, required this.args, this.orderingIndex = 0});
 
   static ListingPage generic() {
     return ListingPage(args: const {'startCity': 'London'});
   }
 
   final Map<String, String> args;
+  int orderingIndex;
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +34,7 @@ class ListingPage extends StatelessWidget {
             body: Column(
               children: [
                 PageHeader(title: "JASTIP+"),
-                Orderingbar(),
+                Orderingbar(args: args, orderIndex: orderingIndex,),
                 Expanded(
                   child: Container(
                     color: const Color.fromARGB(255, 255, 255, 255),
