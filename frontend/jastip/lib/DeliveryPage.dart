@@ -6,7 +6,9 @@ import 'FormElement.dart';
 class DeliveryContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Formbox(
+    return Align(
+      alignment: Alignment.topCenter,
+      child: Formbox(
       title: "Where to?",
       fields: [
         MapEntry('Destination', [
@@ -22,7 +24,7 @@ class DeliveryContent extends StatelessWidget {
       ],
       constraints: BoxConstraints(
           maxWidth: 0.9 * MediaQuery.sizeOf(context).width),
-      checkboxTitles: ["fragile"]);
+      checkboxTitles: ["fragile"]),);
   }
 }
 

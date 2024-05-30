@@ -108,73 +108,71 @@ class _FormboxState extends State<Formbox> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: ConstrainedBox(
-        constraints: widget.constraints,
-        child: Container(
-          decoration: BoxDecoration(
-          color: backgroundColorData,
-          borderRadius: BorderRadius.circular(15.0), // Rounded edges
-          ),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Padding(
-                  padding: paddingAll15,
-                  child: Text(
-                    widget.title,
-                    style: titleTextStyle,
-                  ),
+    return ConstrainedBox(
+      constraints: widget.constraints,
+      child: Container(
+        decoration: BoxDecoration(
+        color: backgroundColorData,
+        borderRadius: BorderRadius.circular(15.0), // Rounded edges
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: paddingAll15,
+                child: Text(
+                  widget.title,
+                  style: titleTextStyle,
                 ),
-                ...widget.fields.map((group) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 10.0, horizontal: 15.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          group.key,
-                          style: fieldTitleTextStyle,
-                        ),
-                        const SizedBox(height: 5.0),
-                        Row(
-                          children: group.value.map((field) {
-                            return Expanded(
-                              child: Padding(
-                                padding: paddingHorizontal5,
-                                child: SearchBarJastip(
-                                  hint: field,
-                                  controller: _controllers[field.dbQueryParam]!,
-                                ),
+              ),
+              ...widget.fields.map((group) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 10.0, horizontal: 15.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        group.key,
+                        style: fieldTitleTextStyle,
+                      ),
+                      const SizedBox(height: 5.0),
+                      Row(
+                        children: group.value.map((field) {
+                          return Expanded(
+                            child: Padding(
+                              padding: paddingHorizontal5,
+                              child: SearchBarJastip(
+                                hint: field,
+                                controller: _controllers[field.dbQueryParam]!,
                               ),
-                            );
-                          }).toList(),
-                        ),
-                      ],
-                    ),
-                  );
-                }),
-                ...List.generate(
-                  widget.checkboxTitles.length,
-                  (index) => CheckboxWidget(
-                    title: widget.checkboxTitles[index],
-                    value: _checkboxValues[widget.checkboxTitles[index]]!,
-                    onChanged: (bool? value) {
-                      setState(() {
-                        _checkboxValues[widget.checkboxTitles[index]] = value!;
-                      });
-                    },
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ],
                   ),
+                );
+              }),
+              ...List.generate(
+                widget.checkboxTitles.length,
+                (index) => CheckboxWidget(
+                  title: widget.checkboxTitles[index],
+                  value: _checkboxValues[widget.checkboxTitles[index]]!,
+                  onChanged: (bool? value) {
+                    setState(() {
+                      _checkboxValues[widget.checkboxTitles[index]] = value!;
+                    });
+                  },
                 ),
-                SubmitButton(
-                  onPressed: _submit,
-                  buttonText: 'Submit',
-                ),
-              ],
-            ),
+              ),
+              SubmitButton(
+                onPressed: _submit,
+                buttonText: 'Submit',
+              ),
+            ],
           ),
         ),
       ),
