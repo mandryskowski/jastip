@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:jastip/Constants.dart';
 import 'package:jastip/ListingPage.dart';
+import 'package:http/http.dart' as http;
 
 class Formbox extends StatefulWidget {
   const Formbox({
@@ -10,12 +13,14 @@ class Formbox extends StatefulWidget {
     required this.fields,
     this.checkboxTitles = const [],
     this.constraints = const BoxConstraints(),
+    this.httpMethod = "GET"
   });
 
   final String title;
   final List<MapEntry<String, List<SearchBarContentsTuple>>> fields;
   final List<String> checkboxTitles;
   final BoxConstraints constraints;
+  final String httpMethod;
 
   @override
   _FormboxState createState() => _FormboxState();
@@ -47,6 +52,7 @@ class _FormboxState extends State<Formbox> {
   }
 
   void _submit() {
+
     Map<String, String> mp = {};
     for (var entry in _controllers.entries) {
       print('${entry.key}: ${entry.value.text}');
@@ -57,8 +63,46 @@ class _FormboxState extends State<Formbox> {
       mp[entry.key] = entry.value.toString();
     }
 
-    Navigator.push(context,
+
+    if(widget.httpMethod == "POST") {
+      print("POST request");
+
+      _postRequest(mp);
+
+      Navigator.push(context,
+        MaterialPageRoute(builder: (context) => ListingPage.generic()));
+
+    }
+    else if(widget.httpMethod == "GET") {
+      print("GET request");
+      Navigator.push(context,
         MaterialPageRoute(builder: (context) => ListingPage(args: mp)));
+    } else {
+      print("INVALID HTTP METHOD");
+    }
+
+  }
+
+  void _postRequest(Map<String, String>args) async{
+    var body = json.encode(args);
+
+    print(body);
+
+    var response = await http.post(
+      Uri.parse("https://jastip-backend-3b036fb5403c.herokuapp.com/auctions"),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: body,
+    );
+
+    // Check the response status code
+    if (response.statusCode == 200) {
+      print('POST request successful');
+      print('Response body: ${response.body}');
+    } else {
+      print('POST request failed with status: ${response.statusCode}');
+    }
   }
 
   @override
@@ -204,9 +248,9 @@ class _DateSearchBarState extends State<DateSearchBar> {
         fillColor: Colors.white,
         errorText: !_isValidDate(widget.controller.text) ? 'Invalid date format. Use YYYY-MM-DD' : null,
       ),
-      keyboardType: TextInputType.datetime,
+      //keyboardType: TextInputType.datetime,
       inputFormatters: [
-        FilteringTextInputFormatter.allow(RegExp(r'[\d-]')), // Allow only numbers and hyphen
+        FilteringTextInputFormatter.allow(RegExp(r'[\d-: ]')), // Allow only numbers and hyphen
       ],
       onChanged: (value) {
         setState(() {});
