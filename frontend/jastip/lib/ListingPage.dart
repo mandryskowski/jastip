@@ -12,7 +12,7 @@ class ListingPage extends StatelessWidget {
   ListingPage({super.key, required this.args, this.orderingIndex = 0});
 
   static ListingPage generic() {
-    return ListingPage(args: const {});
+    return ListingPage(args: {});
   }
 
   final Map<String, String> args;
