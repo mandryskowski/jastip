@@ -13,7 +13,7 @@ class Formbox extends StatefulWidget {
   }) : super(key: key);
 
   final String title;
-  final List<String> fields;
+  final List<MapEntry<String, List<String>>> fields;
   final List<String> checkboxTitles;
   final BoxConstraints constraints;
 
@@ -28,8 +28,10 @@ class _FormboxState extends State<Formbox> {
   @override
   void initState() {
     super.initState();
-    for (var title in widget.fields) {
-      _controllers[title] = TextEditingController();
+    for (var group in widget.fields) {
+      for (var field in group.value) {
+        _controllers[field] = TextEditingController();
+      }
     }
     for (var title in widget.checkboxTitles) {
       _checkboxValues[title] = false;
@@ -38,7 +40,7 @@ class _FormboxState extends State<Formbox> {
 
   @override
   void dispose() {
-     for (var entry in _controllers.entries) {
+    for (var entry in _controllers.entries) {
       entry.value.dispose();
     }
     super.dispose();
@@ -51,39 +53,16 @@ class _FormboxState extends State<Formbox> {
     for (var entry in _checkboxValues.entries) {
       print('${entry.key}: ${entry.value}');
     }
-    try {
-      Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => ListingPage(
-        orderedByDate: false,
-        orderedBySize: false,
-        startCity: _controllers['From']!.text,
-        endCity: _controllers['To']!.text,
-        endDate: DateTime.parse(_controllers['Date']!.text),
-        dimensions: Dimension(
-          height: int.parse(_controllers['Height']!.text),
-          width: int.parse(_controllers['Width']!.text),
-          length: int.parse(_controllers['Length']!.text),
-        ),
-      )),
-    );
     // Add your submit logic here
-    } catch(e) {
-      print(e);
-      Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => ListingPage.generic()),
-    );
-    } 
   }
 
   @override
   Widget build(BuildContext context) {
-    return Center( // Center the Formbox to apply margin
+    return Center(
       child: ConstrainedBox(
         constraints: widget.constraints,
         child: Container(
-          color: const Color.fromRGBO(217, 217, 217, 100), // Set background color as needed
+          color: const Color.fromRGBO(217, 217, 217, 100),
           child: SingleChildScrollView(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
@@ -93,20 +72,44 @@ class _FormboxState extends State<Formbox> {
                   padding: const EdgeInsets.all(15.0),
                   child: Text(
                     widget.title,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
                       color: Colors.black87,
                     ),
                   ),
                 ),
-                ...List.generate(
-                  widget.fields.length,
-                  (index) => SearchBarWidget(
-                    text: widget.fields[index],
-                    controller: _controllers[widget.fields[index]]!,
-                  ),
-                ),
+                ...widget.fields.map((group) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          group.key,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 5.0),
+                        Row(
+                          children: group.value.map((field) {
+                            return Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                                child: SearchBar(
+                                  hintText: field,
+                                  controller: _controllers[field]!,
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
                 ...List.generate(
                   widget.checkboxTitles.length,
                   (index) => CheckboxWidget(
@@ -121,7 +124,7 @@ class _FormboxState extends State<Formbox> {
                 ),
                 SubmitButton(
                   onPressed: _submit,
-                  buttonText: 'Submit', // Specify the text for the button
+                  buttonText: 'Submit',
                 ),
               ],
             ),
@@ -132,41 +135,6 @@ class _FormboxState extends State<Formbox> {
   }
 }
 
-class SearchBarWidget extends StatelessWidget {
-  const SearchBarWidget({
-    Key? key,
-    required this.text,
-    required this.controller,
-  }) : super(key: key);
-
-  final String text;
-  final TextEditingController controller;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0), // Reduced vertical margin
-      padding: const EdgeInsets.all(3.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            text,
-            style: const TextStyle(
-              fontSize: 18, // Increased text size
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 5.0), // Small spacing between text and search bar
-          SearchBar(
-            hintText: text,
-            controller: controller,
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class SearchBar extends StatelessWidget {
   final String hintText;

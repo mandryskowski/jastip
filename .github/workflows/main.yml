@@ -2,13 +2,18 @@ name: Flutter CI
 
 on:
   push:
-    branches: [ "master" ]
+    branches:
+      - master
+      - frontend
+      - backend
   pull_request:
-    branches: [ "master" ]
-
+    branches:
+      - frontend
+      - backend
 
 jobs:
-  build:
+  deploy-frontend-android:
+    if: github.ref == 'refs/heads/frontend' || github.base_ref == 'frontend' || github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
 
     strategy:
@@ -56,7 +61,7 @@ jobs:
     - name: Install system image
       run: |
         sudo chown $USER: $ANDROID_HOME -R
-        sudo yes | sudo /usr/local/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-34" "build-tools;30.0.3" "emulator" "system-images;android-34;google_apis;x86_64"
+        sudo yes | sudo /usr/local/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-33" "build-tools;30.0.3" "emulator" "system-images;android-33;google_apis;x86_64"
 
     - name: List installed system images
       run: |
@@ -65,7 +70,7 @@ jobs:
     - name: Start emulator
       run: |
         sudo apt-get install -y qemu-kvm
-        echo "no" | /usr/local/android-sdk/cmdline-tools/latest/bin/avdmanager create avd --force --name "test" --package "system-images;android-34;google_apis;x86_64" --device "pixel"
+        echo "no" | /usr/local/android-sdk/cmdline-tools/latest/bin/avdmanager create avd --force --name "test" --package "system-images;android-33;google_apis;x86_64" --device "pixel"
         $ANDROID_SDK_ROOT/emulator/emulator -avd test -no-snapshot -no-window -no-audio -gpu swiftshader -accel on -qemu -m 2048 &
         adb wait-for-device
 
@@ -116,5 +121,45 @@ jobs:
 #        flutter doctor -v
 #        flutter clean
 #        flutter drive --target=test_driver/app.dart
+ 
+  deploy-backend:
+    if: github.ref == 'refs/heads/backend' || github.base_ref == 'backend' || github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
 
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'zulu'
+        java-version: '11'
+
+    - name: Install sbt
+      run: |
+        echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" | sudo tee /etc/apt/sources.list.d/sbt.list
+        echo "deb https://repo.scala-sbt.org/scalasbt/debian /" | sudo tee /etc/apt/sources.list.d/sbt_old.list
+        curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x99E82A75642AC823" | sudo apt-key add
+        sudo apt-get update
+        sudo apt-get install sbt
+
+    - name: Run sbt stage
+      working-directory: backend
+      run: |
+        sbt stage
+
+    - name: Split branch
+      env:
+        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+      run: |
+        git subtree split --prefix backend -b backend-split
+        git branch -D backend-split
+
+    - name: Deploy to Heroku
+      uses: akhileshns/heroku-deploy@v3.13.15 # This is the action
+      with:
+        heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+        heroku_app_name: "jastip-backend" #Must be unique in Heroku
+        heroku_email: "andryskowski.michal@gmail.com"
+        appdir: "backend/"
