@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'FormElement.dart';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:jastip/Constants.dart';
 import 'package:jastip/ListingPage.dart';
 import 'package:http/http.dart' as http;
@@ -168,9 +167,11 @@ class _FormboxState extends State<Formbox> {
                   },
                 ),
               ),
-              SubmitButton(
-                onPressed: _submit,
-                buttonText: 'Submit',
+              Center(
+                child: SubmitButton(
+                  onPressed: _submit,
+                  buttonText: 'Submit',
+                ),
               ),
             ],
           ),
@@ -270,8 +271,15 @@ class _SubmitButtonState extends State<SubmitButton> {
               return Colors.black.withOpacity(0.4);
             },
           ),
+          minimumSize: WidgetStateProperty.all<Size>(
+            const Size(200, 48), // Adjust the width and height as needed
+          ),
         ),
-        child: Text(widget.buttonText),
+        child: Text(
+          widget.buttonText,
+          style: const TextStyle(fontSize: 18)
+        ),
+        
       ),
     );
   }

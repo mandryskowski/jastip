@@ -35,4 +35,4 @@ const EdgeInsets paddingHorizontal5 = EdgeInsets.symmetric(horizontal: 5.0);
 const EdgeInsets paddingVertical10 = EdgeInsets.symmetric(vertical: 10.0);
 
 // Const available orderings
-const List<String> orderings = ["Default", "Size", "Date"];
+const List<String> orderings = ["Size", "Date"];
