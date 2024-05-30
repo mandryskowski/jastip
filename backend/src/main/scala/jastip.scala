@@ -16,7 +16,7 @@ import java.sql.Timestamp
 import java.sql.Date
 import java.time.LocalDate
 
-object Main extends App {
+object JastipBackend extends App {
   implicit val system: ActorSystem = ActorSystem("my-system")
   implicit val executionContext = system.dispatcher
   val config = ConfigFactory.load()
