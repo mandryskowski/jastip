@@ -21,93 +21,82 @@ jobs:
         flutter-version: ["3.22.1"]
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-      - name: Enable KVM
-        run: |
-          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
-          sudo udevadm control --reload-rules
-          sudo udevadm trigger --name-match=kvm
+    - name: Enable KVM
+      run: |
+        echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+        sudo udevadm control --reload-rules
+        sudo udevadm trigger --name-match=kvm
 
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ matrix.flutter-version }}
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: ${{ matrix.flutter-version }}
 
-      - name: Install dependencies
-        run: |
-          cd frontend/jastip
-          flutter pub get
+    - name: Install dependencies
+      run: |
+        cd frontend/jastip
+        flutter pub get
 
-      - name: Set up JDK
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'zulu'
-          java-version: '11'
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'zulu'
+        java-version: '11'
 
-      - name: Install Android SDK
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y wget unzip
-          wget -q https://dl.google.com/android/repository/commandlinetools-linux-8092744_latest.zip -O cmdline-tools.zip
-          sudo mkdir -p /usr/local/android-sdk/cmdline-tools
-          sudo unzip cmdline-tools.zip -d /usr/local/android-sdk/cmdline-tools
-          sudo mv /usr/local/android-sdk/cmdline-tools/cmdline-tools /usr/local/android-sdk/cmdline-tools/latest
-          echo "ANDROID_SDK_ROOT=/usr/local/android-sdk" >> $GITHUB_ENV
-          echo "PATH=$PATH:/usr/local/android-sdk/cmdline-tools/latest/bin:/usr/local/android-sdk/platform-tools" >> $GITHUB_ENV
-          sudo yes | /usr/local/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
+    - name: Run unit tests
+      run: |
+        cd frontend/jastip
+        flutter test
 
-      - name: Install system image
-        run: |
-          sudo chown $USER: $ANDROID_HOME -R
-          sudo yes | sudo /usr/local/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-33" "build-tools;30.0.3" "emulator" "system-images;android-33;google_apis;x86_64"
+    - name: Install Android SDK
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y wget unzip
+        wget -q https://dl.google.com/android/repository/commandlinetools-linux-8092744_latest.zip -O cmdline-tools.zip
+        sudo mkdir -p /usr/local/android-sdk/cmdline-tools
+        sudo unzip cmdline-tools.zip -d /usr/local/android-sdk/cmdline-tools
+        sudo mv /usr/local/android-sdk/cmdline-tools/cmdline-tools /usr/local/android-sdk/cmdline-tools/latest
+        echo "ANDROID_SDK_ROOT=/usr/local/android-sdk" >> $GITHUB_ENV
+        echo "PATH=$PATH:/usr/local/android-sdk/cmdline-tools/latest/bin:/usr/local/android-sdk/platform-tools" >> $GITHUB_ENV
+        sudo yes | /usr/local/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
 
-      - name: List installed system images
-        run: |
-          /usr/local/android-sdk/cmdline-tools/latest/bin/sdkmanager --list
+    - name: Build APK
+      run: |
+        cd frontend/jastip
+        flutter build apk
 
-      - name: Start emulator
-        run: |
-          sudo apt-get install -y qemu-kvm
-          echo "no" | /usr/local/android-sdk/cmdline-tools/latest/bin/avdmanager create avd --force --name "test" --package "system-images;android-33;google_apis;x86_64" --device "pixel"
-          $ANDROID_SDK_ROOT/emulator/emulator -avd test -no-snapshot -no-window -no-audio -gpu swiftshader -accel on -qemu -m 2048 &
-          adb wait-for-device
+    - name: Install AWS CLI
+      run: |
+        sudo apt-get install -y awscli
 
-      - name: Connect to emulator
-        run: |
-          flutter devices
-          flutter doctor
-          flutter config --android-sdk /usr/local/android-sdk
-          flutter doctor
-          sudo yes | flutter doctor --android-licenses
-          flutter emulators
-
-      - name: Build APK
-        run: |
-          cd frontend/jastip
-          flutter build apk
-
-      - name: Install AWS CLI
-        run: |
-          sudo apt-get install -y awscli
-
-      - name: Deploy APK
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          BUCKETEER: ${{ secrets.BUCKETEER }}
-        run: |
-          aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
-          aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-          aws configure set region us-east-1
-          aws s3 cp frontend/jastip/build/app/outputs/flutter-apk/app-release.apk s3://$BUCKETEER/public/jastip.apk
-
-      - name: Run unit tests
-        run: |
-          cd frontend/jastip
-          flutter test
-
+    - name: Deploy APK
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        BUCKETEER: ${{ secrets.BUCKETEER }}
+      run: |
+        aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+        aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+        aws configure set region us-east-1
+        aws s3 cp frontend/jastip/build/app/outputs/flutter-apk/app-release.apk s3://$BUCKETEER/public/jastip.apk
+        
+#    - name: Run integration tests
+#      env:
+#        DISPLAY: ":0"
+#      run: |
+#        cd frontend/jastip
+#        sudo chown -R $USER:$USER /usr/local/android-sdk/
+#        sudo yes | flutter doctor --android-licenses
+#        export PATH=$PATH:/usr/local/android-sdk/build-tools/30.0.3/
+#        flutter doctor
+#        flutter config --android-sdk /usr/local/android-sdk/
+#        flutter doctor -v
+#        flutter clean
+#        flutter drive --target=test_driver/app.dart
+ 
   deploy-backend:
     if: github.ref == 'refs/heads/backend' || github.base_ref == 'backend' || github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
