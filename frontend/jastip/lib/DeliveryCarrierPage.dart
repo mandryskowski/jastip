@@ -22,16 +22,38 @@ class _HomePageState extends State<HomePage> {
       body: Column(
         children: [
           const PageHeader(title: 'JASTIP+'),
-          ToggleButton(
-            onToggle: (index) {
-              setState(() {
-                _selectedIndex = index;
-              });
-            },
-            selectedIndex: _selectedIndex,
+          Padding(
+            padding: paddingVertical10,
+            child: ToggleButton(
+              onToggle: (index) {
+                setState(() {
+                  _selectedIndex = index;
+                });
+              },
+              selectedIndex: _selectedIndex,
+            ),
           ),
           Expanded(
-            child: _selectedIndex == 0 ? DeliveryContent() : CarrierContent(),
+            child: AnimatedSwitcher(
+              duration: Duration(milliseconds: 300),
+              transitionBuilder: (Widget child, Animation<double> animation) {
+                final slideAnimation = Tween<Offset>(
+                  begin: _selectedIndex == 0 ? Offset(1, 0) : Offset(-1, 0),
+                  end: Offset(0, 0),
+                ).animate(animation);
+
+                return SlideTransition(position: slideAnimation, child: child);
+              },
+              child: _selectedIndex == 0 
+                ? Container(
+                    key: ValueKey<int>(0),
+                    child: DeliveryContent(),
+                  )
+                : Container(
+                    key: ValueKey<int>(1),
+                    child: CarrierContent(),
+                  ),
+            ),
           ),
         ],
       ),
