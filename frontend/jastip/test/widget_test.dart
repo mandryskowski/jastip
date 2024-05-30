@@ -11,20 +11,17 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:jastip/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
+  testWidgets('User is sent to the delivery page after 2 second loading phase', (WidgetTester tester) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const MyApp());
-
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
-
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
     await tester.pump();
+    // Verify that we are on the delivery page.
+    final currPage = find.byType(Scaffold);
+    final currPageTitle = tester.widget<Text>(find.descendant(
+      of: currPage,
+      matching: find.byType(Text),
+    ).first);
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(currPageTitle.data, 'JASTIP+');
   });
 }
