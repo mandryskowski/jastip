@@ -2,26 +2,27 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
-import slick.jdbc.PostgresProfile.api._
+import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
 import scala.concurrent.Future
 import scala.io.StdIn
 import scala.util.{Failure, Success}
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.collection.Seq
 import com.typesafe.config.ConfigFactory
+import MyPostgresProfile.api._
+import BidJsonProtocol._
+import slick.lifted.{ProvenShape, TableQuery}
+import java.sql.Timestamp
+import java.sql.Date
+import java.time.LocalDate
 
-case class User(id: Int, username: String)
-
-class Users(tag: Tag) extends Table[User](tag, "users") {
-  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def username = column[String]("username")
-  def * = (id, username) <> (User.tupled, User.unapply)
-}
-
-object Main extends App {
+object JastipBackend extends App {
   implicit val system: ActorSystem = ActorSystem("my-system")
   implicit val executionContext = system.dispatcher
   val config = ConfigFactory.load()
 
   val db = Database.forConfig("databaseUrl")
+  val auctionRepository = new AuctionRepository(db)
 
   val users = TableQuery[Users]
 
@@ -42,6 +43,46 @@ object Main extends App {
         }
       }
     } ~
+    path("auctions") {
+      get {
+        extract(_.request.uri.query()) { params =>
+          val limit = params.get("limit").map(_.toInt).getOrElse(100)
+          val auctionsFuture = auctionRepository.filterAuctions(params.toMap, limit)
+          val sortedAuctionsFuture = (params.get("orderedBy") match {
+            case Some("date") => auctionsFuture.map(_.sortBy(_.auctionEnd).reverse)
+            case Some("size") => auctionsFuture.map(_.sortBy(_.length).reverse)
+            case _ => auctionsFuture.map(_.sortBy(_.auctionId).reverse)
+          })
+          onSuccess(sortedAuctionsFuture) { auctionsList =>
+            complete(auctionsList)
+          }
+        }
+      } ~
+      post {
+        entity(as[PostAuction]) { postAuction =>
+          val auctionToInsert = Auction(
+            0, 1, postAuction.length, postAuction.width, postAuction.height,
+            postAuction.fragile, postAuction.description, postAuction.from, postAuction.to,
+            postAuction.departure, postAuction.arrival,
+            Timestamp.from(postAuction.arrival.toInstant().minusSeconds(86400 * postAuction.daysBefore)), postAuction.startingPrice, List.empty
+          )
+          val insertAuctionFuture = auctionRepository.insert(auctionToInsert)
+          onSuccess(insertAuctionFuture) { auctionId =>
+            complete(StatusCodes.Created, s"Auction created with ID: $auctionId")
+          }
+        }
+        entity(as[PostAuctionStr]) { postAuction =>
+          val auctionToInsert = Auction(0, 1, postAuction.length.toFloat, postAuction.width.toFloat,
+            postAuction.height.toFloat, postAuction.fragile.toBoolean, postAuction.description, postAuction.from, postAuction.to, postAuction.departure,
+            postAuction.arrival, Timestamp.from(postAuction.arrival.toInstant().minusSeconds(86400 * postAuction.daysBefore.toInt)), postAuction.startingPrice.toDouble, List.empty)
+            
+          val insertAuctionFuture = auctionRepository.insert(auctionToInsert)
+          onSuccess(insertAuctionFuture) { auctionId =>
+            complete(StatusCodes.Created, s"Auction created with ID: $auctionId")
+          }
+        }
+      }
+    } ~
     path("android") {
       get {
         redirect("https://" + config.getString("bucket") + ".s3.amazonaws.com/public/jastip.apk", StatusCodes.PermanentRedirect)
@@ -50,6 +91,24 @@ object Main extends App {
     path("ios") {
       get {
         complete("Coming soon! :)")
+      }
+    } ~
+    path("bids-json") {
+      get {
+        val bids = TableQuery[Bids]
+        val bidsFuture: Future[Seq[Bid]] = db.run(bids.result)
+        onSuccess(bidsFuture) { bidsList =>
+          complete(bidsList) // Automatically converts to JSON
+        }
+      }
+    } ~
+    path("bids") {
+      get {
+        val bids = TableQuery[Bids]
+        val bidsFuture: Future[Seq[Bid]] = db.run(bids.result)
+        onSuccess(bidsFuture) { bidsList =>
+          complete(bidsList.map(_.toString).mkString(", "))
+        }
       }
     }
 
