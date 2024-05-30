@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:jastip/FormBox.dart';
 import 'package:jastip/ListingPage.dart';
 import 'package:jastip/PageHeader.dart';
+import 'package:jastip/Constants.dart';
 
 class BlankPage extends StatelessWidget {
   BlankPage({super.key});
@@ -9,7 +10,7 @@ class BlankPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: backgroundColor,
       body: Column(
         children: [
           PageHeader(title: 'JASTIP+'),
