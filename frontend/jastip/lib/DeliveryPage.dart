@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:jastip/FormBox.dart';
-import 'package:jastip/ListingPage.dart';
+import 'package:jastip/CarrierPage.dart';
 import 'package:jastip/PageHeader.dart';
 import 'package:jastip/Constants.dart';
+import 'ToggleButton.dart';
 
-class BlankPage extends StatelessWidget {
-  BlankPage({super.key});
+class DeliveryPage extends StatefulWidget {
+  DeliveryPage({Key? key}) : super(key: key);
+
+  @override
+  _DeliveryPageState createState() => _DeliveryPageState();
+}
+
+class _DeliveryPageState extends State<DeliveryPage> {
+  int _selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -14,9 +22,27 @@ class BlankPage extends StatelessWidget {
       body: Column(
         children: [
           PageHeader(title: 'JASTIP+'),
+          ToggleButton(
+            onToggle: (index) {
+              setState(() {
+                _selectedIndex = index;
+              });
+            },
+            selectedIndex: _selectedIndex,
+          ),
           Expanded(
-            //width: 300,
-            child: Formbox(
+            child: _selectedIndex == 0 ? DeliveryContent() : CarrierContent(),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class DeliveryContent extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Formbox(
                 title: "Where to?",
                 fields: [
                   MapEntry('Destination', [
@@ -32,20 +58,7 @@ class BlankPage extends StatelessWidget {
                 ],
                 constraints: BoxConstraints(
                     maxWidth: 0.9 * MediaQuery.sizeOf(context).width),
-                checkboxTitles: ["fragile?", "skibidi?", "toilet?"]),
-          )
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => ListingPage.generic()),
-          );
-        },
-        child: const Icon(Icons.arrow_forward),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-    );
+                checkboxTitles: ["fragile?", "skibidi?", "toilet?"]);
   }
 }
+
