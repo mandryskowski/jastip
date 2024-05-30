@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import "package:jastip/DeliveryPage.dart";
+import "package:jastip/DeliveryCarrierPage.dart";
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:async';
 
@@ -21,7 +21,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
         // Navigate to the new page
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => DeliveryPage()),
+          MaterialPageRoute(builder: (context) => HomePage()),
         );
       });
     });

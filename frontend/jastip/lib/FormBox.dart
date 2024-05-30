@@ -111,7 +111,10 @@ class _FormboxState extends State<Formbox> {
       child: ConstrainedBox(
         constraints: widget.constraints,
         child: Container(
+          decoration: BoxDecoration(
           color: backgroundColorData,
+          borderRadius: BorderRadius.circular(30.0), // Rounded edges
+          ),
           child: SingleChildScrollView(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
