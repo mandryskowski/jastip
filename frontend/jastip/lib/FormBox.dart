@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:jastip/Constants.dart';
 import 'package:jastip/Listing.dart';
 import 'package:jastip/ListingPage.dart';
 
@@ -13,7 +14,7 @@ class Formbox extends StatefulWidget {
   }) : super(key: key);
 
   final String title;
-  final List<MapEntry<String, List<String>>> fields;
+  final List<MapEntry<String, List<SearchBarContentsTuple>>> fields;
   final List<String> checkboxTitles;
   final BoxConstraints constraints;
 
@@ -30,7 +31,7 @@ class _FormboxState extends State<Formbox> {
     super.initState();
     for (var group in widget.fields) {
       for (var field in group.value) {
-        _controllers[field] = TextEditingController();
+        _controllers[field.content] = TextEditingController();
       }
     }
     for (var title in widget.checkboxTitles) {
@@ -47,13 +48,18 @@ class _FormboxState extends State<Formbox> {
   }
 
   void _submit() {
+    Map<String, String> mp = {};
     for (var entry in _controllers.entries) {
       print('${entry.key}: ${entry.value.text}');
+      mp[entry.key] = entry.value.text;
     }
     for (var entry in _checkboxValues.entries) {
       print('${entry.key}: ${entry.value}');
+      mp[entry.key] = entry.value.toString();
     }
-    // Add your submit logic here
+
+    Navigator.push(context,
+        MaterialPageRoute(builder: (context) => ListingPage(args: mp)));
   }
 
   @override
@@ -81,7 +87,8 @@ class _FormboxState extends State<Formbox> {
                 ),
                 ...widget.fields.map((group) {
                   return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10.0, horizontal: 15.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -97,10 +104,11 @@ class _FormboxState extends State<Formbox> {
                           children: group.value.map((field) {
                             return Expanded(
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 5.0),
                                 child: SearchBar(
-                                  hintText: field,
-                                  controller: _controllers[field]!,
+                                  hint: field,
+                                  controller: _controllers[field.content]!,
                                 ),
                               ),
                             );
@@ -135,14 +143,13 @@ class _FormboxState extends State<Formbox> {
   }
 }
 
-
 class SearchBar extends StatelessWidget {
-  final String hintText;
+  final SearchBarContentsTuple hint;
   final TextEditingController controller;
 
   const SearchBar({
     Key? key,
-    required this.hintText,
+    required this.hint,
     required this.controller,
   }) : super(key: key);
 
@@ -151,10 +158,10 @@ class SearchBar extends StatelessWidget {
     return TextField(
       controller: controller,
       inputFormatters: [
-        TextInputFormatter.withFunction()
+        FilteringTextInputFormatter.allow(regExpFormatter[hint.type] as Pattern)
       ],
       decoration: InputDecoration(
-        hintText: hintText,
+        hintText: hint.content,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8.0),
         ),
@@ -207,7 +214,6 @@ class CheckboxWidget extends StatelessWidget {
     );
   }
 }
-
 
 class SubmitButton extends StatefulWidget {
   final VoidCallback onPressed;
@@ -276,5 +282,3 @@ class _SubmitButtonState extends State<SubmitButton> {
     );
   }
 }
-
-

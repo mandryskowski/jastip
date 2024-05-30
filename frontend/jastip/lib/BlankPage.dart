@@ -15,7 +15,23 @@ class BlankPage extends StatelessWidget {
           PageHeader(title: 'JASTIP+'),
           Expanded(
             //width: 300,
-            child: Formbox(title: "Where to?", fields:[MapEntry('Destination', ['From', 'To']), MapEntry('Date', ['Date']), MapEntry('Dimensions', ['Width', 'Height', 'Length'])], constraints: BoxConstraints(maxWidth: 0.9 * MediaQuery.sizeOf(context).width), checkboxTitles: ["fragile?", "skibidi?", "toilet?"]),
+            child: Formbox(
+                title: "Where to?",
+                fields: [
+                  MapEntry('Destination', [
+                    SearchBarContentsTuple('From', String),
+                    SearchBarContentsTuple('To', String)
+                  ]),
+                  MapEntry('Date', [SearchBarContentsTuple('When', DateTime)]),
+                  MapEntry('Dimensions', [
+                    SearchBarContentsTuple('Length', int),
+                    SearchBarContentsTuple('Width', int),
+                    SearchBarContentsTuple('Height', int),
+                  ])
+                ],
+                constraints: BoxConstraints(
+                    maxWidth: 0.9 * MediaQuery.sizeOf(context).width),
+                checkboxTitles: ["fragile?", "skibidi?", "toilet?"]),
           )
         ],
       ),

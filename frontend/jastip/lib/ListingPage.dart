@@ -8,16 +8,13 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class ListingPage extends StatelessWidget {
-  ListingPage({
-    super.key,
-    required this.args
-  });
+  ListingPage({super.key, required this.args});
 
   static ListingPage generic() {
-    return ListingPage(args: {'startCity': SearchBarContentsTuple('London', String)});
+    return ListingPage(args: const {'startCity': 'London'});
   }
 
-  final Map<String, SearchBarContentsTuple>args;
+  final Map<String, String> args;
 
   @override
   Widget build(BuildContext context) {
@@ -76,11 +73,8 @@ class ListingPage extends StatelessWidget {
   }
 
   Future<List<Listing>> fetchData() async {
-    final response = await http.get(
-        Uri.parse(
-          "https://jastip-backend-3b036fb5403c.herokuapp.com/auctions${getParameters()}"
-        )
-      );
+    final response = await http.get(Uri.parse(
+        "https://jastip-backend-3b036fb5403c.herokuapp.com/auctions${getParameters()}"));
     if (response.statusCode == 200) {
       print(response.body);
       Iterable list = json.decode(response.body);
@@ -91,16 +85,17 @@ class ListingPage extends StatelessWidget {
       throw Exception('Failed to load data');
     }
   }
-String getParameters() {
-  StringBuffer sb = StringBuffer();
-  sb.write("?");
-  for(var entry in this.args.entries) {
-    sb.write("&${entry.key}=${entry.value.content.toString()}");
-  }
-  return sb.toString();
-}
-}
 
+  String getParameters() {
+    StringBuffer sb = StringBuffer();
+    sb.write("?");
+    for (var entry in args.entries)
+      if (entry.value.isNotEmpty) {
+        sb.write("${entry.key}=${entry.value.toString()}&");
+      }
+    return sb.toString();
+  }
+}
 
 class ListingWidget extends StatelessWidget {
   const ListingWidget({
