@@ -63,15 +63,6 @@ jobs:
         echo "PATH=$PATH:/usr/local/android-sdk/cmdline-tools/latest/bin:/usr/local/android-sdk/platform-tools" >> $GITHUB_ENV
         sudo yes | /usr/local/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
 
-    - name: Connect to emulator
-      run: |
-        flutter devices
-        flutter doctor
-        flutter config --android-sdk /usr/local/android-sdk
-        flutter doctor
-        sudo yes | flutter doctor --android-licenses
-        flutter emulators
-
     - name: Build APK
       run: |
         cd frontend/jastip
