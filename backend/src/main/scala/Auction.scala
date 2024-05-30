@@ -4,6 +4,10 @@ case class Auction(auctionId: Long, userId: Int, length: Float, width: Float, he
                    description: String, departure: java.sql.Timestamp, arrival: java.sql.Timestamp,
                    auctionEnd: java.sql.Timestamp, startingPrice: Double, bids: List[Int])
 
+case class AuctionWithoutId(userId: Int, length: Float, width: Float, height: Float, fragile: Boolean,
+                    description: String, departure: java.sql.Timestamp, arrival: java.sql.Timestamp,
+                    auctionEnd: java.sql.Timestamp, startingPrice: Double, bids: List[Int])
+
 case class AuctionWithPrices(
   auctionId: Long,
   userId: Int,

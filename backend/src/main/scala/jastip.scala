@@ -46,6 +46,18 @@ object Main extends App {
           complete(auctionsList.map(_.toString).mkString(", "))
         }
       }
+      post {
+        entity(as[AuctionWithoutId]) { auctionWithoutId =>
+          val auctions = TableQuery[Auctions]
+          val auctionToInsert = Auction(0, auctionWithoutId.userId, auctionWithoutId.length, auctionWithoutId.width,
+            auctionWithoutId.height, auctionWithoutId.fragile, auctionWithoutId.description, auctionWithoutId.departure,
+            auctionWithoutId.arrival, auctionWithoutId.auctionEnd, auctionWithoutId.startingPrice, auctionWithoutId.bids)
+          val insertAuctionFuture: Future[Long] = db.run((auctions returning auctions.map(_.auctionId)) += auctionToInsert)
+          onSuccess(insertAuctionFuture) { auctionId =>
+            complete(StatusCodes.Created, s"Auction created with ID: $auctionId")
+          }
+        }
+      }
     } ~
     path("bids") {
       get {
@@ -78,7 +90,10 @@ object Main extends App {
       get {
         extract(_.request.uri.query()) { params =>
 
-          val auctionsQuery = TableQuery[Auctions].filter(_.fragile === (params.getOrElse("fragile", "no") == "yes"))
+          val auctionsQuery = params.get("fragile") match {
+            case Some(v) => TableQuery[Auctions].filter(auction => auction.fragile === (v == "yes"))
+            case _ => TableQuery[Auctions]
+          }
           val bidsQuery = TableQuery[Bids]
 
           val joinedQuery = for {
