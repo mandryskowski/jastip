@@ -46,6 +46,11 @@ object Main extends App {
       get {
         redirect("https://" + config.getString("bucket") + ".s3.amazonaws.com/public/jastip.apk", StatusCodes.PermanentRedirect)
       }
+    } ~
+    path("ios") {
+      get {
+        complete("Coming soon! :)")
+      }
     }
 
   val port = sys.env.getOrElse("PORT", "8080").toInt
