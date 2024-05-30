@@ -61,7 +61,7 @@ jobs:
     - name: Install system image
       run: |
         sudo chown $USER: $ANDROID_HOME -R
-        sudo yes | sudo /usr/local/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-33" "build-tools;30.0.3" "emulator" "system-images;android-33;google_apis;x86_64"
+        sudo yes | sudo /usr/local/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-34" "build-tools;30.0.3" "emulator" "system-images;android-34;google_apis;x86_64"
 
     - name: List installed system images
       run: |
@@ -70,7 +70,7 @@ jobs:
     - name: Start emulator
       run: |
         sudo apt-get install -y qemu-kvm
-        echo "no" | /usr/local/android-sdk/cmdline-tools/latest/bin/avdmanager create avd --force --name "test" --package "system-images;android-33;google_apis;x86_64" --device "pixel"
+        echo "no" | /usr/local/android-sdk/cmdline-tools/latest/bin/avdmanager create avd --force --name "test" --package "system-images;android-34;google_apis;x86_64" --device "pixel"
         $ANDROID_SDK_ROOT/emulator/emulator -avd test -no-snapshot -no-window -no-audio -gpu swiftshader -accel on -qemu -m 2048 &
         adb wait-for-device
 
