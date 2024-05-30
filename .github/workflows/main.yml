@@ -153,7 +153,7 @@ jobs:
 
       - name: Set up database schema
         run: |
-          sbt "runMain your.package.path.SetupDatabase" # Adjust this command to run your schema setup
+          sbt "runMain JastipBackend"
 
       - name: Run tests
         run: |
