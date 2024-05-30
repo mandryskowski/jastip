@@ -10,4 +10,5 @@ object BidJsonProtocol extends spray.json.DefaultJsonProtocol {
   implicit val auctionFormat = jsonFormat14(Auction)
   implicit val auctionWithPricesFormat = jsonFormat14(AuctionWithPrices)
   implicit val postAuctionFormat = jsonFormat11(PostAuction)
+  implicit val postAuctionStrFormat = jsonFormat11(PostAuctionStr)
 }

@@ -8,6 +8,10 @@ case class PostAuction(length: Float, width: Float, height: Float, fragile: Bool
                     description: String, from : String, to : String, departure: java.sql.Timestamp, arrival: java.sql.Timestamp,
                     startingPrice: Double, daysBefore : Int)
 
+case class PostAuctionStr(length: String, width: String, height: String, fragile: String,
+                    description: String, from : String, to : String, departure: java.sql.Timestamp, arrival: java.sql.Timestamp,
+                    startingPrice: String, daysBefore : String)
+
 case class AuctionWithPrices(
   auctionId: Long,
   userId: Int,

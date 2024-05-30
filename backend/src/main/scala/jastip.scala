@@ -118,6 +118,16 @@ object Main extends App {
           onSuccess(insertAuctionFuture) { auctionId =>
             complete(StatusCodes.Created, s"Auction created with ID: $auctionId")
           }
+        } ~
+        entity(as[PostAuctionStr]) { postAuction =>
+          val auctions = TableQuery[Auctions]
+          val auctionToInsert = Auction(0, 1, postAuction.length.toFloat, postAuction.width.toFloat,
+            postAuction.height.toFloat, postAuction.fragile.toBoolean, postAuction.description, postAuction.from, postAuction.to, postAuction.departure,
+            postAuction.arrival, Timestamp.from(postAuction.arrival.toInstant().minusSeconds(86400 * postAuction.daysBefore.toInt)), postAuction.startingPrice.toDouble, List.empty)
+          val insertAuctionFuture: Future[Long] = db.run((auctions returning auctions.map(_.auctionId)) += auctionToInsert)
+          onSuccess(insertAuctionFuture) { auctionId =>
+            complete(StatusCodes.Created, s"Auction created with ID: $auctionId")
+          }
         }
       }
     } ~
