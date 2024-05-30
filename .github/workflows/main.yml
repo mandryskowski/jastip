@@ -153,6 +153,7 @@ jobs:
 
       - name: Set up database schema
         run: |
+          cd backend
           sbt "runMain JastipBackend"
 
       - name: Run tests
