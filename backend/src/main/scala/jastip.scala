@@ -71,6 +71,16 @@ object JastipBackend extends App {
             complete(StatusCodes.Created, s"Auction created with ID: $auctionId")
           }
         }
+        entity(as[PostAuctionStr]) { postAuction =>
+          val auctionToInsert = Auction(0, 1, postAuction.length.toFloat, postAuction.width.toFloat,
+            postAuction.height.toFloat, postAuction.fragile.toBoolean, postAuction.description, postAuction.from, postAuction.to, postAuction.departure,
+            postAuction.arrival, Timestamp.from(postAuction.arrival.toInstant().minusSeconds(86400 * postAuction.daysBefore.toInt)), postAuction.startingPrice.toDouble, List.empty)
+            
+          val insertAuctionFuture = auctionRepository.insert(auctionToInsert)
+          onSuccess(insertAuctionFuture) { auctionId =>
+            complete(StatusCodes.Created, s"Auction created with ID: $auctionId")
+          }
+        }
       }
     } ~
     path("android") {
