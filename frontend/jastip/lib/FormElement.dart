@@ -1,39 +1,95 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:jastip/Constants.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-class SearchBarJastip extends StatelessWidget {
+
+class SearchBarJastip extends StatefulWidget {
   final SearchBarContentsTuple hint;
   final TextEditingController controller;
 
   const SearchBarJastip({
-    super.key,
+    Key? key,
     required this.hint,
     required this.controller,
-  });
+  }) : super(key: key);
+
+  @override
+  _SearchBarJastipState createState() => _SearchBarJastipState();
+}
+
+class _SearchBarJastipState extends State<SearchBarJastip> {
+  List<String> _hints = [];
 
   @override
   Widget build(BuildContext context) {
-    switch (hint.type) {
+    switch (widget.hint.type) {
       case DateTime:
-        return DateSearchBar(hintText: hint.content, controller: controller);
+        return DateSearchBar(hintText: widget.hint.content, controller: widget.controller);
       case int:
-        return NumberSearchBar(hint: hint, controller: controller);
+        return NumberSearchBar(hint: widget.hint, controller: widget.controller);
       default:
-        return TextField(
-          controller: controller,
-          inputFormatters: [
-            FilteringTextInputFormatter.allow(regExpFormatter[hint.type] as Pattern)
-          ],
-          decoration: InputDecoration(
-            hintText: hint.content,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.0),
+        return Column(
+          children: [
+            TextField(
+              controller: widget.controller,
+              onChanged: widget.hint.searchable ? (value) => onChangedSearch(value, widget.hint.dbQueryParam) : null,
+              inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]'))],
+              decoration: InputDecoration(
+                hintText: widget.hint.content,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                filled: true,
+                fillColor: Colors.grey[200],
+              ),
             ),
-            filled: true,
-            fillColor: backgroundColor,
-          ),
+            if (_hints.isNotEmpty)
+              Container(
+                color: Colors.white,
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: _hints.length,
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      title: Text(_hints[index]),
+                      onTap: () {
+                        widget.controller.text = _hints[index];
+                        setState(() {
+                          _hints.clear();
+                        });
+                      },
+                    );
+                  },
+                ),
+              ),
+          ],
         );
+    }
+  }
+
+  void onChangedSearch(String query, String column) async {
+    if (query.isEmpty) {
+      setState(() {
+        _hints = [];
+      });
+      return;
+    }
+
+    final url = Uri.parse('https://jastip-backend-3b036fb5403c.herokuapp.com/auctions?search=$query&column=$column');
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      setState(() {
+        _hints = data.map((item) => item[column]?.toString() ?? '').where((item) => item.isNotEmpty).take(3).toList();
+      });
+    } else {
+      // Handle error
+      setState(() {
+        _hints = [];
+      });
     }
   }
 }
@@ -72,8 +128,9 @@ class SearchBarContentsTuple {
   String content;
   Type type;
   String dbQueryParam;
+  bool searchable;
 
-  SearchBarContentsTuple(this.content, this.type, this.dbQueryParam);
+  SearchBarContentsTuple(this.content, this.type, this.dbQueryParam, {this.searchable = false});
 }
 
 class DateSearchBar extends StatefulWidget {
@@ -81,10 +138,10 @@ class DateSearchBar extends StatefulWidget {
   final TextEditingController controller;
 
   const DateSearchBar({
-    Key? key,
+    super.key,
     required this.hintText,
     required this.controller,
-  }) : super(key: key);
+  });
 
   @override
   _DateSearchBarState createState() => _DateSearchBarState();

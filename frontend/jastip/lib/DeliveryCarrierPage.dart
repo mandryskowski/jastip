@@ -4,24 +4,38 @@ import 'package:jastip/CarrierPage.dart';
 import 'package:jastip/ToggleButton.dart';
 import 'Constants.dart';
 import 'PageHeader.dart';
+import 'menu.dart';
 
 class HomePage extends StatefulWidget {
-  HomePage({Key? key}) : super(key: key);
+  final int initialIndex; // Add initialIndex parameter
+
+  HomePage({Key? key, this.initialIndex = 0}) : super(key: key);
 
   @override
-  _HomePageState createState() => _HomePageState();
+  _HomePageState createState() => _HomePageState(initialIndex); // Pass initialIndex
 }
 
 class _HomePageState extends State<HomePage> {
-  int _selectedIndex = 0;
+  int _selectedIndex;
+
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  _HomePageState(this._selectedIndex); // Receive initialIndex
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: backgroundColor,
+      drawer: MenuBox(),
       body: Column(
         children: [
-          const PageHeader(title: 'JASTIP+'),
+          MenuPageHeader(
+            title: 'JASTIP+',
+            onMenuPressed: () {
+              _scaffoldKey.currentState?.openDrawer();
+            },
+          ),
           Padding(
             padding: paddingVertical10,
             child: ToggleButton(
@@ -60,3 +74,5 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
+
+
