@@ -9,13 +9,14 @@ class PageHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+      padding: EdgeInsets.fromLTRB(16, MediaQuery.of(context).padding.top + 20, 16, 20),
       color: const Color(0xFFDA2222),
       child: Row(
         children: [
           Icon(
-            Icons.menu,
+            Icons.back_hand,
             color: Colors.white,
+            //size: 500.0,
           ),
           SizedBox(width: 10),
           Text(
@@ -41,7 +42,7 @@ class MenuPageHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+      padding: EdgeInsets.fromLTRB(16, MediaQuery.of(context).padding.top + 20, 16, 20),
       color: const Color(0xFFDA2222),
       child: Row(
         children: [
@@ -50,6 +51,7 @@ class MenuPageHeader extends StatelessWidget {
             child: Icon(
               Icons.menu,
               color: Colors.white,
+              size: 30,
             ),
           ),
           SizedBox(width: 10),
