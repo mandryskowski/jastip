@@ -9,9 +9,9 @@ class FilterPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: const Column(
+      body: Column(
         children: [
-          PageHeader(title: 'JASTIP+'),
+          BackPageHeader(title: 'JASTIP+', initialRoute: ModalRoute.of(context)?.settings.name ?? '/'),
           Expanded(
             child: Text("This is a filter page")
           )
@@ -21,7 +21,7 @@ class FilterPage extends StatelessWidget {
         onPressed: () {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => LoadingScreen(),)
+            MaterialPageRoute(builder: (context) => LoadingScreen(), settings: RouteSettings(name: "/LoadingScreen"))
           );
         },
         child: const Icon(Icons.arrow_forward),

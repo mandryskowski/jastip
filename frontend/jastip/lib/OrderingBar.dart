@@ -6,10 +6,12 @@ import 'package:jastip/Listing.dart';
 import 'package:jastip/ListingPage.dart';
 
 class Orderingbar extends StatelessWidget {
-  Orderingbar({super.key, required this.args, required this.orderIndex});
+  Orderingbar({super.key, required this.args, required this.orderIndex, required this.initialRoute});
   
   Map<String, String> args;
   int orderIndex;
+  final String initialRoute;
+
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +29,7 @@ class Orderingbar extends StatelessWidget {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => ListingPage(args: args, orderingIndex: orderIndex)));
+                            builder: (context) => ListingPage(args: args, orderingIndex: orderIndex, initialRoute: initialRoute,), settings: RouteSettings(name: '/ListingPage'),));
                   },
                   child: Container(
                       padding: const EdgeInsets.symmetric(
@@ -58,7 +60,7 @@ class Orderingbar extends StatelessWidget {
               child: GestureDetector(
                   onTap: () {
                     Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => FilterPage()));
+                        MaterialPageRoute(builder: (context) => FilterPage(), settings: RouteSettings(name: '/FilterPage'),));
                   },
                   child: Container(
                       padding: const EdgeInsets.symmetric(

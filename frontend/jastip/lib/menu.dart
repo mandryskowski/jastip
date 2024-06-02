@@ -127,6 +127,7 @@ class MenuBox extends StatelessWidget {
   PageRouteBuilder coolHomeTransition(int initialIndex) {
     return PageRouteBuilder(
       pageBuilder: (context, animation, secondaryAnimation) => HomePage(initialIndex: initialIndex),
+      settings: RouteSettings(name: '/HomePage${initialIndex}'),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         var begin = const Offset(1.0, 0.0);
         var end = Offset.zero;

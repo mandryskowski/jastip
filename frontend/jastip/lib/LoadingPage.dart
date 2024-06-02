@@ -21,7 +21,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
         // Navigate to the new page
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => HomePage()),
+          MaterialPageRoute(builder: (context) => HomePage(), settings: RouteSettings(name: '/HomePage0')),
         );
       });
     });

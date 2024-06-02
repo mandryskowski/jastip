@@ -63,6 +63,7 @@ class _FormboxState extends State<Formbox> {
       mp[entry.key] = entry.value.toString();
     }
 
+    String currentRoute = ModalRoute.of(context)?.settings.name ?? '/';
 
     if(widget.httpMethod == "POST") {
       print("POST request");
@@ -70,13 +71,13 @@ class _FormboxState extends State<Formbox> {
       _postRequest(mp);
 
       Navigator.push(context,
-        MaterialPageRoute(builder: (context) => ListingPage.generic()));
+        MaterialPageRoute(builder: (context) => ListingPage.generic(currentRoute), settings: RouteSettings(name: '/ListingPage')));
 
     }
     else if(widget.httpMethod == "GET") {
       print("GET request");
       Navigator.push(context,
-        MaterialPageRoute(builder: (context) => ListingPage(args: mp)));
+        MaterialPageRoute(builder: (context) => ListingPage(args: mp, initialRoute: currentRoute,), settings: RouteSettings(name: '/ListingPage')));
     } else {
       print("INVALID HTTP METHOD");
     }

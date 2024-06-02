@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:jastip/Constants.dart';
 import 'package:jastip/FormBox.dart';
 import 'package:jastip/OrderingBar.dart';
 import 'package:jastip/PageHeader.dart';
@@ -9,14 +10,15 @@ import 'dart:convert';
 
 class ListingPage extends StatelessWidget {
 
-  ListingPage({super.key, required this.args, this.orderingIndex = 0});
+  ListingPage({super.key, required this.args, this.orderingIndex = 0, required this.initialRoute});
 
-  static ListingPage generic() {
-    return ListingPage(args: const {});
+  static ListingPage generic(String currentRoute) {
+    return ListingPage(args: const {}, initialRoute: currentRoute);
   }
 
   final Map<String, String> args;
   int orderingIndex;
+  final String initialRoute;
 
   @override
   Widget build(BuildContext context) {
@@ -33,8 +35,8 @@ class ListingPage extends StatelessWidget {
           return Scaffold(
             body: Column(
               children: [
-                PageHeader(title: "JASTIP+"),
-                Orderingbar(args: args, orderIndex: orderingIndex,),
+                BackPageHeader(title: "JASTIP+", initialRoute: initialRoute),
+                Orderingbar(args: args, orderIndex: orderingIndex, initialRoute: initialRoute),
                 Expanded(
                   child: Container(
                     color: const Color.fromARGB(255, 255, 255, 255),
@@ -60,7 +62,7 @@ class ListingPage extends StatelessWidget {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const LoadingScreen()),
+                      builder: (context) => const LoadingScreen(), settings: RouteSettings(name: '/LoadingScreen')),
                 );
               },
               child: const Icon(Icons.refresh),

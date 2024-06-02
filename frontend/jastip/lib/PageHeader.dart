@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'Constants.dart';
 
-class PageHeader extends StatelessWidget {
+class BackPageHeader extends StatelessWidget {
   final String title;
+  final String initialRoute;
 
-  const PageHeader({Key? key, required this.title}) : super(key: key);
+  const BackPageHeader({Key? key, required this.title, required this.initialRoute}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -13,10 +15,15 @@ class PageHeader extends StatelessWidget {
       color: const Color(0xFFDA2222),
       child: Row(
         children: [
-          Icon(
-            Icons.back_hand,
-            color: Colors.white,
-            //size: 500.0,
+          InkWell(
+            onTap: () {
+              Navigator.popUntil(context, ModalRoute.withName(initialRoute));
+            },
+            child: Icon(
+              Icons.arrow_back,
+              color: Colors.white,
+              size: 30.0,
+            ),
           ),
           SizedBox(width: 10),
           Text(
