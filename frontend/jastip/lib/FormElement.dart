@@ -69,21 +69,22 @@ class _SearchBarJastipState extends State<SearchBarJastip> {
     }
   }
 
-  void onChangedSearch(String query, String column) async {
-    if (query.isEmpty) {
+  void onChangedSearch(String content, String column) async {
+    if (content.isEmpty) {
       setState(() {
         _hints = [];
       });
       return;
     }
 
-    final url = Uri.parse('https://jastip-backend-3b036fb5403c.herokuapp.com/auctions?search=$query&column=$column');
+    final url = Uri.parse('https://jastip-backend-3b036fb5403c.herokuapp.com/suggestions?column=$column&$column=$content');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
+
       setState(() {
-        _hints = data.map((item) => item[column]?.toString() ?? '').where((item) => item.isNotEmpty).take(3).toList();
+        _hints = data.map((item) => item.toString()).take(3).toList();
       });
     } else {
       // Handle error
@@ -195,5 +196,76 @@ class _DateSearchBarState extends State<DateSearchBar> {
 
   bool _isValidDate(String input) {
     return input == '' || _dateFormatRegex.hasMatch(input);
+  }
+}
+
+class SubmitButton extends StatefulWidget {
+  final VoidCallback onPressed;
+  final String buttonText;
+
+  const SubmitButton({
+    super.key,
+    required this.onPressed,
+    required this.buttonText,
+  });
+
+  @override
+  _SubmitButtonState createState() => _SubmitButtonState();
+}
+
+class _SubmitButtonState extends State<SubmitButton> {
+  bool isPressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: paddingAll15,
+      child: ElevatedButton(
+        onPressed: widget.onPressed,
+        style: ButtonStyle(
+          padding: WidgetStateProperty.all<EdgeInsets>(
+            const EdgeInsets.symmetric(vertical: 12.0),
+          ),
+          backgroundColor: WidgetStateProperty.resolveWith<Color>(
+            (states) {
+              if (states.contains(WidgetState.pressed)) {
+                // Darken color on press
+                return primaryColorDark;
+              }
+              // Default color
+              return primaryColor;
+            },
+          ),
+          foregroundColor: WidgetStateProperty.resolveWith<Color>(
+            (states) {
+              if (states.contains(WidgetState.pressed)) {
+                // Text color when pressed
+                return backgroundColorData;
+              }
+              // Default text color
+              return backgroundColor;
+            },
+          ),
+          shadowColor: WidgetStateProperty.resolveWith<Color>(
+            (states) {
+              if (states.contains(WidgetState.pressed)) {
+                // Shadow color when pressed
+                return Colors.black.withOpacity(0.8);
+              }
+              // Default shadow color
+              return Colors.black.withOpacity(0.4);
+            },
+          ),
+          minimumSize: WidgetStateProperty.all<Size>(
+            const Size(200, 48), // Adjust the width and height as needed
+          ),
+        ),
+        child: Text(
+          widget.buttonText,
+          style: const TextStyle(fontSize: 18)
+        ),
+        
+      ),
+    );
   }
 }
