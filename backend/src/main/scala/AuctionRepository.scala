@@ -78,8 +78,8 @@ class AuctionRepository(db: Database)(implicit ec: ExecutionContext) {
     val initialQuery = auctions.take(limit)
 
     val filters: Seq[(String, Auctions => String => Rep[Boolean])] = Seq(
-      "from" -> ((auction: Auctions) => (v: String) => auction.from.toLowerCase like s"%${v.toLowerCase}%"),
-      "to" -> ((auction: Auctions) => (v: String) => auction.to.toLowerCase like s"%${v.toLowerCase}%"))
+      "startCity" -> ((auction: Auctions) => (v: String) => auction.from.toLowerCase like s"%${v.toLowerCase}%"),
+      "endCity" -> ((auction: Auctions) => (v: String) => auction.to.toLowerCase like s"%${v.toLowerCase}%"))
 
     val filteredQuery = filters.foldLeft(initialQuery) { case (query, (paramName, filterFunc)) =>
       params.get(paramName) match {
@@ -89,8 +89,8 @@ class AuctionRepository(db: Database)(implicit ec: ExecutionContext) {
     }
 
     val suggestionQuery = (params.get("column") match {
-      case Some("from") => filteredQuery.result.map(result => result.map(_.from))
-      case Some("to") => filteredQuery.result.map(result => result.map(_.to))
+      case Some("startCity") => filteredQuery.result.map(result => result.map(_.from))
+      case Some("endCity") => filteredQuery.result.map(result => result.map(_.to))
     })
 
     db.run(suggestionQuery.map(_.groupBy(x=>x).map(_._1).toSeq.sorted)) // remove duplicates and sort alphabetically
