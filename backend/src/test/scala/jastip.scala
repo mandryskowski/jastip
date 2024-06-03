@@ -20,7 +20,7 @@ class AuctionRepositorySpec extends AnyFlatSpec with Matchers {
     Await.result(db.run(auctionRepo.createSchema()), 2.seconds)
 
     // Insert a test auction 
-    val testAuction = Auction(1L, 1, 10.0f, 10.0f, 10.0f, false, "Test Auction", "City A", "City B", Timestamp.valueOf("2022-01-01 00:00:00"), Timestamp.valueOf("2022-01-02 00:00:00"), Timestamp.valueOf("2022-01-03 00:00:00"), 100.0, List())
+    val testAuction = Auction(1L, 1, 10.0f, 10.0f, 10.0f, 2.5f, false, "Test Auction", "City A", "City B", Timestamp.valueOf("2022-01-01 00:00:00"), Timestamp.valueOf("2022-01-02 00:00:00"), Timestamp.valueOf("2022-01-03 00:00:00"), 100.0, List())
     Await.result(auctionRepo.insert(testAuction), 2.seconds)
 
     // Retrieve the auction
