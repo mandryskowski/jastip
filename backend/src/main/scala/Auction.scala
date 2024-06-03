@@ -1,14 +1,14 @@
 import MyPostgresProfile.api._
 
-case class Auction(auctionId: Long, userId: Int, length: Float, width: Float, height: Float, fragile: Boolean,
+case class Auction(auctionId: Long, userId: Int, length: Float, width: Float, height: Float, weight : Float, fragile: Boolean,
                    description: String, from : String, to : String, departure: java.sql.Timestamp, arrival: java.sql.Timestamp,
                    auctionEnd: java.sql.Timestamp, startingPrice: Double, bids: List[Int])
 
-case class PostAuction(length: Float, width: Float, height: Float, fragile: Boolean,
+case class PostAuction(length: Float, width: Float, height: Float, weight : Float, fragile: Boolean,
                     description: String, from : String, to : String, departure: java.sql.Timestamp, arrival: java.sql.Timestamp,
                     startingPrice: Double, daysBefore : Int)
 
-case class PostAuctionStr(length: String, width: String, height: String, fragile: String,
+case class PostAuctionStr(length: String, width: String, height: String, weight : String, fragile: String,
                     description: String, from : String, to : String, departure: java.sql.Timestamp, arrival: java.sql.Timestamp,
                     startingPrice: String, daysBefore : String)
 
@@ -18,6 +18,7 @@ case class AuctionWithPrices(
   length: Float,
   width: Float,
   height: Float,
+  weight : Float,
   fragile: Boolean,
   description: String,
   from : String,
@@ -35,6 +36,7 @@ class Auctions(tag: Tag) extends Table[Auction](tag, "auctions") {
   def length = column[Float]("length")
   def width = column[Float]("width")
   def height = column[Float]("height")
+  def weight = column[Float]("weight")
   def fragile = column[Boolean]("fragile")
   def description = column[String]("description")
   def departure = column[java.sql.Timestamp]("departure_time")
@@ -45,7 +47,7 @@ class Auctions(tag: Tag) extends Table[Auction](tag, "auctions") {
   def startingPrice = column[Double]("starting_price")
   def bids = column[List[Int]]("bid_ids")
 
-  def * = (auctionId, userId, length, width, height, fragile, description, from, to, departure, arrival, auctionEnd,
+  def * = (auctionId, userId, length, width, height, weight, fragile, description, from, to, departure, arrival, auctionEnd,
     startingPrice, bids) <> (Auction.tupled, Auction.unapply)
 }
 

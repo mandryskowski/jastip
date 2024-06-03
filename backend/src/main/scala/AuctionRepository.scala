@@ -33,7 +33,9 @@ class AuctionRepository(db: Database)(implicit ec: ExecutionContext) {
       }),
       "length" -> ((auction: Auctions) => (v: String) => auction.length >= v.toFloat),
       "width" -> ((auction: Auctions) => (v: String) => auction.width >= v.toFloat),
-      "height" -> ((auction: Auctions) => (v: String) => auction.height >= v.toFloat)
+      "height" -> ((auction: Auctions) => (v: String) => auction.height >= v.toFloat),
+      "weight" -> ((auction : Auctions) => (v: String) => auction.weight >= v.toFloat),
+      "auctionId" -> ((auction: Auctions) => (v: String) => auction.auctionId === v.toLong)
     )
 
     val filteredQuery = filters.foldLeft(initialQuery) { case (query, (paramName, filterFunc)) =>
@@ -55,6 +57,7 @@ class AuctionRepository(db: Database)(implicit ec: ExecutionContext) {
                 auction.length,
                 auction.width,
                 auction.height,
+                auction.weight,
                 auction.fragile,
                 auction.description,
                 auction.from,
@@ -71,6 +74,41 @@ class AuctionRepository(db: Database)(implicit ec: ExecutionContext) {
     db.run(auctionsWithPricesQuery)
   }
 
+  def suggestions(params: Map[String, String], limit : Int): Future[Seq[String]] = {
+    val initialQuery = auctions.take(limit)
+
+    val filters: Seq[(String, Auctions => String => Rep[Boolean])] = Seq(
+      "from" -> ((auction: Auctions) => (v: String) => auction.from.toLowerCase like s"%${v.toLowerCase}%"),
+      "to" -> ((auction: Auctions) => (v: String) => auction.to.toLowerCase like s"%${v.toLowerCase}%"))
+
+    val filteredQuery = filters.foldLeft(initialQuery) { case (query, (paramName, filterFunc)) =>
+      params.get(paramName) match {
+        case Some(value) => query.filter(filterFunc(_)(value))
+        case None => query
+      }
+    }
+
+    val suggestionQuery = (params.get("column") match {
+      case Some("from") => filteredQuery.result.map(result => result.map(_.from))
+      case Some("to") => filteredQuery.result.map(result => result.map(_.to))
+    })
+
+    db.run(suggestionQuery.map(_.groupBy(x=>x).map(_._1).toSeq.sorted)) // remove duplicates and sort alphabetically
+  }
+
+  def verifyAuction(auction : Auction) : Option[String] = {
+    if (auction.length <= 0 || auction.width <= 0 || auction.height <= 0 || auction.weight <= 0)
+      Some("Dimensions and weight must be positive values")
+    else if (auction.startingPrice <= 0)
+      Some("Starting price must be a positive value")
+    else if (!auction.departure.before(auction.arrival))
+      Some("Departure must be before arrival")
+    else if (!auction.auctionEnd.before(auction.departure))
+      Some("Auction must end before departure")
+    else
+      None
+  }
+  
   def insert(auction: Auction): Future[Long] = {
     db.run((auctions returning auctions.map(_.auctionId)) += auction)
   }

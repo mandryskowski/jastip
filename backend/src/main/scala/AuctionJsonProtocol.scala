@@ -5,5 +5,5 @@ import MyJsonProtocol._
 
 
 object AuctionJsonProtocol extends spray.json.DefaultJsonProtocol {
-  implicit val auctionFormat = jsonFormat14(Auction)
+  implicit val auctionFormat = jsonFormat15(Auction)
 }

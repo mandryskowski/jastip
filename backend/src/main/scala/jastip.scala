@@ -61,24 +61,45 @@ object JastipBackend extends App {
       post {
         entity(as[PostAuction]) { postAuction =>
           val auctionToInsert = Auction(
-            0, 1, postAuction.length, postAuction.width, postAuction.height,
+            0, 1, postAuction.length, postAuction.width, postAuction.height, postAuction.weight,
             postAuction.fragile, postAuction.description, postAuction.from, postAuction.to,
             postAuction.departure, postAuction.arrival,
             Timestamp.from(postAuction.arrival.toInstant().minusSeconds(86400 * postAuction.daysBefore)), postAuction.startingPrice, List.empty
           )
-          val insertAuctionFuture = auctionRepository.insert(auctionToInsert)
-          onSuccess(insertAuctionFuture) { auctionId =>
-            complete(StatusCodes.Created, s"Auction created with ID: $auctionId")
+          auctionRepository.verifyAuction(auctionToInsert) match {
+            case Some(reason) => complete(StatusCodes.BadRequest, reason)
+            case _ =>
+              val insertAuctionFuture = auctionRepository.insert(auctionToInsert)
+              onSuccess(insertAuctionFuture) { auctionId =>
+                complete(StatusCodes.Created, s"Auction created with ID: $auctionId")
+              }
           }
         }
         entity(as[PostAuctionStr]) { postAuction =>
           val auctionToInsert = Auction(0, 1, postAuction.length.toFloat, postAuction.width.toFloat,
-            postAuction.height.toFloat, postAuction.fragile.toBoolean, postAuction.description, postAuction.from, postAuction.to, postAuction.departure,
+            postAuction.height.toFloat, postAuction.weight.toFloat, postAuction.fragile.toBoolean, postAuction.description, postAuction.from, postAuction.to, postAuction.departure,
             postAuction.arrival, Timestamp.from(postAuction.arrival.toInstant().minusSeconds(86400 * postAuction.daysBefore.toInt)), postAuction.startingPrice.toDouble, List.empty)
             
-          val insertAuctionFuture = auctionRepository.insert(auctionToInsert)
-          onSuccess(insertAuctionFuture) { auctionId =>
-            complete(StatusCodes.Created, s"Auction created with ID: $auctionId")
+          auctionRepository.verifyAuction(auctionToInsert) match {
+            case Some(reason) => complete(StatusCodes.BadRequest, reason)
+            case _ =>
+              val insertAuctionFuture = auctionRepository.insert(auctionToInsert)
+            onSuccess(insertAuctionFuture) { auctionId =>
+              complete(StatusCodes.Created, s"Auction created with ID: $auctionId")
+            }
+          }
+
+          
+        }
+      }
+    } ~
+    path("suggestions") {
+      get {
+          extract(_.request.uri.query()) { params =>
+          val limit = params.get("limit").map(_.toInt).getOrElse(100)
+          val suggestionsFuture = auctionRepository.suggestions(params.toMap, limit)
+          onSuccess(suggestionsFuture) { auctionsList =>
+            complete(auctionsList)
           }
         }
       }
