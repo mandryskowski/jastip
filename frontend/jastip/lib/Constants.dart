@@ -8,7 +8,7 @@ Map<Type, RegExp> regExpFormatter = {String: stringFormat, int: intFormat, DateT
 
 // Color constants
 const Color primaryColor = Color(0xFFDA2222);
-const Color pimaryColorDark = Color(0xFF991717);
+const Color primaryColorDark = Color(0xFF991717);
 const Color backgroundColor = Colors.white; 
 const Color backgroundColorData = Color.fromRGBO(217, 217, 217, 100); 
 

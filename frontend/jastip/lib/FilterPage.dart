@@ -11,7 +11,7 @@ class FilterPage extends StatelessWidget {
       backgroundColor: Colors.white,
       body: Column(
         children: [
-          BackPageHeader(title: 'JASTIP+', initialRoute: ModalRoute.of(context)?.settings.name ?? '/'),
+          BackPageHeader(title: 'JASTIP+'),
           Expanded(
             child: Text("This is a filter page")
           )

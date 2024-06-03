@@ -4,9 +4,9 @@ import 'Constants.dart';
 
 class BackPageHeader extends StatelessWidget {
   final String title;
-  final String initialRoute;
+  final String? initialRoute;
 
-  const BackPageHeader({Key? key, required this.title, required this.initialRoute}) : super(key: key);
+  const BackPageHeader({Key? key, required this.title, this.initialRoute}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +17,10 @@ class BackPageHeader extends StatelessWidget {
         children: [
           InkWell(
             onTap: () {
-              Navigator.popUntil(context, ModalRoute.withName(initialRoute));
+              if (initialRoute != null)
+                Navigator.popUntil(context, ModalRoute.withName(initialRoute!));
+              else
+                Navigator.pop(context);
             },
             child: Icon(
               Icons.arrow_back,

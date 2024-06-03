@@ -246,7 +246,7 @@ class _SubmitButtonState extends State<SubmitButton> {
             (states) {
               if (states.contains(WidgetState.pressed)) {
                 // Darken color on press
-                return pimaryColorDark;
+                return primaryColorDark;
               }
               // Default color
               return primaryColor;

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:jastip/BidPage.dart';
 import 'package:jastip/Constants.dart';
 import 'package:jastip/FormBox.dart';
 import 'package:jastip/OrderingBar.dart';
@@ -111,12 +112,16 @@ class ListingWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(3.0),
-      decoration:
-          BoxDecoration(border: Border.all(color: const Color(0xFFDA2222))),
-      child: _listingChild(),
-    );
+    return InkWell(
+      onTap: () {
+         Navigator.push(context, MaterialPageRoute(builder: (context) => BidPage(listing: listing)));
+      },
+      child: Container(
+        padding: const EdgeInsets.all(3.0),
+        decoration:
+            BoxDecoration(border: Border.all(color: const Color(0xFFDA2222))),
+        child: _listingChild(),
+      ));
   }
 
   Row _listingChild() {
