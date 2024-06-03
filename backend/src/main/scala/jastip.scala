@@ -64,7 +64,7 @@ object JastipBackend extends App {
             0, 1, postAuction.length, postAuction.width, postAuction.height, postAuction.weight,
             postAuction.fragile, postAuction.description, postAuction.from, postAuction.to,
             postAuction.departure, postAuction.arrival,
-            Timestamp.from(postAuction.arrival.toInstant().minusSeconds(86400 * postAuction.daysBefore)), postAuction.startingPrice, List.empty
+            Timestamp.from(postAuction.departure.toInstant().minusSeconds(86400 * postAuction.daysBefore)), postAuction.startingPrice, List.empty
           )
           auctionRepository.verifyAuction(auctionToInsert) match {
             case Some(reason) => complete(StatusCodes.BadRequest, reason)
@@ -78,7 +78,7 @@ object JastipBackend extends App {
         entity(as[PostAuctionStr]) { postAuction =>
           val auctionToInsert = Auction(0, 1, postAuction.length.toFloat, postAuction.width.toFloat,
             postAuction.height.toFloat, postAuction.weight.toFloat, postAuction.fragile.toBoolean, postAuction.description, postAuction.from, postAuction.to, postAuction.departure,
-            postAuction.arrival, Timestamp.from(postAuction.arrival.toInstant().minusSeconds(86400 * postAuction.daysBefore.toInt)), postAuction.startingPrice.toDouble, List.empty)
+            postAuction.arrival, Timestamp.from(postAuction.departure.toInstant().minusSeconds(86400 * postAuction.daysBefore.toInt)), postAuction.startingPrice.toDouble, List.empty)
             
           auctionRepository.verifyAuction(auctionToInsert) match {
             case Some(reason) => complete(StatusCodes.BadRequest, reason)
