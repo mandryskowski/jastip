@@ -21,58 +21,75 @@ class SearchBarJastip extends StatefulWidget {
 
 class _SearchBarJastipState extends State<SearchBarJastip> {
   List<String> _hints = [];
+  final FocusNode _focusNode = FocusNode();
+  OverlayEntry? _overlayEntry;
 
   @override
-  Widget build(BuildContext context) {
-    switch (widget.hint.type) {
-      case DateTime:
-        return DateSearchBar(hintText: widget.hint.content, controller: widget.controller);
-      case int:
-        return NumberSearchBar(hint: widget.hint, controller: widget.controller);
-      default:
-        return Column(
-          children: [
-            TextField(
-              controller: widget.controller,
-              onChanged: widget.hint.searchable ? (value) => onChangedSearch(value, widget.hint.dbQueryParam) : null,
-              inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]'))],
-              decoration: InputDecoration(
-                hintText: widget.hint.content,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                filled: true,
-                fillColor: Colors.grey[200],
-              ),
-            ),
-            if (_hints.isNotEmpty)
-              Container(
-                color: Colors.white,
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: _hints.length,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      title: Text(_hints[index]),
-                      onTap: () {
-                        widget.controller.text = _hints[index];
-                        setState(() {
-                          _hints.clear();
-                        });
-                      },
-                    );
+  void initState() {
+    super.initState();
+    _focusNode.addListener(() {
+      if (!_focusNode.hasFocus) {
+        _removeOverlay();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _removeOverlay();
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  void _showOverlay() {
+    _overlayEntry = _createOverlayEntry();
+    Overlay.of(context).insert(_overlayEntry!);
+  }
+
+  void _removeOverlay() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+  }
+
+  OverlayEntry _createOverlayEntry() {
+    RenderBox renderBox = context.findRenderObject() as RenderBox;
+    var size = renderBox.size;
+    var offset = renderBox.localToGlobal(Offset.zero);
+
+    return OverlayEntry(
+      builder: (context) => Positioned(
+        left: offset.dx,
+        top: offset.dy + size.height,
+        width: size.width,
+        child: Material(
+          elevation: 4.0,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxHeight: 150),
+            child: ListView.builder(
+              padding: EdgeInsets.zero,
+              shrinkWrap: true,
+              itemCount: _hints.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(_hints[index]),
+                  onTap: () {
+                    widget.controller.text = _hints[index];
+                    _removeOverlay();
                   },
-                ),
-              ),
-          ],
-        );
-    }
+                );
+              },
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   void onChangedSearch(String content, String column) async {
     if (content.isEmpty) {
       setState(() {
         _hints = [];
+        _removeOverlay();
       });
       return;
     }
@@ -85,12 +102,40 @@ class _SearchBarJastipState extends State<SearchBarJastip> {
 
       setState(() {
         _hints = data.map((item) => item.toString()).take(3).toList();
+        _removeOverlay();
+        _showOverlay();
       });
     } else {
       // Handle error
       setState(() {
         _hints = [];
+        _removeOverlay();
       });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    switch (widget.hint.type) {
+      case DateTime:
+        return DateSearchBar(hintText: widget.hint.content, controller: widget.controller);
+      case int:
+        return NumberSearchBar(hint: widget.hint, controller: widget.controller);
+      default:
+        return TextField(
+          focusNode: _focusNode,
+          controller: widget.controller,
+          onChanged: widget.hint.searchable ? (value) => onChangedSearch(value, widget.hint.dbQueryParam) : null,
+          inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]'))],
+          decoration: InputDecoration(
+            hintText: widget.hint.content,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            filled: true,
+            fillColor: Colors.grey[200],
+          ),
+        );
     }
   }
 }
@@ -202,11 +247,13 @@ class _DateSearchBarState extends State<DateSearchBar> {
 class SubmitButton extends StatefulWidget {
   final VoidCallback onPressed;
   final String buttonText;
+  final bool enabled;
 
   const SubmitButton({
     super.key,
     required this.onPressed,
     required this.buttonText,
+    this.enabled = true,
   });
 
   @override
@@ -221,7 +268,7 @@ class _SubmitButtonState extends State<SubmitButton> {
     return Padding(
       padding: paddingAll15,
       child: ElevatedButton(
-        onPressed: widget.onPressed,
+        onPressed: widget.enabled ? widget.onPressed : null,
         style: ButtonStyle(
           padding: WidgetStateProperty.all<EdgeInsets>(
             const EdgeInsets.symmetric(vertical: 12.0),
@@ -231,6 +278,10 @@ class _SubmitButtonState extends State<SubmitButton> {
               if (states.contains(WidgetState.pressed)) {
                 // Darken color on press
                 return primaryColorDark;
+              }
+              if (!widget.enabled) {
+                // Gray color when disabled
+                return Colors.grey;
               }
               // Default color
               return primaryColor;
@@ -262,9 +313,8 @@ class _SubmitButtonState extends State<SubmitButton> {
         ),
         child: Text(
           widget.buttonText,
-          style: const TextStyle(fontSize: 18)
+          style: const TextStyle(fontSize: 18),
         ),
-        
       ),
     );
   }

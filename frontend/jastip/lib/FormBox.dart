@@ -29,18 +29,22 @@ class Formbox extends StatefulWidget {
 class _FormboxState extends State<Formbox> {
   final Map<String, TextEditingController> _controllers = {};
   final Map<String, bool> _checkboxValues = {};
+  int _resultCount = 0;
 
   @override
   void initState() {
     super.initState();
     for (var group in widget.fields) {
       for (var field in group.value) {
-        _controllers[field.dbQueryParam] = TextEditingController();
+        final controller = TextEditingController();
+        controller.addListener(_fetchResultCount);
+        _controllers[field.dbQueryParam] = controller;
       }
     }
     for (var title in widget.checkboxTitles) {
       _checkboxValues[title] = false;
     }
+    _fetchResultCount();
   }
 
   @override
@@ -52,42 +56,31 @@ class _FormboxState extends State<Formbox> {
   }
 
   void _submit() {
-
     Map<String, String> mp = {};
     for (var entry in _controllers.entries) {
-      print('${entry.key}: ${entry.value.text}');
       mp[entry.key] = entry.value.text;
     }
     for (var entry in _checkboxValues.entries) {
-      print('${entry.key}: ${entry.value}');
       mp[entry.key] = entry.value.toString();
     }
 
     String currentRoute = ModalRoute.of(context)?.settings.name ?? '/';
 
     if(widget.httpMethod == "POST") {
-      print("POST request");
-
       _postRequest(mp);
-
       Navigator.push(context,
         MaterialPageRoute(builder: (context) => ListingPage.generic(currentRoute), settings: RouteSettings(name: '/ListingPage')));
-
     }
     else if(widget.httpMethod == "GET") {
-      print("GET request");
       Navigator.push(context,
         MaterialPageRoute(builder: (context) => ListingPage(args: mp, initialRoute: currentRoute,), settings: RouteSettings(name: '/ListingPage')));
     } else {
       print("INVALID HTTP METHOD");
     }
-
   }
 
-  void _postRequest(Map<String, String>args) async{
+  void _postRequest(Map<String, String> args) async {
     var body = json.encode(args);
-
-    print(body);
 
     var response = await http.post(
       Uri.parse("https://jastip-backend-3b036fb5403c.herokuapp.com/auctions"),
@@ -97,13 +90,40 @@ class _FormboxState extends State<Formbox> {
       body: body,
     );
 
-    // Check the response status code
     if (response.statusCode == 200) {
       print('POST request successful');
       print('Response body: ${response.body}');
     } else {
       print('POST request failed with status: ${response.statusCode}');
     }
+  }
+
+  void _fetchResultCount() async {
+    var uri = Uri.parse("https://jastip-backend-3b036fb5403c.herokuapp.com/auctions${getParameters()}");
+    var response = await http.get(uri);
+
+    if (response.statusCode == 200) {
+      Iterable list = json.decode(response.body);
+      setState(() {
+        _resultCount = list.length;
+      });
+    } else {
+      print('GET request failed with status: ${response.statusCode}');
+    }
+  }
+
+  String getParameters() {
+    StringBuffer sb = StringBuffer();
+    sb.write("?");
+    for (var entry in _controllers.entries)
+      if (entry.value.text != '') {
+        sb.write("${entry.key}=${entry.value.text}&");
+      }
+    for (var entry in _checkboxValues.entries)
+      if (entry.value.toString() != '') {
+        sb.write("${entry.key}=${entry.value.toString()}&");
+      }
+    return sb.toString();
   }
 
   @override
@@ -113,7 +133,7 @@ class _FormboxState extends State<Formbox> {
       child: Container(
         decoration: BoxDecoration(
         color: backgroundColorData,
-        borderRadius: BorderRadius.circular(15.0), // Rounded edges
+        borderRadius: BorderRadius.circular(15.0),
         ),
         child: SingleChildScrollView(
           child: Column(
@@ -165,13 +185,18 @@ class _FormboxState extends State<Formbox> {
                     setState(() {
                       _checkboxValues[widget.checkboxTitles[index]] = value!;
                     });
+                    _fetchResultCount();
                   },
                 ),
+              ),
+              Center(
+                child: Text('Number of results: $_resultCount'),
               ),
               Center(
                 child: SubmitButton(
                   onPressed: _submit,
                   buttonText: 'Submit',
+                  enabled: _resultCount > 0,
                 ),
               ),
             ],
