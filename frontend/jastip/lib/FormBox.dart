@@ -99,6 +99,8 @@ class _FormboxState extends State<Formbox> {
   }
 
   void _fetchResultCount() async {
+    if (widget.httpMethod != 'GET')
+      return;
     var uri = Uri.parse("https://jastip-backend-3b036fb5403c.herokuapp.com/auctions${getParameters()}");
     var response = await http.get(uri);
 
@@ -189,14 +191,17 @@ class _FormboxState extends State<Formbox> {
                   },
                 ),
               ),
-              Center(
-                child: Text('Number of results: $_resultCount'),
-              ),
+              if (widget.httpMethod == 'GET')
+              ...{
+                Center(
+                  child: Text('Number of results: $_resultCount'),
+                )
+              },
               Center(
                 child: SubmitButton(
                   onPressed: _submit,
                   buttonText: 'Submit',
-                  enabled: _resultCount > 0,
+                  enabled: widget.httpMethod != 'GET' ||  _resultCount > 0,
                 ),
               ),
             ],
