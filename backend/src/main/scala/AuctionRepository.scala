@@ -29,7 +29,7 @@ class AuctionRepository(db: Database)(implicit ec: ExecutionContext) {
       "startCity" -> ((auction: Auctions) => (v: String) => auction.from.toLowerCase like s"%${v.toLowerCase}%"),
       "endCity" -> ((auction: Auctions) => (v: String) => auction.to.toLowerCase like s"%${v.toLowerCase}%"),
       "endDate" -> ((auction: Auctions) => (v: String) => {
-        val date = Timestamp.valueOf(LocalDate.parse(v).plusDays(1).atStartOfDay())
+        val date = Timestamp.valueOf(v)
         auction.auctionEnd.between(Timestamp.from(date.toInstant().minusSeconds(86400 * 30)), date)
       }),
       "length" -> ((auction: Auctions) => (v: String) => auction.length >= v.toFloat),
