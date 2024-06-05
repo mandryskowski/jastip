@@ -67,7 +67,7 @@ class _FormboxState extends State<Formbox> {
     String currentRoute = ModalRoute.of(context)?.settings.name ?? '/';
 
     if(widget.httpMethod == "POST") {
-      _postRequest(mp);
+      HttpRequests.postRequest(mp, 'auctions');
       Navigator.push(context,
         MaterialPageRoute(builder: (context) => ListingPage.generic(currentRoute), settings: RouteSettings(name: '/ListingPage')));
     }
@@ -76,25 +76,6 @@ class _FormboxState extends State<Formbox> {
         MaterialPageRoute(builder: (context) => ListingPage(args: mp, initialRoute: currentRoute,), settings: RouteSettings(name: '/ListingPage')));
     } else {
       print("INVALID HTTP METHOD");
-    }
-  }
-
-  void _postRequest(Map<String, String> args) async {
-    var body = json.encode(args);
-
-    var response = await http.post(
-      Uri.parse("https://jastip-backend-3b036fb5403c.herokuapp.com/auctions"),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: body,
-    );
-
-    if (response.statusCode == 200) {
-      print('POST request successful');
-      print('Response body: ${response.body}');
-    } else {
-      print('POST request failed with status: ${response.statusCode}');
     }
   }
 

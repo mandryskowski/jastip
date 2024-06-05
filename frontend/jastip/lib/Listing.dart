@@ -1,3 +1,5 @@
+import 'dart:math';
+
 class Listing {
   Listing({
     required this.source,
@@ -10,9 +12,15 @@ class Listing {
     required this.price,
     required this.fragile,
     required this.description,
-    this.bidPrices = const [],
+    this.lastBid = 0,
+    this.bidCnt = 0,
     this.userInfo = UserInfo.aUserInfo,
+    this.auctionId = 4
   });
+
+  double getCurrentBid() {
+    return max(lastBid, price);
+  }
 
   static Listing aListing() {
     return Listing(
@@ -26,7 +34,7 @@ class Listing {
         price: 10,
         fragile: false,
         description: "Yes",
-        bidPrices: []);
+        auctionId: 4);
   }
 
   static List<Listing> aLotOfListings() {
@@ -43,10 +51,13 @@ class Listing {
   final double price;
   final bool fragile;
   final String description;
-  final List<double> bidPrices;
+  final double lastBid;
+  final int bidCnt;
   final UserInfo userInfo;
+  final int auctionId;
 
   factory Listing.fromJson(Map<String, dynamic> json) {
+    final bidPrices = List<double>.from(json['bidPrices'].map((price) => double.parse(price.toString())));
     return Listing(
       source: json['from'].toString(),
       destination: json['to'].toString(),
@@ -59,7 +70,9 @@ class Listing {
       weight: double.parse(json['weight'].toString()),
       fragile: bool.parse(json['fragile'].toString()),
       description: json['description'],
-      bidPrices: List<double>.from(json['bidPrices'].map((price) => double.parse(price.toString()))),
+      bidCnt: bidPrices.length,
+      lastBid: bidPrices.length > 0 ? bidPrices.last : 0,
+      auctionId: int.parse(json['auctionId'].toString()),
     );
   }
 }
@@ -87,22 +100,26 @@ class Dimension {
 
 class UserInfo {
   const UserInfo({
+    required this.userId,
     required this.userName,
     required this.userProfileImage,
     required this.userRating,
     required this.userReviewsCount
   });
 
+  final int userId;
   final String userName;
   final String userProfileImage;
   final double userRating;
   final int userReviewsCount;
 
+
   static const UserInfo aUserInfo = 
     const UserInfo(
+        userId: 4,
         userName: "topG",
         userProfileImage: "https://cdn-icons-png.flaticon.com/512/3140/3140525.png",
         userRating: 4.0,
         userReviewsCount: 3
-      );
+    );
 }
