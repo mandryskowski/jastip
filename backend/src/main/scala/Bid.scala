@@ -2,6 +2,8 @@ import MyPostgresProfile.api._
 
 
 case class Bid(bidId : Long, auctionId: Long, userId: Int, price: Double, date: java.sql.Timestamp)
+case class PostBid(auctionId: String, userId: String, price: String)
+
 class Bids(tag: Tag) extends Table[Bid](tag, "bids") {
   def bidId = column[Long]("bid_id", O.PrimaryKey, O.AutoInc)
   def userId = column[Int]("user_id")

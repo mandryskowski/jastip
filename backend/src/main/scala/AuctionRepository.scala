@@ -7,6 +7,7 @@ import java.sql.Date
 import java.time.LocalDate
 import scala.concurrent.ExecutionContext
 import slick.lifted.{ProvenShape, TableQuery}
+import java.time.Instant
 
 
 class AuctionRepository(db: Database)(implicit ec: ExecutionContext) {
@@ -105,6 +106,8 @@ class AuctionRepository(db: Database)(implicit ec: ExecutionContext) {
       Some("Departure must be before arrival")
     else if (!auction.auctionEnd.before(auction.departure))
       Some("Auction must end before departure")
+    else if (auction.auctionEnd.before(Timestamp.from(Instant.now())))
+      Some("Auction must end in the future")
     else
       None
   }
@@ -116,5 +119,14 @@ class AuctionRepository(db: Database)(implicit ec: ExecutionContext) {
   def findById(auctionId: Long): Future[Option[Auction]] = {
     val query = auctions.filter(_.auctionId === auctionId).result.headOption
     db.run(query)
+  }
+
+  def updateAuctionBids(auctionId: Long, bidId: Int) = {
+    val query = auctions.filter(_.auctionId === auctionId)
+    val action = query.result.head.flatMap { auction =>
+      val updatedBids = auction.bids :+ bidId
+      query.map(_.bids).update(updatedBids)
+    }
+    db.run(action.transactionally)
   }
 }
