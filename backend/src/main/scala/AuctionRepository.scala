@@ -8,7 +8,7 @@ import java.time.LocalDate
 import scala.concurrent.ExecutionContext
 import slick.lifted.{ProvenShape, TableQuery}
 import java.time.Instant
-
+import java.time.temporal.ChronoUnit
 
 class AuctionRepository(db: Database)(implicit ec: ExecutionContext) {
   val auctions = TableQuery[Auctions]
@@ -22,8 +22,8 @@ class AuctionRepository(db: Database)(implicit ec: ExecutionContext) {
     db.run(auctions.take(limit).result)
   }
 
-  def filterAuctions(params: Map[String, String], limit: Int): Future[Seq[AuctionWithPrices]] = {
-    val initialQuery = auctions.take(limit)
+  def filters(params: Map[String, String], limit: Int, query: Query[Auctions, Auction, Seq] = auctions.distinct): Query[Auctions, Auction, Seq] = {
+    val initialQuery = query.take(limit)
     val filters: Seq[(String, Auctions => String => Rep[Boolean])] = Seq(
       "fragile" -> ((auction: Auctions) => (v: String) => (auction.fragile === true) || (auction.fragile === (v == "true"))),
       "startCity" -> ((auction: Auctions) => (v: String) => auction.from.toLowerCase like s"%${v.toLowerCase}%"),
@@ -46,33 +46,77 @@ class AuctionRepository(db: Database)(implicit ec: ExecutionContext) {
       }
     }
 
+    filteredQuery
+  }
+
+  def mapAuctionToPriced(auction : Auction, bids : List[Double]) = {
+      AuctionWithPrices(
+        auction.auctionId,
+        auction.userId,
+        auction.length,
+        auction.width,
+        auction.height,
+        auction.weight,
+        auction.fragile,
+        auction.description,
+        auction.from,
+        auction.to,
+        auction.departure,
+        auction.arrival,
+        auction.auctionEnd,
+        auction.startingPrice,
+        bids
+      )
+  }
+
+  def mapToAuctionWithPrices(query: Query[Auctions, Auction, Seq]) = {
     val joinedQuery = for {
-      (auction, bid) <- filteredQuery joinLeft bids on (_.auctionId === _.auctionId)
+      (auction, bid) <- query joinLeft bids on (_.auctionId === _.auctionId)
     } yield (auction, bid.map(_.price))
 
-    val auctionsWithPricesQuery = joinedQuery.result.map { result =>
-      result.groupBy(_._1).map { case (auction, bids) =>
-              AuctionWithPrices(
-                auction.auctionId,
-                auction.userId,
-                auction.length,
-                auction.width,
-                auction.height,
-                auction.weight,
-                auction.fragile,
-                auction.description,
-                auction.from,
-                auction.to,
-                auction.departure,
-                auction.arrival,
-                auction.auctionEnd,
-                auction.startingPrice,
-                bids.flatMap(_._2).toList
-              )
-            }.toSeq
+    joinedQuery.result.map(result => result.groupBy(_._1).map {case (auction, bids) =>
+        mapAuctionToPriced(auction, bids.flatMap(_._2).toList)}.toSeq)
+  }
+
+  def filterAuctions(params: Map[String, String], limit: Int, query: Query[Auctions, Auction, Seq] = auctions.distinct): Future[Seq[AuctionWithPrices]] = {
+    val filteredQuery = filters(params, limit, query)
+
+    db.run(mapToAuctionWithPrices(filteredQuery))
+  }
+
+  def sortAuctionsFuture(auctionsFuture: Future[Seq[AuctionWithPrices]], orderedBy : Option[String]) = {
+    (orderedBy match {
+            case Some("date") => auctionsFuture.map(_.sortBy(_.auctionEnd).reverse)
+            case Some("size") => auctionsFuture.map(_.sortBy(_.length).reverse)
+            case _ => auctionsFuture.map(_.sortBy(_.auctionId).reverse)
+          })
+  }
+
+  def getUserAuctions(params: Map[String, String], limit : Int): Future[Seq[AuctionWithPrices]] = {
+    val userId = params.get("userId").get.toInt
+    val status = params.get("status")
+
+    val currentTime = Instant.now()
+    val query = auctions
+
+    val statusQuery = status match {
+      case Some("ongoing") => query.filter(_.auctionEnd > Timestamp.from(currentTime))
+      case Some("inTransit") => query.filter(a => a.auctionEnd <= Timestamp.from(currentTime) && a.auctionEnd > Timestamp.from(currentTime.minus(30, ChronoUnit.DAYS)))
+      case Some("completed") => query.filter(_.auctionEnd <= Timestamp.from(currentTime.minus(30, ChronoUnit.DAYS)))
+      case _ => query
     }
 
-    db.run(auctionsWithPricesQuery)
+    val filteredQuery = filters(params, limit, statusQuery)
+
+    val joinedQuery = for {
+      (auction, bid) <- filteredQuery joinLeft bids on (_.auctionId === _.auctionId)
+    } yield (auction, bid)
+
+    val finalResult = joinedQuery.result.map(as =>
+      as.filter(a => a._2.map(_.userId).getOrElse(-1) == userId && a._1.bids.lastOption.getOrElse(-1) == a._2.map(_.bidId).getOrElse(-2)).groupBy(_._1).map {case (auction, bids) =>
+        mapAuctionToPriced(auction, bids.flatMap(_._2.map(_.price)).toList)}.toSeq)
+
+    db.run(finalResult)
   }
 
   def suggestions(params: Map[String, String], limit : Int): Future[Seq[String]] = {

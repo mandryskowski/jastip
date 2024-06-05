@@ -54,11 +54,7 @@ object JastipBackend extends App {
         extract(_.request.uri.query()) { params =>
           val limit = params.get("limit").map(_.toInt).getOrElse(100)
           val auctionsFuture = auctionRepository.filterAuctions(params.toMap, limit)
-          val sortedAuctionsFuture = (params.get("orderedBy") match {
-            case Some("date") => auctionsFuture.map(_.sortBy(_.auctionEnd).reverse)
-            case Some("size") => auctionsFuture.map(_.sortBy(_.length).reverse)
-            case _ => auctionsFuture.map(_.sortBy(_.auctionId).reverse)
-          })
+          val sortedAuctionsFuture = auctionRepository.sortAuctionsFuture(auctionsFuture, params.get("orderedBy"))
           onSuccess(sortedAuctionsFuture) { auctionsList =>
             complete(auctionsList)
           }
@@ -95,6 +91,21 @@ object JastipBackend extends App {
               onSuccess(insertAuctionFuture) { auctionId =>
                 complete(StatusCodes.Created, s"Auction created with ID: $auctionId")
               }
+          }
+        }
+      }
+    } ~
+    path("deliveryAuctions") {
+      get {
+        extract(_.request.uri.query()) { params =>
+          val auctionsFuture = auctionRepository.getUserAuctions(params.toMap, params.get("limit").map(_.toInt).getOrElse(10000))
+          val sortedAuctionsFuture = (params.get("orderedBy") match {
+            case Some("date") => auctionsFuture.map(_.sortBy(_.auctionEnd).reverse)
+            case Some("size") => auctionsFuture.map(_.sortBy(_.length).reverse)
+            case _ => auctionsFuture.map(_.sortBy(_.auctionId).reverse)
+          })
+          onSuccess(sortedAuctionsFuture) { auctionsList =>
+            complete(auctionsList)
           }
         }
       }
