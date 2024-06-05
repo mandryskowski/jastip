@@ -115,10 +115,10 @@ object JastipBackend extends App {
           onSuccess(auctionsFuture) { auctionsBids =>
             auctionsBids.find(_.auctionId == bidRequest.auctionId.toLong) match {
               case Some(auction) => {
-                if (auction.startingPrice >= bidRequest.price.toDouble)
-                  complete(StatusCodes.BadRequest, "Bid must be higher than starting price")
-                else if (auction.bidPrices.last >= bidRequest.price.toDouble)
-                  complete(StatusCodes.BadRequest, "Bid must be higher than highest bid")
+                if (auction.startingPrice > bidRequest.price.toDouble)
+                  complete(StatusCodes.BadRequest, "Bid must be higher or equal to the starting price")
+                else if (auction.bidPrices.lastOption.getOrElse[Double](-1) >= bidRequest.price.toDouble)
+                  complete(StatusCodes.BadRequest, "Bid must be higher than the highest bid")
                 else {
                   val insertAction = (bids returning bids.map(_.bidId) into ((bid, id) => bid.copy(bidId = id))) += newBid
 
