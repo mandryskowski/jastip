@@ -126,7 +126,9 @@ object JastipBackend extends App {
                     auctionRepository.updateAuctionBids(bid.auctionId, bid.bidId.toInt).map(_ => bid)
                   }) {
                     case Success(bid) => complete(bid)
-                    case Failure(ex) => complete((StatusCodes.InternalServerError, s"An error occurred: ${ex.getMessage}"))
+                    case Failure(ex) =>
+                      print(s"Internal server error when POSTing a bid ${ex.getMessage}")
+                      complete((StatusCodes.InternalServerError, s"An error occurred: ${ex.getMessage}"))
                   }
                 }
               }
