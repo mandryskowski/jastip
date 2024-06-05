@@ -105,7 +105,7 @@ object JastipBackend extends App {
         onSuccess(bidsFuture) { bidsList =>
           complete(bidsList) // Automatically converts to JSON
         }
-      }
+      } ~
       post {
         entity(as[PostBid]) { bidRequest =>
           val currentTimestamp = Timestamp.from(Instant.now())
@@ -164,7 +164,7 @@ object JastipBackend extends App {
         }
       }
 
-    }
+    } ~
     path("suggestions") {
       get {
           extract(_.request.uri.query()) { params =>
