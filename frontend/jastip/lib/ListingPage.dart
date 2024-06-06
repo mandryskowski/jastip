@@ -27,7 +27,19 @@ class ListingPage extends StatelessWidget {
       future: fetchData(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator();
+          //return CircularProgressIndicator();
+           return Stack(
+              children: [
+                // The loading overlay
+                ModalBarrier(
+                  color: Colors.black.withOpacity(0.3),
+                  dismissible: false,
+                ),
+                Center(
+                  child: CircularProgressIndicator(),
+                ),
+              ],
+            );
         } else if (snapshot.hasError) {
           return Scaffold(
               body: Center(child: Text('Error: ${snapshot.error}')));
