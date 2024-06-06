@@ -69,7 +69,7 @@ class _FormboxState extends State<Formbox> {
     if(widget.httpMethod == "POST") {
       HttpRequests.postRequest(mp, 'auctions');
       Navigator.push(context,
-        MaterialPageRoute(builder: (context) => ListingPage.generic(currentRoute), settings: RouteSettings(name: '/ListingPage')));
+        MaterialPageRoute(builder: (context) => ListingPage(initialRoute:  currentRoute), settings: RouteSettings(name: '/ListingPage')));
     }
     else if(widget.httpMethod == "GET") {
       Navigator.push(context,
