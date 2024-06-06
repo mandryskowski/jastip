@@ -1,19 +1,65 @@
+// Mydeliveries.dart
 import 'package:flutter/material.dart';
-import 'package:jastip/BidPage.dart';
-import 'package:jastip/Constants.dart';
+import 'ToggablePage.dart';
+import 'Listing.dart';
 import 'package:jastip/OrderingBar.dart';
-import 'package:jastip/PageHeader.dart';
-import 'package:jastip/Listing.dart';
 import 'package:jastip/LoadingPage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:jastip/BidPage.dart';
 
-class ListingPage extends StatelessWidget {
+class Mydeliveries extends ToggablePage {
+  Mydeliveries({Key? key, int initialIndex = 0}) : super(key: key, initialIndex: initialIndex);
 
-  ListingPage({super.key, required this.args, this.orderingIndex = 0, required this.initialRoute});
+  @override
+  _MydeliveriesState createState() => _MydeliveriesState();
+}
 
-  static ListingPage generic(String currentRoute) {
-    return ListingPage(args: const {}, initialRoute: currentRoute);
+class _MydeliveriesState extends ToggablePageState<Mydeliveries> {
+  @override
+  List<String> getTitles() {
+    return ['ongoing', 'in transit', 'completed'];
+  }
+
+  @override
+  Widget getPage(int index) {
+    switch (index) {
+      case 0:
+        return Container(
+          key: ValueKey<int>(0),
+          child: MyDeliveriesOngoing.generic('/MyDeliveries0'),
+        );
+      case 1:
+        return Container(
+          key: ValueKey<int>(1),
+          child: NewContent(),
+        );
+      case 2:
+        return Container(
+          key: ValueKey<int>(2),
+          child: NewContent(),
+        );
+      default:
+        return Container();
+    }
+  }
+}
+
+class NewContent extends StatelessWidget {
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Text('New Content', style: TextStyle(fontSize: 24)),
+    );
+  }
+}
+
+class MyDeliveriesOngoing extends StatelessWidget {
+  MyDeliveriesOngoing({super.key, required this.args, this.orderingIndex = 0, required this.initialRoute});
+
+  static MyDeliveriesOngoing generic(String currentRoute) {
+    return MyDeliveriesOngoing(args: const {}, initialRoute: currentRoute);
   }
 
   final Map<String, String> args;
@@ -26,16 +72,14 @@ class ListingPage extends StatelessWidget {
       future: fetchData(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator();
+          return const CircularProgressIndicator();
         } else if (snapshot.hasError) {
           return Scaffold(
               body: Center(child: Text('Error: ${snapshot.error}')));
         } else if (snapshot.hasData) {
           List<Listing> listings = snapshot.data!;
-          return Scaffold(
-            body: Column(
+          return Column(
               children: [
-                BackPageHeader(title: "JASTIP+", initialRoute: initialRoute),
                 Orderingbar(args: args, orderIndex: orderingIndex, initialRoute: initialRoute),
                 Expanded(
                   child: Container(
@@ -56,21 +100,9 @@ class ListingPage extends StatelessWidget {
                   ),
                 )
               ],
-            ),
-            floatingActionButton: FloatingActionButton(
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const LoadingScreen(), settings: RouteSettings(name: '/LoadingScreen')),
-                );
-              },
-              child: const Icon(Icons.refresh),
-            ),
-            floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-          );
+            );
         } else {
-          return Scaffold(); // Handle the case when there is no data
+          return Container(); // Handle the case when there is no data
         }
       },
     );

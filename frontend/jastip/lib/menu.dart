@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:jastip/Constants.dart';
+import 'package:jastip/MyDeliveries.dart';
 import 'DeliveryCarrierPage.dart';
+import 'ToggablePage.dart';
 
 class MenuBox extends StatelessWidget {
   const MenuBox({super.key});
@@ -65,7 +67,12 @@ class MenuBox extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.assignment),
             title: const Text('My Orders'),
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                 coolTransition(0, 'MyDeliveries', (initialIndex) => Mydeliveries(initialIndex: initialIndex)),
+              );
+            },
           ),
           ListTile(
             leading: const Icon(Icons.assignment_return),
@@ -125,9 +132,13 @@ class MenuBox extends StatelessWidget {
   }
 
   PageRouteBuilder coolHomeTransition(int initialIndex) {
+    return coolTransition(initialIndex, 'HomePage', (initialIndex) => HomePage(initialIndex: initialIndex));
+  }
+
+  PageRouteBuilder coolTransition(int initialIndex, String routeName, ToggablePage Function(int) newPage) {
     return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => HomePage(initialIndex: initialIndex),
-      settings: RouteSettings(name: '/HomePage${initialIndex}'),
+      pageBuilder: (context, animation, secondaryAnimation) => newPage(initialIndex),
+      settings: RouteSettings(name: '/$routeName$initialIndex'),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         var begin = const Offset(1.0, 0.0);
         var end = Offset.zero;
@@ -143,7 +154,7 @@ class MenuBox extends StatelessWidget {
         );
       },
     );
-  }
+ }
 }
 
 class SectionTitle extends StatelessWidget {

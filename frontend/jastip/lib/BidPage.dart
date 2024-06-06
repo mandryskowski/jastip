@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:jastip/FormElement.dart';
 import 'package:jastip/PageHeader.dart';
 import 'package:jastip/Listing.dart';
@@ -430,77 +431,90 @@ class _CustomDropdownButton extends StatefulWidget {
 
 class _CustomDropdownButtonState extends State<_CustomDropdownButton> {
   late String _selectedValue;
-  OverlayEntry? _dropdownOverlayEntry;
+  final OverlayPortalController overlayPortalController = OverlayPortalController();
+  Size? _buttonSize;
+  Offset? _buttonOffset;
 
   @override
   void initState() {
     super.initState();
     _selectedValue = widget.value;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _updateButtonDimensions();
+    });
   }
 
-  void _showDropdown() {
-    _dropdownOverlayEntry = _createDropdownOverlayEntry();
-    Overlay.of(context).insert(_dropdownOverlayEntry!);
-  }
-
-  void _removeDropdown() {
-    _dropdownOverlayEntry?.remove();
-    _dropdownOverlayEntry = null;
-  }
-
-  OverlayEntry _createDropdownOverlayEntry() {
+  void _updateButtonDimensions() {
     RenderBox renderBox = context.findRenderObject() as RenderBox;
     final size = renderBox.size;
     final offset = renderBox.localToGlobal(Offset.zero);
 
-    return OverlayEntry(
-      builder: (context) => Positioned(
-        left: offset.dx,
-        top: offset.dy + size.height,
-        width: size.width,
-        child: Material(
-          elevation: 4.0,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: widget.items.map((String value) {
-              return InkWell(
-                onTap: () {
-                  setState(() {
-                    _selectedValue = value;
-                  });
-                  widget.onChanged(value);
-                  _removeDropdown();
-                },
-                child: Container(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text(value),
-                ),
-              );
-            }).toList(),
+    setState(() {
+      _buttonSize = size;
+      _buttonOffset = offset;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+    return OverlayPortal(
+      controller: overlayPortalController,
+      overlayChildBuilder: (context) => Stack(
+        children: [
+          Positioned.fill(
+            child: GestureDetector(
+              onTap: overlayPortalController.toggle,
+              child: Container(
+                color: Colors.transparent,
+              ),
+            ),
+          ),
+          Positioned(
+            left: _buttonOffset!.dx,
+            top: _buttonOffset!.dy + _buttonSize!.height,
+            width: _buttonSize!.width,
+            child: Material(
+              elevation: 4.0,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: widget.items.map((String value) {
+                  return InkWell(
+                    onTap: () {
+                      setState(() {
+                        _selectedValue = value;
+                      });
+                      widget.onChanged(value);
+                      overlayPortalController.toggle();
+                    },
+                    child: Container(
+                      padding: EdgeInsets.all(16.0),
+                      child: Text(value),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
+        ],
+      ),
+      child: GestureDetector(
+        onTap: overlayPortalController.toggle,
+        child: InputDecorator(
+          decoration: InputDecoration(
+            labelText: 'Payment method',
+            border: OutlineInputBorder(),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(_selectedValue),
+              Icon(Icons.arrow_drop_down),
+            ],
           ),
         ),
       ),
     );
   }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: _showDropdown,
-      child: InputDecorator(
-        decoration: InputDecoration(
-          labelText: 'Payment method',
-          border: OutlineInputBorder(),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(_selectedValue),
-            Icon(Icons.arrow_drop_down),
-          ],
-        ),
-      ),
-    );
-  }
 }
-
