@@ -1,30 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:jastip/BidPage.dart';
 import 'package:jastip/Constants.dart';
-import 'package:jastip/FormBox.dart';
 import 'package:jastip/OrderingBar.dart';
 import 'package:jastip/PageHeader.dart';
 import 'package:jastip/Listing.dart';
-import 'package:jastip/LoadingPage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-class ListingPage extends StatefulWidget {
-  ListingPage({super.key, required this.args, this.orderingIndex = 0, required this.initialRoute});
-
-  static ListingPage generic(String currentRoute) {
-    return ListingPage(args: const {}, initialRoute: currentRoute);
-  }
+class GenericAuctionListing extends StatefulWidget {
+  GenericAuctionListing({super.key, required this.args, this.orderingIndex = 0, required this.initialRoute, required this.table});
 
   final Map<String, String> args;
   int orderingIndex;
   final String initialRoute;
+  final String table;
 
   @override
-  _ListingPageState createState() => _ListingPageState();
+  _GenericAuctionListingState createState() => _GenericAuctionListingState();
 }
 
-class _ListingPageState extends State<ListingPage> {
+class _GenericAuctionListingState extends State<GenericAuctionListing> {
   late Future<List<Listing>> _futureListings;
 
   @override
@@ -35,7 +30,7 @@ class _ListingPageState extends State<ListingPage> {
 
   Future<List<Listing>> fetchData() async {
     final response = await http.get(Uri.parse(
-        "https://jastip-backend-3b036fb5403c.herokuapp.com/auctions${getParameters()}"));
+        "https://jastip-backend-3b036fb5403c.herokuapp.com/${widget.table}${getParameters()}"));
     if (response.statusCode == 200) {
       print(response.body);
       Iterable list = json.decode(response.body);
@@ -82,14 +77,13 @@ class _ListingPageState extends State<ListingPage> {
             ],
           );
         } else if (snapshot.hasError) {
-          return Scaffold(
-              body: Center(child: Text('Error: ${snapshot.error}')));
+          return Container(
+              child: Center(child: Text('Error: ${snapshot.error}')));
         } else if (snapshot.hasData) {
           List<Listing> listings = snapshot.data!;
-          return Scaffold(
-            body: Column(
+          return Container(
+            child: Column(
               children: [
-                BackPageHeader(title: "JASTIP+", initialRoute: widget.initialRoute),
                 Orderingbar(args: widget.args, orderIndex: widget.orderingIndex, initialRoute: widget.initialRoute, onOrderChanged: _onOrderChanged),
                 Expanded(
                   child: Container(
@@ -113,7 +107,7 @@ class _ListingPageState extends State<ListingPage> {
             ),
           );
         } else {
-          return Scaffold(); // Handle the case when there is no data
+          return Container(); // Handle the case when there is no data
         }
       },
     );
