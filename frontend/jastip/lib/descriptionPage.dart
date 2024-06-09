@@ -178,7 +178,7 @@ class DescriptionPage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           CircleAvatar(
-            backgroundImage: NetworkImage(listing.userInfo.userProfileImage),
+            backgroundImage: NetworkImage(listing.userInfo.profileImage),
             radius: 50,
           ),
           const SizedBox(width: 16),
@@ -186,7 +186,7 @@ class DescriptionPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                listing.userInfo.userName,
+                listing.userInfo.username,
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 28,
@@ -198,7 +198,7 @@ class DescriptionPage extends StatelessWidget {
                   const Icon(Icons.star, color: Colors.green, size: 25),
                   const SizedBox(width: 4),
                   Text(
-                    '${listing.userInfo.userRating}',
+                    '${listing.userInfo.rating}',
                     style: TextStyle(
                       fontSize: 20,
                       color: Colors.green,
@@ -206,7 +206,7 @@ class DescriptionPage extends StatelessWidget {
                   ),
                   SizedBox(width: 4,),
                   Text(
-                    '(${listing.userInfo.userReviewsCount} reviews)',
+                    '(${listing.userInfo.reviewsCount} reviews)',
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.grey[600],

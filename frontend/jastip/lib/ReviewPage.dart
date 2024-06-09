@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:jastip/Constants.dart';
 import 'package:jastip/FormElement.dart';
 import 'Listing.dart';
@@ -23,23 +22,15 @@ class _ReviewPageOverlayState extends State<ReviewPageOverlay> {
   Widget build(BuildContext context) {
     return OverlayPortal(
       controller: overlayPortalController,
-      overlayChildBuilder: (context) => GestureDetector(
-        child: Stack(
-          children: [
-            GestureDetector(
-              onTap: overlayPortalController.toggle,
-              child: Positioned.fill(
-                child: Container(
-                  color: Colors.black54, // Dim the background to focus on overlay
-                  child: SingleChildScrollView(
-                    child: Container(
-                      height: MediaQuery.of(context).size.height, // Ensure the container is scrollable
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            Dialog(
+      overlayChildBuilder: (context) => Stack(
+        children: [
+          ModalBarrier(
+            color: Colors.black54,
+            dismissible: true,
+            onDismiss: overlayPortalController.toggle,
+          ),
+          Center(
+            child: Dialog(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
@@ -87,8 +78,8 @@ class _ReviewPageOverlayState extends State<ReviewPageOverlay> {
                 ),
               ),
             ),
-          ]
-        )
+          ),
+        ],
       ),
       child: SubmitButton(
         onPressed: overlayPortalController.toggle,
@@ -101,8 +92,8 @@ class _ReviewPageOverlayState extends State<ReviewPageOverlay> {
   void _submit() {
     final Map<String, String> mp = {
       'auctionId': widget.listing.auctionId.toString(),
-      'author': LoggedInUserData().userId.toString(),
-      'about': widget.listing.userInfo.userId.toString(),
+      'author': LoggedInUserData().userInfo.id.toString(),
+      'about': widget.listing.userInfo.id.toString(),
       'rating': _currentRating.toString(),
       'content': reviewController.text,
     };
@@ -111,7 +102,7 @@ class _ReviewPageOverlayState extends State<ReviewPageOverlay> {
 
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => Mydeliveries(initialIndex: 2,), settings: RouteSettings(name: '/MyDeliveries2')),
+      MaterialPageRoute(builder: (context) => MyDeliveries(initialIndex: 2), settings: RouteSettings(name: '/MyDeliveries2')),
     );
   }
 }

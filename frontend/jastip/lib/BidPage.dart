@@ -31,12 +31,12 @@ class _BidPageOverlayState extends State<BidPageOverlay> {
       if (bidAmount != null && bidAmount > currentBid) {
         Map<String, String> args = {'auctionId': widget.listing.auctionId.toString(), 
                                     'price': bidAmount.toString(),
-                                    'userId': widget.listing.userInfo.userId.toString()};
+                                    'userId': widget.listing.userInfo.id.toString()};
         HttpRequests.postRequest(args, 'bids');
         print('Bid placed: $bidAmount with $_selectedPaymentMethod');
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => Mydeliveries(), settings: RouteSettings(name: '/MyDeliveries0')),
+          MaterialPageRoute(builder: (context) => MyDeliveries(), settings: RouteSettings(name: '/MyDeliveries0')),
         );
         //_removeOverlay();
       } 
@@ -52,78 +52,67 @@ class _BidPageOverlayState extends State<BidPageOverlay> {
   Widget build(BuildContext context) {
     return OverlayPortal(
       controller: overlayPortalController, 
-      overlayChildBuilder: (context) => GestureDetector(
-        onTap: () => overlayPortalController.toggle,
-        child: Stack(
-          children: [
-            GestureDetector(
-              onTap: overlayPortalController.toggle,
-              child: Positioned.fill(
+      overlayChildBuilder: (context) => Stack(
+        children: [
+          ModalBarrier(
+            color: Colors.black54,
+            dismissible: true,
+            onDismiss: overlayPortalController.toggle,
+          ),
+          Center(
+            child: GestureDetector(
+              onTap: () {}, // Prevent closing the overlay when interacting with it
+              child: Material(
+                elevation: 4.0,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
                 child: Container(
-                  color: Colors.black54, // Dim the background to focus on overlay
+                  padding: EdgeInsets.all(16.0),
+                  color: backgroundColorData,
+                  width: MediaQuery.of(context).size.width * 0.75, // Adjust width here
                   child: SingleChildScrollView(
-                    child: Container(
-                      height: MediaQuery.of(context).size.height, // Ensure the container is scrollable
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TextField(
+                          controller: _bidController,
+                          decoration: InputDecoration(
+                            labelText: 'Bid Amount (GBP)',
+                            hintText: 'eg. 29.54',
+                          ),
+                          keyboardType: TextInputType.numberWithOptions(decimal: true),
+                          onSubmitted: (value) {
+                            final bidAmount = double.tryParse(value);
+                            if (bidAmount == null || bidAmount <= widget.listing.getCurrentBid()) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Bid amount must be higher than ${widget.listing.price} GBP'),
+                                ),
+                              );
+                            }
+                          },
+                        ),
+                        SizedBox(height: 16),
+                        _CustomDropdownButton(
+                          value: 'Visa-6896',
+                          items: ['Visa-6896', 'MasterCard-1234'],
+                          onChanged: (newValue) {
+                            _selectedPaymentMethod = newValue!;
+                          },
+                        ),
+                        SizedBox(height: 16),
+                        SubmitButton(
+                          onPressed: _placeBid,
+                          buttonText: 'Place bid',
+                          enabled: _canBid(),
+                        ),
+                      ],
                     ),
                   ),
                 ),
               ),
             ),
-            Center(
-              child: GestureDetector(
-                onTap: () {}, // Prevent closing the overlay when interacting with it
-                child: Material(
-                  elevation: 4.0,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
-                  child: Container(
-                    padding: EdgeInsets.all(16.0),
-                    color: backgroundColorData,
-                    width: MediaQuery.of(context).size.width * 0.75, // Adjust width here
-                    child: SingleChildScrollView(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          TextField(
-                            controller: _bidController,
-                            decoration: InputDecoration(
-                              labelText: 'Bid Amount (GBP)',
-                              hintText: 'eg. 29.54',
-                            ),
-                            keyboardType: TextInputType.numberWithOptions(decimal: true),
-                            onSubmitted: (value) {
-                              final bidAmount = double.tryParse(value);
-                              if (bidAmount == null || bidAmount <= widget.listing.getCurrentBid()) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('Bid amount must be higher than ${widget.listing.price} GBP'),
-                                  ),
-                                );
-                              }
-                            },
-                          ),
-                          SizedBox(height: 16),
-                          _CustomDropdownButton(
-                            value: 'Visa-6896',
-                            items: ['Visa-6896', 'MasterCard-1234'],
-                            onChanged: (newValue) {
-                              _selectedPaymentMethod = newValue!;
-                            },
-                          ),
-                          SizedBox(height: 16),
-                          SubmitButton(
-                            onPressed: _placeBid,
-                            buttonText: 'Place bid',
-                            enabled: _canBid(),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
       child: SubmitButton(
         onPressed: overlayPortalController.toggle,

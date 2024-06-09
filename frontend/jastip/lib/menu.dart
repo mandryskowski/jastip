@@ -37,7 +37,7 @@ class MenuBox extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        LoggedInUserData().userName!,
+                        LoggedInUserData().userInfo.username,
                         style: TextStyle(
                           color: Colors.black,
                           fontSize: 20,
@@ -71,7 +71,7 @@ class MenuBox extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
-                 coolTransition(0, 'MyDeliveries', (initialIndex) => Mydeliveries(initialIndex: initialIndex)),
+                 coolTransition(0, 'MyDeliveries', (initialIndex) => MyDeliveries(initialIndex: initialIndex)),
               );
             },
           ),

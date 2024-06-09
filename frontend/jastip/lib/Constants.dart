@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:google_fonts/google_fonts.dart';
+import 'package:jastip/Listing.dart';
 
 RegExp stringFormat = RegExp(".*");
 RegExp intFormat = RegExp("[0-9]");
@@ -90,10 +91,7 @@ class LoggedInUserData {
     return _instance;
   }
 
-  int? userId;
-  String? userName;
-  String? email;
-  String? token;
+  UserInfo userInfo = UserInfo(id : 4);
 
   // Other user-related data can be added here
 }

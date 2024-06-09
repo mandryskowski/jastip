@@ -8,14 +8,14 @@ import 'BidPage.dart';
 import 'ReviewPage.dart';
 import 'SetAddress.dart';
 
-class Mydeliveries extends ToggablePage {
-  Mydeliveries({Key? key, int initialIndex = 0}) : super(key: key, initialIndex: initialIndex);
+class MyDeliveries extends ToggablePage {
+  MyDeliveries({Key? key, int initialIndex = 0}) : super(key: key, initialIndex: initialIndex);
 
   @override
-  _MydeliveriesState createState() => _MydeliveriesState();
+  MyDeliveriesState createState() => MyDeliveriesState();
 }
 
-class _MydeliveriesState extends ToggablePageState<Mydeliveries> {
+class MyDeliveriesState extends ToggablePageState<MyDeliveries> {
   @override
   List<String> getTitles() {
     return ['ongoing', 'in transit', 'completed'];
@@ -27,17 +27,17 @@ class _MydeliveriesState extends ToggablePageState<Mydeliveries> {
       case 0:
         return Container(
           key: ValueKey<int>(0),
-          child: GenericAuctionListing(initialRoute: '/Menu', args: {'userId': LoggedInUserData().userId!.toString(), 'status': 'ongoing'}, table: 'deliveryAuctions', listingDescription: (listing) => DescriptionPage(overlay: BidPageOverlay(listing: listing), listing: listing,),),
+          child: GenericAuctionListing(initialRoute: '/Menu', args: {'userId': LoggedInUserData().userInfo.id.toString(), 'status': 'ongoing'}, table: 'deliveryAuctions', listingDescription: (listing) => DescriptionPage(overlay: BidPageOverlay(listing: listing), listing: listing,),),
         );
       case 1:
         return Container(
           key: ValueKey<int>(1),
-          child: GenericAuctionListing(initialRoute: '/Menu', args: {'userId': LoggedInUserData().userId!.toString(), 'status': 'inTransit'}, table: 'deliveryAuctions', listingDescription: (listing) => DescriptionPage(overlay: SetAddressOverlay(listing: listing,), listing: listing,),),
+          child: GenericAuctionListing(initialRoute: '/Menu', args: {'userId': LoggedInUserData().userInfo.id.toString(), 'status': 'inTransit'}, table: 'deliveryAuctions', listingDescription: (listing) => DescriptionPage(overlay: SetAddressOverlay(listing: listing,), listing: listing,),),
         );
       case 2:
         return Container(
           key: ValueKey<int>(2),
-          child: GenericAuctionListing(initialRoute: '/Menu', args: {'userId': LoggedInUserData().userId!.toString(), 'status': 'completed'}, table: 'deliveryAuctions', listingDescription: (listing) => DescriptionPage(overlay: ReviewPageOverlay(listing: listing,), listing: listing,),),
+          child: GenericAuctionListing(initialRoute: '/Menu', args: {'userId': LoggedInUserData().userInfo.id.toString(), 'status': 'completed'}, table: 'deliveryAuctions', listingDescription: (listing) => DescriptionPage(overlay: ReviewPageOverlay(listing: listing,), listing: listing,),),
         );
       default:
         return Container();

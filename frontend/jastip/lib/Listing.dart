@@ -73,7 +73,7 @@ class Listing {
       bidCnt: bidPrices.length,
       lastBid: bidPrices.length > 0 ? bidPrices.last : 0,
       auctionId: int.parse(json['auctionId'].toString()),
-      userInfo: UserInfo(userId: int.parse(json['userId'].toString())),
+      userInfo: UserInfo.fromJson(json['userInfo'])
     );
   }
 }
@@ -101,26 +101,50 @@ class Dimension {
 
 class UserInfo {
   const UserInfo({
-    required this.userId,
-    this.userName = "topG",
-    this.userProfileImage = "https://cdn-icons-png.flaticon.com/512/3140/3140525.png",
-    this.userRating = 4.0,
-    this.userReviewsCount = 3
+    required this.id,
+    this.username = "topG",
+    this.profileImage = "https://cdn-icons-png.flaticon.com/512/3140/3140525.png",
+    this.rating = 4.0,
+    this.reviewsCount = 3
   });
 
-  final int userId;
-  final String userName;
-  final String userProfileImage;
-  final double userRating;
-  final int userReviewsCount;
+  final int id;
+  final String username;
+  final String profileImage;
+  final double rating;
+  final int reviewsCount;
+
+  factory UserInfo.fromJson(Map<String, dynamic> json) {
+    return UserInfo(
+      rating: roundOffToXDecimal(double.parse(json['averageRating'].toString())),
+      id: int.parse(json['id'].toString()),
+      reviewsCount: int.parse(json['ratings'].toString()),
+      username: json['username'].toString()
+    );
+  }
+
+  static double roundOffToXDecimal(double number, {int numberOfDecimal = 2}) {
+  // To prevent number that ends with 5 not round up correctly in Dart (eg: 2.275 round off to 2.27 instead of 2.28)
+  String numbersAfterDecimal = number.toString().split('.')[1];
+  if (numbersAfterDecimal != '0') {
+    int existingNumberOfDecimal = numbersAfterDecimal.length;
+    double incrementValue = 1 / (10 * pow(10, existingNumberOfDecimal));
+    if (number < 0) {
+      number -= incrementValue;
+    } else {
+      number += incrementValue;
+    }
+  }
+  return double.parse(number.toStringAsFixed(numberOfDecimal));
+}
 
 
   static const UserInfo aUserInfo = 
     const UserInfo(
-        userId: 4,
-        userName: "topG",
-        userProfileImage: "https://cdn-icons-png.flaticon.com/512/3140/3140525.png",
-        userRating: 4.0,
-        userReviewsCount: 3
+        id: 4,
+        username: "topG",
+        profileImage: "https://cdn-icons-png.flaticon.com/512/3140/3140525.png",
+        rating: 4.0,
+        reviewsCount: 3
     );
 }

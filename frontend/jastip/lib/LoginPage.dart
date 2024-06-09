@@ -3,6 +3,7 @@ import 'package:jastip/Constants.dart';
 import 'SimpleFormBox.dart';
 import 'FormElement.dart';
 import 'DeliveryCarrierPage.dart';
+import 'Listing.dart';
 
 class LoginPage extends StatelessWidget {
   @override
@@ -54,9 +55,7 @@ class LoginPage extends StatelessWidget {
     try {
       Map<String, dynamic> response = await HttpRequests.postRequest(mp, 'login', ret: true);
       if (response.containsKey('id')) {
-        LoggedInUserData().userId = int.parse(response['id'].toString());
-        LoggedInUserData().userName = response['username'].toString();
-        print(LoggedInUserData().userId);
+        LoggedInUserData().userInfo = UserInfo(id: int.parse(response['id'].toString()), username: mp['username']!);
         
         Navigator.pushReplacement(
           context,
