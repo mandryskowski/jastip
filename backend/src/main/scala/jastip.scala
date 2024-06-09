@@ -29,6 +29,7 @@ object JastipBackend extends App {
 
   val db = Database.forConfig("databaseUrl")
   val auctionRepository = new AuctionRepository(db)
+  val userRepository = new UserRepository(db)
 
   val users = TableQuery[Users]
   val bids = TableQuery[Bids]
@@ -54,12 +55,15 @@ object JastipBackend extends App {
     path("login") { 
       post {
         entity(as[Credentials]) { credentials =>
-          val login = users.filter(_.username === credentials.username)
-          onSuccess(db.run(login.result)) { user =>
-            user.headOption match {
-              case Some(user) => complete(user)
-              case _          => complete(StatusCodes.BadRequest, s"User with name ${credentials.username} does not exist.")
-            }
+          onComplete(db.run(users.filter(_.username === credentials.username).result)) {
+            case Failure(exception) => complete(StatusCodes.BadRequest, s"Cannot find user ${exception}")
+            case Success(Seq(user)) => onSuccess(userRepository.getUserInfo(user.id)) {
+                                        case Some(userInfo) => complete(userInfo)
+                                        case None => complete(StatusCodes.NotFound, s"User with ID ${credentials.username} not found")
+                                      }
+
+            case _ => complete(StatusCodes.BadRequest, s"User ${credentials.username} does not exist")
+
           }
         }
       }
@@ -88,7 +92,7 @@ object JastipBackend extends App {
               complete(StatusCodes.BadRequest, "Auction does not exist")
             else if (matching.head.auctionEnd.after(currentTimestamp))
               complete(StatusCodes.BadRequest, "Auction has not ended yet")
-            else if (matching.head.userId != newReview.about)
+            else if (matching.head.userInfo.id != newReview.about)
               complete(StatusCodes.BadRequest, "Review about does not match auction creator")
             else {
               val reviewsFuture = db.run(reviews += newReview)
@@ -176,7 +180,7 @@ object JastipBackend extends App {
           val currentTimestamp = Timestamp.from(Instant.now())
           val newBid = Bid(0L, bidRequest.auctionId.toLong, bidRequest.userId.toInt, bidRequest.price.toDouble, currentTimestamp)
 
-          val auctionsFuture: Future[Seq[AuctionWithPrices]] = auctionRepository.filterAuctions(Map.empty, 10000)
+          val auctionsFuture: Future[Seq[AuctionWithPricesAndWinnerId]] = auctionRepository.filterAuctions(Map.empty, 10000)
           onSuccess(auctionsFuture) { auctionsBids =>
             auctionsBids.find(_.auctionId == bidRequest.auctionId.toLong) match {
               case Some(auction) => {

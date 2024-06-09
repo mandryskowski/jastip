@@ -1,5 +1,6 @@
 import MyPostgresProfile.api._
 import BidJsonProtocol._
+import scala.concurrent.duration._
 import scala.concurrent.{Future, Await}
 import akka.http.scaladsl.server.Directives._
 import akka.actor.ActorSystem
@@ -50,31 +51,11 @@ class AuctionRepository(db: Database)(implicit ec: ExecutionContext) {
     filteredQuery
   }
 
-  def mapAuctionToPriced(auction : Auction, bids : List[Bid]) = {
-      AuctionWithPrices(
-        auction.auctionId,
-        auction.userId,
-        auction.length,
-        auction.width,
-        auction.height,
-        auction.weight,
-        auction.fragile,
-        auction.description,
-        auction.from,
-        auction.to,
-        auction.departure,
-        auction.arrival,
-        auction.auctionEnd,
-        auction.startingPrice,
-        bids.map(_.price),
-        bids.map(_.bidId)
-      )
-  }
-
   def mapAuctionToPricedAndWinnerId(auction : Auction, bids : List[Bid]) = {
+      val userInfo = Await.result(new UserRepository(db).getUserInfo(auction.userId), 10.seconds)
       AuctionWithPricesAndWinnerId(
         auction.auctionId,
-        auction.userId,
+        userInfo.get,
         auction.length,
         auction.width,
         auction.height,
@@ -91,7 +72,7 @@ class AuctionRepository(db: Database)(implicit ec: ExecutionContext) {
         bids.map(_.bidId),
         bids.lastOption.map(_.userId).getOrElse(-1)
       )
-  }
+    }
 
   def mapToAuctionWithPrices(query: Query[Auctions, Auction, Seq]) = {
     val joinedQuery = for {
@@ -99,16 +80,16 @@ class AuctionRepository(db: Database)(implicit ec: ExecutionContext) {
     } yield (auction, bid)
 
     joinedQuery.result.map(result => result.groupBy(_._1).map {case (auction, bids) =>
-        mapAuctionToPriced(auction, bids.flatMap(_._2).toList)}.toSeq)
+        mapAuctionToPricedAndWinnerId(auction, bids.flatMap(_._2).toList)}.toSeq)
   }
 
-  def filterAuctions(params: Map[String, String], limit: Int, query: Query[Auctions, Auction, Seq] = auctions.distinct): Future[Seq[AuctionWithPrices]] = {
+  def filterAuctions(params: Map[String, String], limit: Int, query: Query[Auctions, Auction, Seq] = auctions.distinct): Future[Seq[AuctionWithPricesAndWinnerId]] = {
     val filteredQuery = filters(params, limit, query)
 
     db.run(mapToAuctionWithPrices(filteredQuery))
   }
 
-  def sortAuctionsFuture(auctionsFuture: Future[Seq[AuctionWithPrices]], orderedBy : Option[String]) = {
+  def sortAuctionsFuture(auctionsFuture: Future[Seq[AuctionWithPricesAndWinnerId]], orderedBy : Option[String]) = {
     (orderedBy match {
             case Some("date") => auctionsFuture.map(_.sortBy(_.auctionEnd).reverse)
             case Some("size") => auctionsFuture.map(_.sortBy(_.length).reverse)

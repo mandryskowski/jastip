@@ -10,6 +10,9 @@ final case class ApiResponse(total_count: Int, results: List[Result])
 
 
 object BidJsonProtocol extends spray.json.DefaultJsonProtocol {
+
+  implicit val userInfoFormat = jsonFormat4(UserInfo)
+
   implicit val bidFormat = jsonFormat5(Bid)
   implicit val postBidFormat = jsonFormat3(PostBid)
   implicit val auctionFormat = jsonFormat15(Auction)

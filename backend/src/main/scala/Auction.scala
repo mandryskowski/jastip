@@ -14,7 +14,7 @@ case class PostAuctionStr(length: String, width: String, height: String, weight 
 
 case class AuctionWithPrices(
   auctionId: Long,
-  userId: Int,
+  userInfo: UserInfo,
   length: Float,
   width: Float,
   height: Float,
@@ -33,7 +33,7 @@ case class AuctionWithPrices(
 
 case class AuctionWithPricesAndWinnerId(
   auctionId: Long,
-  userId: Int,
+  userInfo: UserInfo,
   length: Float,
   width: Float,
   height: Float,
