@@ -49,6 +49,19 @@ object JastipBackend extends App {
         }
       }
     } ~
+    path("login") { 
+      post {
+        entity(as[Credentials]) { credentials =>
+          val login = users.filter(_.username === credentials.username)
+          onSuccess(db.run(login.result)) { user =>
+            user.headOption match {
+              case Some(user) => complete(user)
+              case _          => complete(StatusCodes.BadRequest, s"User with name ${credentials.username} does not exist.")
+            }
+          }
+        }
+      }
+    } ~
     path("auctions") {
       get {
         extract(_.request.uri.query()) { params =>

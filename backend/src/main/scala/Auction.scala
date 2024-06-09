@@ -27,7 +27,28 @@ case class AuctionWithPrices(
   arrival: java.sql.Timestamp,
   auctionEnd: java.sql.Timestamp,
   startingPrice: Double,
-  bidPrices: List[Double]
+  bidPrices: List[Double],
+  bids: List[Long]
+)
+
+case class AuctionWithPricesAndWinnerId(
+  auctionId: Long,
+  userId: Int,
+  length: Float,
+  width: Float,
+  height: Float,
+  weight : Float,
+  fragile: Boolean,
+  description: String,
+  from : String,
+  to : String,
+  departure: java.sql.Timestamp,
+  arrival: java.sql.Timestamp,
+  auctionEnd: java.sql.Timestamp,
+  startingPrice: Double,
+  bidPrices: List[Double],
+  bids: List[Long],
+  winner : Int
 )
 
 class Auctions(tag: Tag) extends Table[Auction](tag, "auctions") {
