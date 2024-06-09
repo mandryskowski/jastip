@@ -52,11 +52,13 @@ class AuctionRepository(db: Database)(implicit ec: ExecutionContext) {
   }
 
   def mapAuctionToPricedAndWinnerId(auction : Auction, bids : List[Bid]) = {
-      val userInfo = Await.result(new UserRepository(db).getUserInfo(auction.userId), 10.seconds)
+      val userInfoFuture = new UserRepository(db).getUserInfo(auction.userId)
       val winnerInfo = bids.lastOption.map(_.userId) match {
         case Some(id) => Await.result(new UserRepository(db).getUserInfo(id), 10.seconds)
         case None     => Some(UserInfo(-1, "", 0, 0))
       }
+      val userInfo = Await.result(userInfoFuture, 10.seconds)
+
       AuctionWithPricesAndWinnerId(
         auction.auctionId,
         userInfo.get,
