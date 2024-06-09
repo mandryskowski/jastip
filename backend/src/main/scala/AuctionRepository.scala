@@ -53,6 +53,10 @@ class AuctionRepository(db: Database)(implicit ec: ExecutionContext) {
 
   def mapAuctionToPricedAndWinnerId(auction : Auction, bids : List[Bid]) = {
       val userInfo = Await.result(new UserRepository(db).getUserInfo(auction.userId), 10.seconds)
+      val winnerInfo = bids.lastOption.map(_.userId) match {
+        case Some(id) => Await.result(new UserRepository(db).getUserInfo(id), 10.seconds)
+        case None     => Some(UserInfo(-1, "", 0, 0))
+      }
       AuctionWithPricesAndWinnerId(
         auction.auctionId,
         userInfo.get,
@@ -70,7 +74,7 @@ class AuctionRepository(db: Database)(implicit ec: ExecutionContext) {
         auction.startingPrice,
         bids.map(_.price),
         bids.map(_.bidId),
-        bids.lastOption.map(_.userId).getOrElse(-1)
+        winnerInfo.get
       )
     }
 
@@ -122,7 +126,7 @@ class AuctionRepository(db: Database)(implicit ec: ExecutionContext) {
       as.groupBy(_._1).filter({case (auction, bids) =>
         bids.flatMap(_._2).toList.map(_.userId).contains(userId)
       }).map {case (auction, bids) =>
-        mapAuctionToPricedAndWinnerId(auction, bids.flatMap(_._2).toList) }.filter(a => a.winner == userId || status.getOrElse("ongoing") == "ongoing").toSeq)
+        mapAuctionToPricedAndWinnerId(auction, bids.flatMap(_._2).toList) }.filter(a => a.winner.id == userId || status.getOrElse("ongoing") == "ongoing").toSeq)
 
     
 
