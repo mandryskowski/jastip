@@ -21,6 +21,9 @@ object BidJsonProtocol extends spray.json.DefaultJsonProtocol {
   implicit val userFormat = jsonFormat2(User)
   implicit val credentialsFormat = jsonFormat1(Credentials)
 
+  implicit val postReviewStrFormat = jsonFormat5(PostReviewStr)
+  implicit val reviewFormat = jsonFormat7(Review)
+
   // locations
   implicit val coordinatesFormat = jsonFormat2(Coordinates)
   implicit val resultFormat = jsonFormat4(Result)

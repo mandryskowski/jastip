@@ -20,6 +20,7 @@ import java.sql.Date
 import java.time.LocalDate
 import java.time.Instant
 import spray.json.JsonFormat
+import akka.actor.Status
 
 object JastipBackend extends App {
   implicit val system: ActorSystem = ActorSystem("my-system")
@@ -31,6 +32,7 @@ object JastipBackend extends App {
 
   val users = TableQuery[Users]
   val bids = TableQuery[Bids]
+  val reviews = TableQuery[Reviews]
 
   val route =
     path("users") {
@@ -57,6 +59,45 @@ object JastipBackend extends App {
             user.headOption match {
               case Some(user) => complete(user)
               case _          => complete(StatusCodes.BadRequest, s"User with name ${credentials.username} does not exist.")
+            }
+          }
+        }
+      }
+    } ~
+    path("reviews") {
+      get {
+        extract(_.request.uri.query()) { params =>
+          params.get("about").map(_.toIntOption) match {
+            case Some(about) => onSuccess(db.run(reviews.filter(_.about === about).result)) { reviews =>
+              complete(reviews)
+            }
+            case _ => complete(StatusCodes.BadRequest, "Missing parameter about")
+          }
+        }
+      } ~
+      post {
+        entity(as[PostReviewStr]) { review =>
+          val currentTimestamp = Timestamp.from(Instant.now())
+          val newReview = Review(Some(0), review.auctionId.toInt, review.author.toInt, review.about.toInt, review.rating.toInt, 
+                                 review.content, currentTimestamp)
+
+          // If auction has not ended/does not exist, disallow post.
+          
+          onSuccess(auctionRepository.getUserAuctions(Map("userId" -> review.author), 10000).map{_.filter(_.auctionId == newReview.auctionId)}) { matching =>
+            if (matching.isEmpty)
+              complete(StatusCodes.BadRequest, "Auction does not exist")
+            else if (matching.head.auctionEnd.after(currentTimestamp))
+              complete(StatusCodes.BadRequest, "Auction has not ended yet")
+            else if (matching.head.userId != newReview.about)
+              complete(StatusCodes.BadRequest, "Review about does not match auction creator")
+            else {
+              val reviewsFuture = db.run(reviews += newReview)
+              onComplete(reviewsFuture) { id =>
+                id match {
+                  case Success(id) => complete(s"Posted id $id.")
+                  case Failure(exception) => complete(StatusCodes.BadRequest, s"Could not post review; ${exception.getMessage()}") 
+                }
+              }
             }
           }
         }
