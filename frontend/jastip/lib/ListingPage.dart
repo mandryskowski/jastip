@@ -2,12 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:jastip/BidPage.dart';
 import 'package:jastip/Constants.dart';
 import 'package:jastip/GenericAuctionListing.dart';
-import 'package:jastip/OrderingBar.dart';
 import 'package:jastip/PageHeader.dart';
-import 'package:jastip/Listing.dart';
-import 'package:jastip/LoadingPage.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'descriptionPage.dart';
 
 class ListingPage extends StatelessWidget {
   ListingPage({
@@ -33,6 +29,7 @@ class ListingPage extends StatelessWidget {
           ),
           Expanded(
             child: GenericAuctionListing(
+              listingDescription:  (listing) => DescriptionPage(overlay: BidPageOverlay(listing: listing), listing: listing,),
               args: args,
               initialRoute: initialRoute,
               table: 'auctions',

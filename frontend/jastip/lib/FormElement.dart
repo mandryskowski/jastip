@@ -126,7 +126,7 @@ class _SearchBarJastipState extends State<SearchBarJastip> {
           focusNode: _focusNode,
           controller: widget.controller,
           onChanged: widget.hint.searchable ? (value) => onChangedSearch(value, widget.hint.dbQueryParam) : null,
-          inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]'))],
+          inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9 ]'))],
           decoration: InputDecoration(
             hintText: widget.hint.content,
             border: OutlineInputBorder(
@@ -315,6 +315,39 @@ class _SubmitButtonState extends State<SubmitButton> {
           widget.buttonText,
           style: const TextStyle(fontSize: 18),
         ),
+      ),
+    );
+  }
+}
+
+class CheckboxWidget extends StatelessWidget {
+  const CheckboxWidget({
+    Key? key,
+    required this.title,
+    required this.value,
+    required this.onChanged,
+  }) : super(key: key);
+
+  final String title;
+  final bool value;
+  final ValueChanged<bool?> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
+      child: Row(
+        children: [
+          Text(
+            title,
+            style: searchBarTextStyle,
+          ),
+          const SizedBox(width: 10.0),
+          Checkbox(
+            value: value,
+            onChanged: onChanged,
+          ),
+        ],
       ),
     );
   }

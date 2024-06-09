@@ -1,13 +1,12 @@
 // Mydeliveries.dart
 import 'package:flutter/material.dart';
+import 'package:jastip/descriptionPage.dart';
 import 'ToggablePage.dart';
-import 'Listing.dart';
-import 'package:jastip/OrderingBar.dart';
-import 'package:jastip/LoadingPage.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:jastip/BidPage.dart';
 import 'GenericAuctionListing.dart';
+import 'Constants.dart';
+import 'BidPage.dart';
+import 'ReviewPage.dart';
+import 'SetAddress.dart';
 
 class Mydeliveries extends ToggablePage {
   Mydeliveries({Key? key, int initialIndex = 0}) : super(key: key, initialIndex: initialIndex);
@@ -28,30 +27,20 @@ class _MydeliveriesState extends ToggablePageState<Mydeliveries> {
       case 0:
         return Container(
           key: ValueKey<int>(0),
-          child: GenericAuctionListing(initialRoute: '/Menu', args: {'userId': '4', 'status': 'ongoing'}, table: 'deliveryAuctions'),
+          child: GenericAuctionListing(initialRoute: '/Menu', args: {'userId': LoggedInUserData().userId!.toString(), 'status': 'ongoing'}, table: 'deliveryAuctions', listingDescription: (listing) => DescriptionPage(overlay: BidPageOverlay(listing: listing), listing: listing,),),
         );
       case 1:
         return Container(
           key: ValueKey<int>(1),
-          child: GenericAuctionListing(initialRoute: '/Menu', args: {'userId': '4', 'status': 'inTransit'}, table: 'deliveryAuctions'),
+          child: GenericAuctionListing(initialRoute: '/Menu', args: {'userId': LoggedInUserData().userId!.toString(), 'status': 'inTransit'}, table: 'deliveryAuctions', listingDescription: (listing) => DescriptionPage(overlay: SetAddressOverlay(listing: listing,), listing: listing,),),
         );
       case 2:
         return Container(
           key: ValueKey<int>(2),
-          child: GenericAuctionListing(initialRoute: '/Menu', args: {'userId': '4', 'status': 'completed'}, table: 'deliveryAuctions'),
+          child: GenericAuctionListing(initialRoute: '/Menu', args: {'userId': LoggedInUserData().userId!.toString(), 'status': 'completed'}, table: 'deliveryAuctions', listingDescription: (listing) => DescriptionPage(overlay: ReviewPageOverlay(listing: listing,), listing: listing,),),
         );
       default:
         return Container();
     }
-  }
-}
-
-class NewContent extends StatelessWidget {
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text('New Content', style: TextStyle(fontSize: 24)),
-    );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jastip/Constants.dart';
+import 'package:jastip/LoginPage.dart';
 import 'package:jastip/MyDeliveries.dart';
 import 'DeliveryCarrierPage.dart';
 import 'ToggablePage.dart';
@@ -14,7 +15,7 @@ class MenuBox extends StatelessWidget {
       child: ListView(
         padding: EdgeInsets.zero,
         children: <Widget>[
-          const SizedBox(
+          SizedBox(
             height: 130.0,
             child: DrawerHeader(
               decoration: BoxDecoration(
@@ -36,7 +37,7 @@ class MenuBox extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'John Smith',
+                        LoggedInUserData().userName!,
                         style: TextStyle(
                           color: Colors.black,
                           fontSize: 20,
@@ -118,7 +119,24 @@ class MenuBox extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.logout),
             title: const Text('Log Out'),
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+              context,
+              PageRouteBuilder(
+                pageBuilder: (context, animation, secondaryAnimation) => LoginPage(),
+                settings: RouteSettings(name: '/LoginPage'),
+                transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                  var curve = Curves.easeInOut;
+                  var curveAnimation = CurvedAnimation(parent: animation, curve: curve);
+
+                  return FadeTransition(
+                    opacity: curveAnimation,
+                    child: child,
+                  );
+                },
+              ),
+            );
+            },
           ),
           const PaddedDivider(),
           ListTile(

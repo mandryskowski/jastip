@@ -73,6 +73,7 @@ class Listing {
       bidCnt: bidPrices.length,
       lastBid: bidPrices.length > 0 ? bidPrices.last : 0,
       auctionId: int.parse(json['auctionId'].toString()),
+      userInfo: UserInfo(userId: int.parse(json['userId'].toString())),
     );
   }
 }
@@ -101,10 +102,10 @@ class Dimension {
 class UserInfo {
   const UserInfo({
     required this.userId,
-    required this.userName,
-    required this.userProfileImage,
-    required this.userRating,
-    required this.userReviewsCount
+    this.userName = "topG",
+    this.userProfileImage = "https://cdn-icons-png.flaticon.com/512/3140/3140525.png",
+    this.userRating = 4.0,
+    this.userReviewsCount = 3
   });
 
   final int userId;

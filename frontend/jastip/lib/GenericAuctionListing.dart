@@ -6,14 +6,16 @@ import 'package:jastip/PageHeader.dart';
 import 'package:jastip/Listing.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'descriptionPage.dart';
 
 class GenericAuctionListing extends StatefulWidget {
-  GenericAuctionListing({super.key, required this.args, this.orderingIndex = 0, required this.initialRoute, required this.table});
+  GenericAuctionListing({super.key, required this.args, this.orderingIndex = 0, required this.initialRoute, required this.table, required this.listingDescription});
 
   final Map<String, String> args;
   int orderingIndex;
   final String initialRoute;
   final String table;
+  final Widget Function(Listing) listingDescription;
 
   @override
   _GenericAuctionListingState createState() => _GenericAuctionListingState();
@@ -96,7 +98,7 @@ class _GenericAuctionListingState extends State<GenericAuctionListing> {
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: List.generate(
                             listings.length,
-                            (index) => ListingWidget(listing: listings[index]),
+                            (index) => ListingWidget(listing: listings[index], listingDescription: widget.listingDescription,),
                           ),
                         ),
                       ),
@@ -118,15 +120,17 @@ class ListingWidget extends StatelessWidget {
   const ListingWidget({
     super.key,
     required this.listing,
+    required this.listingDescription,
   });
 
   final Listing listing;
+  final Widget Function(Listing) listingDescription;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-         Navigator.push(context, MaterialPageRoute(builder: (context) => BidPage(listing: listing)));
+         Navigator.push(context, MaterialPageRoute(builder: (context) => listingDescription(listing)));
       },
       child: Container(
         padding: const EdgeInsets.all(3.0),
@@ -153,7 +157,7 @@ class ListingWidget extends StatelessWidget {
           ])),
           Expanded(child:Column(children: [Align(
             alignment: Alignment(1.0, -1.0),
-            child: Text("Current bid: \$${listing.price}")),
+            child: Text("Current bid: \$${listing.getCurrentBid()}")),
         Align(
             alignment: Alignment(1.0, 0.5),
             child: Text("Size: ${listing.dimensions}")),
