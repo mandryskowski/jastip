@@ -38,9 +38,8 @@ object JastipBackend extends App {
   val route =
     path("users") {
       get {
-        val usersFuture: Future[Seq[User]] = db.run(users.result)
-        onSuccess(usersFuture) { usersList =>
-          complete(usersList.map(_.toString).mkString(", "))
+        onSuccess(userRepository.getUsersInfo()) { usersList =>
+          complete(usersList)
         }
       } ~
       post {

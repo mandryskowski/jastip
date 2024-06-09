@@ -39,4 +39,18 @@ class UserRepository(db: Database)(implicit ec: ExecutionContext) {
       }
     }
   }
+
+  def getUsersInfo(): Future[Seq[UserInfo]] = {
+    val query = for {
+      (user, review) <- users joinLeft reviews on (_.id === _.about)
+    } yield (user, review)
+
+    db.run(query.result).map { result =>
+      result.map {  case (user, userReviews) =>
+        val reviewCount = userReviews.size
+        val averageRating = if (reviewCount > 0) userReviews.map(_.rating).sum.toDouble / reviewCount else 0.0
+        UserInfo(user.id, user.username, reviewCount, averageRating)
+      }
+    }
+  }
 }
