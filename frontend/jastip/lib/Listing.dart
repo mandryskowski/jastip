@@ -1,6 +1,7 @@
 import 'dart:math';
+import 'JsonSerializable.dart';
 
-class Listing {
+class Listing implements JsonSerializable {
   Listing({
     required this.source,
     required this.destination,

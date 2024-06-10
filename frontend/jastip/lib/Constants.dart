@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:jastip/Listing.dart';
+import 'JsonSerializable.dart';
 
 RegExp stringFormat = RegExp(".*");
 RegExp intFormat = RegExp("[0-9]");
@@ -77,6 +78,34 @@ class HttpRequests {
       print('Failed body: ${body}');
       throw Exception('Failed to load data');
     }
+  }
+
+  static Future<List<T>> fetchData<T extends JsonSerializable>(
+    String table, 
+    Map<String, String> args,
+  ) async {
+    final response = await http.get(Uri.parse(
+        "https://jastip-backend-3b036fb5403c.herokuapp.com/${table}${getParameters(args)}"));
+    
+    if (response.statusCode == 200) {
+      print(response.body);
+      Iterable list = json.decode(response.body);
+      return List<T>.from(list.map((item) => JsonSerializableFactory.fromJson<T>(item)));
+    } else {
+      print(response.statusCode);
+      throw Exception('Failed to load data');
+    }
+  }
+
+  static String getParameters(Map<String, String> args) {
+    StringBuffer sb = StringBuffer();
+    sb.write("?");
+    for (var entry in args.entries) {
+      if (entry.value.isNotEmpty) {
+        sb.write("${entry.key}=${entry.value}&");
+      }
+    }
+    return sb.toString();
   }
 }
 

@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:jastip/FormElement.dart';
 import 'package:jastip/PageHeader.dart';
 import 'package:jastip/Listing.dart';
 import 'Constants.dart';
-import 'MyDeliveries.dart';
+import 'ReviewsListing.dart';
 
 class DescriptionPage extends StatelessWidget {
   final Widget overlay;
@@ -34,7 +33,7 @@ class DescriptionPage extends StatelessWidget {
                       SizedBox(height: 16),
                       _buildNoteFromTravellerSection(),
                       SizedBox(height: 16),
-                      _buildUserInfoSection(),
+                      _buildUserInfoSection(context),
                       SizedBox(height: 16),
                       _buildBidSection(),
                     ],
@@ -172,52 +171,15 @@ class DescriptionPage extends StatelessWidget {
     );
   }
 
-  Widget _buildUserInfoSection() {
-    return Center(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CircleAvatar(
-            backgroundImage: NetworkImage(listing.userInfo.profileImage),
-            radius: 50,
-          ),
-          const SizedBox(width: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                listing.userInfo.username,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 28,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  const Icon(Icons.star, color: Colors.green, size: 25),
-                  const SizedBox(width: 4),
-                  Text(
-                    '${listing.userInfo.rating}',
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: Colors.green,
-                    ),
-                  ),
-                  SizedBox(width: 4,),
-                  Text(
-                    '(${listing.userInfo.reviewsCount} reviews)',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ],
-      ),
+  Widget _buildUserInfoSection(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => ReviewsListing(userInfo: listing.userInfo), settings: RouteSettings(name: '/ReviewsListing')),
+        );
+      },
+      child: ProfileHeader(userInfo: listing.userInfo,)
     );
   }
 
@@ -267,111 +229,6 @@ class DescriptionPage extends StatelessWidget {
         fontWeight: FontWeight.bold,
         fontSize: 28,
         decoration: TextDecoration.underline,
-      ),
-    );
-  }
-}
-
-class _CustomDropdownButton extends StatefulWidget {
-  final String value;
-  final List<String> items;
-  final ValueChanged<String?> onChanged;
-
-  const _CustomDropdownButton({
-    required this.value,
-    required this.items,
-    required this.onChanged,
-  });
-
-  @override
-  _CustomDropdownButtonState createState() => _CustomDropdownButtonState();
-}
-
-class _CustomDropdownButtonState extends State<_CustomDropdownButton> {
-  late String _selectedValue;
-  final OverlayPortalController overlayPortalController = OverlayPortalController();
-  Size? _buttonSize;
-  Offset? _buttonOffset;
-
-  @override
-  void initState() {
-    super.initState();
-    _selectedValue = widget.value;
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _updateButtonDimensions();
-    });
-  }
-
-  void _updateButtonDimensions() {
-    RenderBox renderBox = context.findRenderObject() as RenderBox;
-    final size = renderBox.size;
-    final offset = renderBox.localToGlobal(Offset.zero);
-
-    setState(() {
-      _buttonSize = size;
-      _buttonOffset = offset;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-
-    return OverlayPortal(
-      controller: overlayPortalController,
-      overlayChildBuilder: (context) => Stack(
-        children: [
-          Positioned.fill(
-            child: GestureDetector(
-              onTap: overlayPortalController.toggle,
-              child: Container(
-                color: Colors.transparent,
-              ),
-            ),
-          ),
-          Positioned(
-            left: _buttonOffset!.dx,
-            top: _buttonOffset!.dy + _buttonSize!.height,
-            width: _buttonSize!.width,
-            child: Material(
-              elevation: 4.0,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: widget.items.map((String value) {
-                  return InkWell(
-                    onTap: () {
-                      setState(() {
-                        _selectedValue = value;
-                      });
-                      widget.onChanged(value);
-                      overlayPortalController.toggle();
-                    },
-                    child: Container(
-                      padding: EdgeInsets.all(16.0),
-                      child: Text(value),
-                    ),
-                  );
-                }).toList(),
-              ),
-            ),
-          ),
-        ],
-      ),
-      child: GestureDetector(
-        onTap: overlayPortalController.toggle,
-        child: InputDecorator(
-          decoration: InputDecoration(
-            labelText: 'Payment method',
-            border: OutlineInputBorder(),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(_selectedValue),
-              Icon(Icons.arrow_drop_down),
-            ],
-          ),
-        ),
       ),
     );
   }

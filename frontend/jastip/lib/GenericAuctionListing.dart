@@ -28,38 +28,14 @@ class _GenericAuctionListingState extends State<GenericAuctionListing> {
   @override
   void initState() {
     super.initState();
-    _futureListings = fetchData();
-  }
-
-  Future<List<Listing>> fetchData() async {
-    final response = await http.get(Uri.parse(
-        "https://jastip-backend-3b036fb5403c.herokuapp.com/${widget.table}${getParameters()}"));
-    if (response.statusCode == 200) {
-      print(response.body);
-      Iterable list = json.decode(response.body);
-      return List<Listing>.from(
-          list.map((listing) => Listing.fromJson(listing)));
-    } else {
-      print(response.statusCode);
-      throw Exception('Failed to load data');
-    }
-  }
-
-  String getParameters() {
-    StringBuffer sb = StringBuffer();
-    sb.write("?");
-    for (var entry in widget.args.entries)
-      if (entry.value.isNotEmpty) {
-        sb.write("${entry.key}=${entry.value.toString()}&");
-      }
-    return sb.toString();
+    _futureListings = HttpRequests.fetchData<Listing>(widget.table, widget.args);
   }
 
   void _onOrderChanged() {
     setState(() {
       widget.orderingIndex = (widget.orderingIndex + 1) % orderings.length;
       widget.args['orderedBy'] = orderings[widget.orderingIndex].toLowerCase();
-      _futureListings = fetchData();
+      _futureListings = HttpRequests.fetchData<Listing>(widget.table, widget.args);
     });
   }
 
