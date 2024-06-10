@@ -172,6 +172,25 @@ object JastipBackend extends App {
         }
       }
     } ~
+    path("address") {
+      get {
+        onSuccess(db.run(TableQuery[Addresses].result)) { address =>
+          complete(address)
+        }
+      } ~
+      post {
+        entity(as[PostAddress]) { address =>
+          val newAddress = Address(0, address.auction_id.toInt, address.name, address.line1, address.line2, address.city, address.postal)
+          onComplete(db.run(TableQuery[Addresses] += newAddress)) { id =>
+            id match {
+                  case Success(id) => complete(s"Posted id $id.")
+                  case Failure(exception) => complete(StatusCodes.BadRequest, s"Could not post address; ${exception.getMessage()}") 
+            }
+          } 
+          
+        }
+      }
+    } ~
     path("bids") {
       get {
         val bidsFuture: Future[Seq[Bid]] = db.run(bids.result)

@@ -31,6 +31,25 @@ case class AuctionWithPrices(
   bids: List[Long]
 )
 
+case class Address(
+  address_id: Int,
+  auction_id: Int,
+  name: String,
+  line1: String,
+  line2: String,
+  city: String,
+  postal: String
+)
+
+case class PostAddress(
+  auction_id: String,
+  name: String,
+  line1: String,
+  line2: String,
+  city: String,
+  postal: String
+)
+
 case class AuctionWithPricesAndWinnerId(
   auctionId: Long,
   userInfo: UserInfo,
@@ -49,7 +68,8 @@ case class AuctionWithPricesAndWinnerId(
   bidPrices: List[Double],
   bids: List[Long],
   winner: UserInfo,
-  hasReview: Boolean
+  hasReview: Boolean,
+  address: Option[Address]
 )
 
 class Auctions(tag: Tag) extends Table[Auction](tag, "auctions") {
@@ -71,6 +91,18 @@ class Auctions(tag: Tag) extends Table[Auction](tag, "auctions") {
 
   def * = (auctionId, userId, length, width, height, weight, fragile, description, from, to, departure, arrival, auctionEnd,
     startingPrice, bids) <> (Auction.tupled, Auction.unapply)
+}
+
+class Addresses(tag: Tag) extends Table[Address](tag, "addresses") {
+  def addressId = column[Int]("address_id", O.PrimaryKey, O.AutoInc)
+  def auctionId = column[Int]("auction_id")
+  def name      = column[String]("name")
+  def line1     = column[String]("line1")
+  def line2     = column[String]("line2")
+  def city      = column[String]("city")
+  def postal    = column[String]("postal_code")
+
+  def * = (addressId, auctionId, name, line1, line2, city, postal) <> (Address.tupled, Address.unapply)
 }
 
 

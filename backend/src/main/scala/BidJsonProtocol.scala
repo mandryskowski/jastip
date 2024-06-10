@@ -11,17 +11,20 @@ final case class ApiResponse(total_count: Int, results: List[Result])
 
 object BidJsonProtocol extends spray.json.DefaultJsonProtocol {
 
-  implicit val userInfoFormat = jsonFormat4(UserInfo)
+  implicit val userInfoFormat = jsonFormat6(UserInfo)
+
+  implicit val addressFormat = jsonFormat7(Address)
+  implicit val postAddressFormat = jsonFormat6(PostAddress)
 
   implicit val bidFormat = jsonFormat5(Bid)
   implicit val postBidFormat = jsonFormat3(PostBid)
   implicit val auctionFormat = jsonFormat15(Auction)
   implicit val auctionWithPricesFormat = jsonFormat16(AuctionWithPrices)
-  implicit val auctionWithPricesAndWinnerIdFormat = jsonFormat18(AuctionWithPricesAndWinnerId)
+  implicit val auctionWithPricesAndWinnerIdFormat = jsonFormat19(AuctionWithPricesAndWinnerId)
   implicit val postAuctionFormat = jsonFormat12(PostAuction)
   implicit val postAuctionStrFormat = jsonFormat12(PostAuctionStr)
 
-  implicit val userFormat = jsonFormat2(User)
+  implicit val userFormat = jsonFormat4(User)
   implicit val credentialsFormat = jsonFormat1(Credentials)
 
   implicit val postReviewStrFormat = jsonFormat5(PostReviewStr)

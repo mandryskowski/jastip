@@ -55,12 +55,15 @@ class AuctionRepository(db: Database)(implicit ec: ExecutionContext) {
       val userRepository = new UserRepository(db)
       val userInfoFuture = userRepository.getUserInfo(auction.userId)
       val reviewFuture = db.run(userRepository.reviews.filter(_.auctionId === auction.auctionId.toInt).size.result)
+      val addressFuture = db.run(TableQuery[Addresses].filter(_.auctionId === auction.auctionId.toInt).result)
       val winnerInfo = bids.lastOption.map(_.userId) match {
         case Some(id) => Await.result(userRepository.getUserInfo(id), 10.seconds)
-        case None     => Some(UserInfo(-1, "", 0, 0))
+        case None     => Some(UserInfo(-1, "", "", "", 0, 0))
       }
       val userInfo = Await.result(userInfoFuture, 10.seconds)
       val hasReview = Await.result(reviewFuture, 10.seconds) != 0
+      val address = Await.result(addressFuture, 10.seconds).headOption
+
 
       AuctionWithPricesAndWinnerId(
         auction.auctionId,
@@ -80,7 +83,8 @@ class AuctionRepository(db: Database)(implicit ec: ExecutionContext) {
         bids.map(_.price),
         bids.map(_.bidId),
         winnerInfo.get,
-        hasReview
+        hasReview,
+        address
       )
     }
 
