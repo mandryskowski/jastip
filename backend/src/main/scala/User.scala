@@ -4,6 +4,7 @@ import scala.concurrent.{Future, Await}
 import akka.http.scaladsl.server.Directives._
 import scala.concurrent.ExecutionContext
 import Review._
+import scala.concurrent.duration._
 
 
 case class User(id: Int, username: String)
@@ -37,6 +38,20 @@ class UserRepository(db: Database)(implicit ec: ExecutionContext) {
         val averageRating = if (reviewCount > 0) filteredReviews.map(_.rating).sum.toDouble / reviewCount else 0.0
         Some(UserInfo(user.head.id, user.head.username, reviewCount, averageRating))
       }
+    }
+  }
+
+  def getAuthorInfo(review: Review): Future[Option[ReviewWithAuthor]] = {
+    val usersInfoFuture = getUsersInfo()
+    val query = for {
+      (review, author) <- reviews.filter(_.reviewId === review.reviewId) join users on (_.author === _.id)
+    } yield (review, author)
+
+    val usersInfo = Await.result(usersInfoFuture, 10.seconds).toList
+    db.run(query.result.headOption).map {
+      case Some((review, user)) =>
+        Some(ReviewWithAuthor(review.reviewId, review.auctionId, usersInfo(review.author), review.about, review.rating, review.content, review.timestamp))
+      case None => None
     }
   }
 

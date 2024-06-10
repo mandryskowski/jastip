@@ -70,11 +70,16 @@ object JastipBackend extends App {
     path("reviews") {
       get {
         extract(_.request.uri.query()) { params =>
-          params.get("about").map(_.toIntOption) match {
-            case Some(about) => onSuccess(db.run(reviews.filter(_.about === about).result)) { reviews =>
-              complete(reviews)
-            }
-            case _ => complete(StatusCodes.BadRequest, "Missing parameter about")
+          params.get("about").flatMap(_.toIntOption) match {
+            case Some(about) =>
+              val reviewsFuture =  db.run(userRepository.reviews.filter(_.about === about).result)
+              onSuccess(reviewsFuture) { reviews =>
+                val authorInfosFuture = Future.sequence(reviews.map(userRepository.getAuthorInfo))
+                onSuccess(authorInfosFuture) { reviewsWithAuthors =>
+                  complete(reviewsWithAuthors)
+                }
+              }
+            case _ => complete(StatusCodes.BadRequest, "Missing parameter 'about'")
           }
         }
       } ~

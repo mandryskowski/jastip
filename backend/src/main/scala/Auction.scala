@@ -48,7 +48,8 @@ case class AuctionWithPricesAndWinnerId(
   startingPrice: Double,
   bidPrices: List[Double],
   bids: List[Long],
-  winner: UserInfo
+  winner: UserInfo,
+  hasReview: Boolean
 )
 
 class Auctions(tag: Tag) extends Table[Auction](tag, "auctions") {

@@ -20,6 +20,16 @@ case class PostReviewStr(
   content: String
 )
 
+case class ReviewWithAuthor(
+  reviewId: Option[Int],
+  auctionId: Int,
+  author: UserInfo,
+  about: Int,
+  rating: Int,
+  content: String,
+  timestamp: Timestamp
+)
+
 // Define the Table schema
 class Reviews(tag: Tag) extends Table[Review](tag, "reviews") {
   // Define the columns
