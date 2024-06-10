@@ -46,11 +46,13 @@ class UserRepository(db: Database)(implicit ec: ExecutionContext) {
     } yield (user, review)
 
     db.run(query.result).map { result =>
-      result.map {  case (user, userReviews) =>
-        val reviewCount = userReviews.size
-        val averageRating = if (reviewCount > 0) userReviews.map(_.rating).sum.toDouble / reviewCount else 0.0
+      val groupedResults = result.groupBy(_._1)
+      groupedResults.map { case (user, userReviews) =>
+        val reviewsList = userReviews.flatMap(_._2)
+        val reviewCount = reviewsList.size
+        val averageRating = if (reviewCount > 0) reviewsList.map(_.rating).sum.toDouble / reviewCount else 0.0
         UserInfo(user.id, user.username, reviewCount, averageRating)
-      }
+      }.toSeq
     }
   }
 }
