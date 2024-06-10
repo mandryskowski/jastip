@@ -15,6 +15,7 @@ class Listing {
     this.lastBid = 0,
     this.bidCnt = 0,
     this.userInfo = UserInfo.aUserInfo,
+    this.auctionWinner = UserInfo.aUserInfo,
     this.auctionId = 4
   });
 
@@ -55,6 +56,7 @@ class Listing {
   final int bidCnt;
   final UserInfo userInfo;
   final int auctionId;
+  final UserInfo auctionWinner;
 
   factory Listing.fromJson(Map<String, dynamic> json) {
     final bidPrices = List<double>.from(json['bidPrices'].map((price) => double.parse(price.toString())));
@@ -73,7 +75,8 @@ class Listing {
       bidCnt: bidPrices.length,
       lastBid: bidPrices.length > 0 ? bidPrices.last : 0,
       auctionId: int.parse(json['auctionId'].toString()),
-      userInfo: UserInfo.fromJson(json['userInfo'])
+      userInfo: UserInfo.fromJson(json['userInfo']),
+      auctionWinner: UserInfo.fromJson(json['winner'])
     );
   }
 }

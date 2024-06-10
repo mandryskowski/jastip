@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:jastip/FormElement.dart';
 import 'package:jastip/Listing.dart';
 import 'Constants.dart';
@@ -18,58 +17,86 @@ class _BidPageOverlayState extends State<BidPageOverlay> {
   final OverlayPortalController overlayPortalController = OverlayPortalController();
   final TextEditingController _bidController = TextEditingController();
   String _selectedPaymentMethod = 'Visa-6896';
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _bidController.addListener(_onBidAmountChanged);
+  }
 
   @override
   void dispose() {
+    _bidController.removeListener(_onBidAmountChanged);
     _bidController.dispose();
     super.dispose();
   }
 
-  void _placeBid() {
-      final bidAmount = double.tryParse(_bidController.text);
-      final currentBid = widget.listing.getCurrentBid();
-      if (bidAmount != null && bidAmount > currentBid) {
-        Map<String, String> args = {'auctionId': widget.listing.auctionId.toString(), 
-                                    'price': bidAmount.toString(),
-                                    'userId': widget.listing.userInfo.id.toString()};
-        HttpRequests.postRequest(args, 'bids');
-        print('Bid placed: $bidAmount with $_selectedPaymentMethod');
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => MyDeliveries(), settings: RouteSettings(name: '/MyDeliveries0')),
-        );
-        //_removeOverlay();
-      } 
+  void _onBidAmountChanged() {
+    setState(() {});
+  }
+
+  void _placeBid() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    final bidAmount = double.tryParse(_bidController.text);
+    final currentBid = widget.listing.getCurrentBid();
+    if (bidAmount != null && bidAmount > currentBid) {
+      Map<String, String> args = {'auctionId': widget.listing.auctionId.toString(), 
+                                  'price': bidAmount.toString(),
+                                  'userId': LoggedInUserData().userInfo.id.toString()};
+      await HttpRequests.postRequest(args, 'bids');
+      print('Bid placed: $bidAmount with $_selectedPaymentMethod');
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => MyDeliveries(), settings: RouteSettings(name: '/MyDeliveries0')),
+      );
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   bool _canBid() {
-     final bidAmount = double.tryParse(_bidController.text);
-     return bidAmount != null && bidAmount > widget.listing.getCurrentBid();
+    final bidAmount = double.tryParse(_bidController.text);
+    print('$bidAmount and previous ${widget.listing.getCurrentBid()} and can ${bidAmount != null && bidAmount > widget.listing.getCurrentBid()}');
+
+    return bidAmount != null && bidAmount > widget.listing.getCurrentBid();
   }
 
-
   @override
-  Widget build(BuildContext context) {
-    return OverlayPortal(
-      controller: overlayPortalController, 
-      overlayChildBuilder: (context) => Stack(
-        children: [
-          ModalBarrier(
-            color: Colors.black54,
-            dismissible: true,
-            onDismiss: overlayPortalController.toggle,
-          ),
-          Center(
-            child: GestureDetector(
-              onTap: () {}, // Prevent closing the overlay when interacting with it
-              child: Material(
-                elevation: 4.0,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
-                child: Container(
-                  padding: EdgeInsets.all(16.0),
-                  color: backgroundColorData,
-                  width: MediaQuery.of(context).size.width * 0.75, // Adjust width here
-                  child: SingleChildScrollView(
+Widget build(BuildContext context) {
+  return OverlayPortal(
+    controller: overlayPortalController, 
+    overlayChildBuilder: (context) => Stack(
+      children: [
+        ModalBarrier(
+          color: Colors.black54,
+          dismissible: true,
+          onDismiss: overlayPortalController.toggle,
+        ),
+        Center(
+          child: Material(
+            elevation: 4.0,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+            child: Container(
+              padding: EdgeInsets.all(16.0),
+              color: backgroundColorData,
+              width: MediaQuery.of(context).size.width * 0.75, // Adjust width here
+              child: _isLoading
+                ? Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircularProgressIndicator(),
+                      SizedBox(height: 16),
+                      Text('Placing your bid...'),
+                    ],
+                  )
+                : SingleChildScrollView(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -85,7 +112,7 @@ class _BidPageOverlayState extends State<BidPageOverlay> {
                             if (bidAmount == null || bidAmount <= widget.listing.getCurrentBid()) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Text('Bid amount must be higher than ${widget.listing.price} GBP'),
+                                  content: Text('Bid amount must be higher than ${widget.listing.getCurrentBid()} GBP'),
                                 ),
                               );
                             }
@@ -108,7 +135,6 @@ class _BidPageOverlayState extends State<BidPageOverlay> {
                       ],
                     ),
                   ),
-                ),
               ),
             ),
           ),
@@ -166,7 +192,6 @@ class _CustomDropdownButtonState extends State<_CustomDropdownButton> {
 
   @override
   Widget build(BuildContext context) {
-
     return OverlayPortal(
       controller: overlayPortalController,
       overlayChildBuilder: (context) => Stack(

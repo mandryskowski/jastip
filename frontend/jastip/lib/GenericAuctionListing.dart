@@ -9,13 +9,14 @@ import 'dart:convert';
 import 'descriptionPage.dart';
 
 class GenericAuctionListing extends StatefulWidget {
-  GenericAuctionListing({super.key, required this.args, this.orderingIndex = 0, required this.initialRoute, required this.table, required this.listingDescription});
+  GenericAuctionListing({super.key, required this.args, this.orderingIndex = 0, required this.initialRoute, required this.table, required this.listingDescription, this.additionalListingInfo});
 
   final Map<String, String> args;
   int orderingIndex;
   final String initialRoute;
   final String table;
   final Widget Function(Listing) listingDescription;
+  final Widget? Function(Listing)? additionalListingInfo;
 
   @override
   _GenericAuctionListingState createState() => _GenericAuctionListingState();
@@ -57,6 +58,7 @@ class _GenericAuctionListingState extends State<GenericAuctionListing> {
   void _onOrderChanged() {
     setState(() {
       widget.orderingIndex = (widget.orderingIndex + 1) % orderings.length;
+      widget.args['orderedBy'] = orderings[widget.orderingIndex].toLowerCase();
       _futureListings = fetchData();
     });
   }
@@ -74,19 +76,35 @@ class _GenericAuctionListingState extends State<GenericAuctionListing> {
                 dismissible: false,
               ),
               Center(
-                child: CircularProgressIndicator(),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(),
+                    SizedBox(height: 16),
+                    Text(
+                      'Loading auctions...',
+                      style: TextStyle(fontSize: 18, color: Colors.white),
+                    ),
+                  ],
+                ),
               ),
             ],
           );
         } else if (snapshot.hasError) {
-          return Container(
-              child: Center(child: Text('Error: ${snapshot.error}')));
+          return Center(
+            child: Text('Error: ${snapshot.error}'),
+          );
         } else if (snapshot.hasData) {
           List<Listing> listings = snapshot.data!;
           return Container(
             child: Column(
               children: [
-                Orderingbar(args: widget.args, orderIndex: widget.orderingIndex, initialRoute: widget.initialRoute, onOrderChanged: _onOrderChanged),
+                Orderingbar(
+                  args: widget.args,
+                  orderIndex: widget.orderingIndex,
+                  initialRoute: widget.initialRoute,
+                  onOrderChanged: _onOrderChanged,
+                ),
                 Expanded(
                   child: Container(
                     color: const Color.fromARGB(255, 255, 255, 255),
@@ -98,13 +116,17 @@ class _GenericAuctionListingState extends State<GenericAuctionListing> {
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: List.generate(
                             listings.length,
-                            (index) => ListingWidget(listing: listings[index], listingDescription: widget.listingDescription,),
+                            (index) => ListingWidget(
+                              listing: listings[index],
+                              listingDescription: widget.listingDescription,
+                              additionalListingInfo: widget.additionalListingInfo,
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                )
+                ),
               ],
             ),
           );
@@ -121,50 +143,77 @@ class ListingWidget extends StatelessWidget {
     super.key,
     required this.listing,
     required this.listingDescription,
+    this.additionalListingInfo
   });
 
   final Listing listing;
   final Widget Function(Listing) listingDescription;
+  final Widget? Function(Listing)? additionalListingInfo;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-         Navigator.push(context, MaterialPageRoute(builder: (context) => listingDescription(listing)));
+        Navigator.push(context, MaterialPageRoute(builder: (context) => listingDescription(listing)));
       },
       child: Container(
         padding: const EdgeInsets.all(3.0),
-        decoration:
-            BoxDecoration(border: Border.all(color: const Color(0xFFDA2222))),
-        child: _listingChild(),
-      ));
+        decoration: BoxDecoration(
+          border: Border.all(color: const Color(0xFFDA2222)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (additionalListingInfo != null)
+              additionalListingInfo!(listing) ?? Container(),
+            _listingChild(),
+          ],
+        ),
+      ),
+    );
   }
 
   Row _listingChild() {
     return Row(
-          children: [
-            Expanded(child:Column(
-              children: [
-        Align(
-            alignment: Alignment(-1.0, -0.5),
-            child: Text("${listing.source} (${listing.departureDate.toString().split(" ")[0]})")),
-        Align(
-            alignment: Alignment(-1.0, 0.0),
-            child: Text("->")),
-        Align(
-            alignment: const Alignment(-1.0, 0.5),
-            child: Text("${listing.destination} (${listing.arrivalDate.toString().split(" ")[0]})")),
-          ])),
-          Expanded(child:Column(children: [Align(
-            alignment: Alignment(1.0, -1.0),
-            child: Text("Current bid: \$${listing.getCurrentBid()}")),
-        Align(
-            alignment: Alignment(1.0, 0.5),
-            child: Text("Size: ${listing.dimensions}")),
-        Align(
-            alignment: Alignment(1.0, 1.0),
-            child: Text("End: ${listing.auctionEnd.toString().split(" ")[0]} ${listing.auctionEnd.toString().split(" ")[1].split('.')[0]} UTC"))
-          ]))]
-      );
+      children: [
+        Expanded(
+          child: Column(
+            children: [
+              Align(
+                alignment: Alignment(-1.0, -0.5),
+                child: Text("${listing.source} (${listing.departureDate.toString().split(" ")[0]})"),
+              ),
+              Align(
+                alignment: Alignment(-1.0, 0.0),
+                child: Text("->"),
+              ),
+              Align(
+                alignment: const Alignment(-1.0, 0.5),
+                child: Text("${listing.destination} (${listing.arrivalDate.toString().split(" ")[0]})"),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: Column(
+            children: [
+              Align(
+                alignment: Alignment(1.0, -1.0),
+                child: Text("Current bid: \$${listing.getCurrentBid()}"),
+              ),
+              Align(
+                alignment: Alignment(1.0, 0.5),
+                child: Text("Size: ${listing.dimensions}"),
+              ),
+              Align(
+                alignment: Alignment(1.0, 1.0),
+                child: Text("End: ${listing.auctionEnd.toString().split(" ")[0]} ${listing.auctionEnd.toString().split(" ")[1].split('.')[0]} UTC"),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 }
+

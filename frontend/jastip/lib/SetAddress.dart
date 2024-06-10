@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:jastip/Constants.dart';
 import 'package:jastip/FormElement.dart';
 import 'package:jastip/MyDeliveries.dart';
 import 'package:jastip/SimpleFormBox.dart';
@@ -18,7 +17,6 @@ class SetAddressOverlay extends StatefulWidget {
 class SetAddressOverlayState extends State<SetAddressOverlay> {
   final OverlayPortalController overlayPortalController = OverlayPortalController();
   final TextEditingController reviewController = TextEditingController();
-  int _currentRating = 0;
 
   @override
   Widget build(BuildContext context) {

@@ -7,6 +7,7 @@ import 'Constants.dart';
 import 'BidPage.dart';
 import 'ReviewPage.dart';
 import 'SetAddress.dart';
+import 'Listing.dart';
 
 class MyDeliveries extends ToggablePage {
   MyDeliveries({Key? key, int initialIndex = 0}) : super(key: key, initialIndex: initialIndex);
@@ -27,7 +28,11 @@ class MyDeliveriesState extends ToggablePageState<MyDeliveries> {
       case 0:
         return Container(
           key: ValueKey<int>(0),
-          child: GenericAuctionListing(initialRoute: '/Menu', args: {'userId': LoggedInUserData().userInfo.id.toString(), 'status': 'ongoing'}, table: 'deliveryAuctions', listingDescription: (listing) => DescriptionPage(overlay: BidPageOverlay(listing: listing), listing: listing,),),
+          child: GenericAuctionListing(
+            initialRoute: '/Menu', 
+            args: {'userId': LoggedInUserData().userInfo.id.toString(), 'status': 'ongoing'}, table: 'deliveryAuctions', 
+            listingDescription: (listing) => DescriptionPage(overlay: BidPageOverlay(listing: listing), listing: listing,),
+            additionalListingInfo: ongoingListingInfo,),
         );
       case 1:
         return Container(
@@ -41,6 +46,33 @@ class MyDeliveriesState extends ToggablePageState<MyDeliveries> {
         );
       default:
         return Container();
+    }
+  }
+
+  Widget? ongoingListingInfo(Listing listing) {
+    print('${listing.auctionWinner.id != LoggedInUserData().userInfo.id} xd\n');
+    if (listing.auctionWinner.id != LoggedInUserData().userInfo.id)
+    {
+        return Container(
+          padding: const EdgeInsets.all(8.0),
+          color: Colors.yellow,
+          child: const Row(
+            children: [
+              Icon(Icons.warning, color: Colors.black),
+              SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Warning: Your bid has been surpassed. Place a new bid to stay in the auction.',
+                  style: TextStyle(color: Colors.black),
+                ),
+              ),
+            ],
+          ),
+        );
+    }
+    else
+    {
+      return null;
     }
   }
 }
