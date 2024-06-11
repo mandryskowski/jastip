@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:jastip/Constants.dart';
 import 'package:jastip/LoginPage.dart';
 import 'package:jastip/MyDeliveries.dart';
+import 'package:jastip/MyDropOffs.dart';
 import 'DeliveryCarrierPage.dart';
 import 'ToggablePage.dart';
 
@@ -78,7 +79,12 @@ class MenuBox extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.assignment_return),
             title: const Text('My Drop-Offs'),
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                 coolTransition(0, 'MyDropoffs', (initialIndex) => MyDropoffs(initialIndex: initialIndex)),
+              );
+            },
           ),
           const PaddedDivider(),
           const SectionTitle(title: 'Services'),

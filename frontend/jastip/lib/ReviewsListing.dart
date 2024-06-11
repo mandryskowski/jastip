@@ -35,53 +35,74 @@ class ProfileHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+      child: Column(
         children: [
-          CircleAvatar(
-            backgroundImage: NetworkImage(userInfo.profileImage),
-            radius: 50,
-          ),
-          const SizedBox(width: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                userInfo.username,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 28,
-                ),
+              CircleAvatar(
+                backgroundImage: NetworkImage(userInfo.profileImage),
+                radius: 50,
               ),
-              const SizedBox(height: 8),
-              Row(
+              const SizedBox(width: 16),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.star, color: Colors.green, size: 25),
-                  const SizedBox(width: 4),
                   Text(
-                    '${userInfo.rating}',
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: Colors.green,
+                    userInfo.username,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 28,
                     ),
                   ),
-                  SizedBox(width: 4,),
-                  Text(
-                    '(${userInfo.reviewsCount} reviews)',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey[600],
-                    ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      const Icon(Icons.star, color: Colors.green, size: 25),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${userInfo.rating}',
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: Colors.green,
+                        ),
+                      ),
+                      SizedBox(width: 4,),
+                      Text(
+                        '(${userInfo.reviewsCount} reviews)',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Email: ${userInfo.email}',
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.grey[700],
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Phone: ${userInfo.phone}',
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.grey[700],
+            ),
           ),
         ],
       ),
     );
   }
 }
+
 
 class ReviewsSection extends StatelessWidget {
   final int userId;

@@ -17,7 +17,9 @@ class Listing implements JsonSerializable {
     this.bidCnt = 0,
     this.userInfo = UserInfo.aUserInfo,
     this.auctionWinner = UserInfo.aUserInfo,
-    this.auctionId = 4
+    this.auctionId = 4,
+    this.hasReview = false,
+    this.address,
   });
 
   double getCurrentBid() {
@@ -58,6 +60,8 @@ class Listing implements JsonSerializable {
   final UserInfo userInfo;
   final int auctionId;
   final UserInfo auctionWinner;
+  final bool hasReview;
+  final Address? address;
 
   factory Listing.fromJson(Map<String, dynamic> json) {
     final bidPrices = List<double>.from(json['bidPrices'].map((price) => double.parse(price.toString())));
@@ -77,7 +81,9 @@ class Listing implements JsonSerializable {
       lastBid: bidPrices.length > 0 ? bidPrices.last : 0,
       auctionId: int.parse(json['auctionId'].toString()),
       userInfo: UserInfo.fromJson(json['userInfo']),
-      auctionWinner: UserInfo.fromJson(json['winner'])
+      auctionWinner: UserInfo.fromJson(json['winner']),
+      hasReview: bool.parse(json['hasReview'].toString()),
+      address: json['address'] != null ? Address.fromJson(json['address']) : null,
     );
   }
 }
@@ -109,7 +115,9 @@ class UserInfo {
     this.username = "topG",
     this.profileImage = "https://cdn-icons-png.flaticon.com/512/3140/3140525.png",
     this.rating = 4.0,
-    this.reviewsCount = 3
+    this.reviewsCount = 3,
+    this.email = "topG@gmail.com",
+    this.phone = "+44444444444",
   });
 
   final int id;
@@ -117,13 +125,17 @@ class UserInfo {
   final String profileImage;
   final double rating;
   final int reviewsCount;
+  final String phone;
+  final String email;
 
   factory UserInfo.fromJson(Map<String, dynamic> json) {
     return UserInfo(
       rating: roundOffToXDecimal(double.parse(json['averageRating'].toString())),
       id: int.parse(json['id'].toString()),
       reviewsCount: int.parse(json['ratings'].toString()),
-      username: json['username'].toString()
+      username: json['username'].toString(),
+      phone: json['phone'].toString(),
+      email: json['email'].toString(),
     );
   }
 
@@ -151,4 +163,36 @@ class UserInfo {
         rating: 4.0,
         reviewsCount: 3
     );
+}
+
+class Address {
+  final int id;
+  final int auctionId;
+  final String city;
+  final String line1;
+  final String line2;
+  final String name;
+  final String postal;
+
+  Address({
+    required this.id,
+    required this.auctionId,
+    required this.city,
+    required this.line1,
+    required this.line2,
+    required this.name,
+    required this.postal,
+  });
+
+  factory Address.fromJson(Map<String, dynamic> json) {
+    return Address(
+      id: int.parse(json['address_id'].toString()),
+      auctionId: int.parse(json['auction_id'].toString()),
+      city: json['city'].toString(),
+      line1: json['line1'].toString(),
+      line2: json['line2'].toString(),
+      name: json['name'].toString(),
+      postal: json['postal'].toString(),
+    );
+  }
 }

@@ -1,12 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:jastip/BidPage.dart';
 import 'package:jastip/Constants.dart';
 import 'package:jastip/OrderingBar.dart';
-import 'package:jastip/PageHeader.dart';
 import 'package:jastip/Listing.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'descriptionPage.dart';
 
 class GenericAuctionListing extends StatefulWidget {
   GenericAuctionListing({super.key, required this.args, this.orderingIndex = 0, required this.initialRoute, required this.table, required this.listingDescription, this.additionalListingInfo});

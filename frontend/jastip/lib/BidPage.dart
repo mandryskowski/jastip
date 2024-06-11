@@ -131,6 +131,7 @@ Widget build(BuildContext context) {
                           onPressed: _placeBid,
                           buttonText: 'Place bid',
                           enabled: _canBid(),
+                          disabledTitle: 'Bid too low',
                         ),
                       ],
                     ),

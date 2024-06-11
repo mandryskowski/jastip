@@ -30,27 +30,60 @@ class MyDeliveriesState extends ToggablePageState<MyDeliveries> {
           key: ValueKey<int>(0),
           child: GenericAuctionListing(
             initialRoute: '/Menu', 
-            args: {'userId': LoggedInUserData().userInfo.id.toString(), 'status': 'ongoing'}, table: 'deliveryAuctions', 
-            listingDescription: (listing) => DescriptionPage(overlay: BidPageOverlay(listing: listing), listing: listing,),
+            args: {'userId': LoggedInUserData().userInfo.id.toString(), 'status': 'ongoing'}, 
+            table: 'deliveryAuctions', 
+            listingDescription: (listing) => DescriptionPage(overlays: [BidPageOverlay(listing: listing)], listing: listing,),
             additionalListingInfo: ongoingListingInfo,),
         );
       case 1:
         return Container(
           key: ValueKey<int>(1),
-          child: GenericAuctionListing(initialRoute: '/Menu', args: {'userId': LoggedInUserData().userInfo.id.toString(), 'status': 'inTransit'}, table: 'deliveryAuctions', listingDescription: (listing) => DescriptionPage(overlay: SetAddressOverlay(listing: listing,), listing: listing,),),
+          child: GenericAuctionListing(
+            initialRoute: '/Menu', 
+            args: {'userId': LoggedInUserData().userInfo.id.toString(), 'status': 'inTransit'}, 
+            table: 'deliveryAuctions', 
+            listingDescription: (listing) => DescriptionPage(overlays: [SetAddressOverlay(listing: listing,)], listing: listing,),
+            additionalListingInfo: inTransitListingInfo,),
         );
       case 2:
         return Container(
           key: ValueKey<int>(2),
-          child: GenericAuctionListing(initialRoute: '/Menu', args: {'userId': LoggedInUserData().userInfo.id.toString(), 'status': 'completed'}, table: 'deliveryAuctions', listingDescription: (listing) => DescriptionPage(overlay: ReviewPageOverlay(listing: listing,), listing: listing,),),
+          child: GenericAuctionListing(initialRoute: '/Menu', args: {'userId': LoggedInUserData().userInfo.id.toString(), 'status': 'completed'}, table: 'deliveryAuctions', listingDescription: (listing) => DescriptionPage(overlays: [ReviewPageOverlay(listing: listing,)], listing: listing,),),
         );
       default:
         return Container();
     }
   }
 
+  Widget? inTransitListingInfo(Listing listing) {
+    //print('${listing.auctionWinner.id != LoggedInUserData().userInfo.id} xd\n');
+    if (listing.address == null)
+    {
+        return Container(
+          padding: const EdgeInsets.all(8.0),
+          color: Colors.yellow,
+          child: const Row(
+            children: [
+              Icon(Icons.warning, color: Colors.black),
+              SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Warning: You haven\' set destination address for this package.',
+                  style: TextStyle(color: Colors.black),
+                ),
+              ),
+            ],
+          ),
+        );
+    }
+    else
+    {
+      return null;
+    }
+  }
+
   Widget? ongoingListingInfo(Listing listing) {
-    print('${listing.auctionWinner.id != LoggedInUserData().userInfo.id} xd\n');
+    //print('${listing.auctionWinner.id != LoggedInUserData().userInfo.id} xd\n');
     if (listing.auctionWinner.id != LoggedInUserData().userInfo.id)
     {
         return Container(

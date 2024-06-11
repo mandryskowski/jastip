@@ -6,10 +6,10 @@ import 'Constants.dart';
 import 'ReviewsListing.dart';
 
 class DescriptionPage extends StatelessWidget {
-  final Widget overlay;
+  final List<Widget> overlays;
   final Listing listing;
 
-  const DescriptionPage({super.key, required this.overlay, required this.listing});
+  const DescriptionPage({super.key, required this.overlays, required this.listing});
 
   @override
   Widget build(BuildContext context) {
@@ -194,7 +194,10 @@ class DescriptionPage extends StatelessWidget {
           _bidSectionEntry('Ends: ', '${listing.auctionEnd}'),
           SizedBox(height: 16),
           Center(
-            child: overlay,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: overlays,
+            )
           ),
         ],
       ),

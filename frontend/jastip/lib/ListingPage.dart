@@ -29,7 +29,7 @@ class ListingPage extends StatelessWidget {
           ),
           Expanded(
             child: GenericAuctionListing(
-              listingDescription:  (listing) => DescriptionPage(overlay: BidPageOverlay(listing: listing), listing: listing,),
+              listingDescription:  (listing) => DescriptionPage(overlays: [BidPageOverlay(listing: listing)], listing: listing,),
               args: args,
               initialRoute: initialRoute,
               table: 'auctions',

@@ -4,6 +4,7 @@ import 'package:jastip/FormElement.dart';
 import 'package:jastip/MyDeliveries.dart';
 import 'package:jastip/SimpleFormBox.dart';
 import 'Listing.dart';
+import 'Constants.dart';
 
 class SetAddressOverlay extends StatefulWidget {
   final Listing listing;
@@ -37,19 +38,19 @@ class SetAddressOverlayState extends State<SetAddressOverlay> {
                 child: SimpleFormBox(
                   fields: [
                     MapEntry('Full name', [
-                      SearchBarContentsTuple('eg. John Bob Smith', String, 'fullName'),
+                      SearchBarContentsTuple('eg. John Bob Smith', String, 'name'),
                     ]),
                     MapEntry('Address Line 1', [
-                      SearchBarContentsTuple('eg. Downing Street 3', String, 'addressLine1'),
+                      SearchBarContentsTuple('eg. Downing Street 3', String, 'line1'),
                     ]),
                     MapEntry('Address Line 2', [
-                      SearchBarContentsTuple('eg. Room 7B', String, 'addressLine2'),
+                      SearchBarContentsTuple('eg. Room 7B', String, 'line2'),
                     ]),
                     MapEntry('City', [
                       SearchBarContentsTuple('eg. London', String, 'city'),
                     ]),
                     MapEntry('Postal Code', [
-                      SearchBarContentsTuple('eg. SW1A 2AA', String, 'postalCode'),
+                      SearchBarContentsTuple('eg. SW1A 2AA', String, 'postal'),
                     ]),
                   ], 
                   action: 'Set address', 
@@ -68,12 +69,10 @@ class SetAddressOverlayState extends State<SetAddressOverlay> {
     );
   }
 
-  void submitAction(Map<String, String> mp, BuildContext context) async {
+  void submitAction(Map<String, String> mp, BuildContext context) {
+    mp['auction_id'] = widget.listing.auctionId.toString();
     try {
-      // Map<String, dynamic> response = await HttpRequests.postRequest(mp, 'placeholder');
-      // LoggedInUserData().userId = int.parse(response['id'].toString());
-      // LoggedInUserData().userName = response['username'].toString();
-      // print(LoggedInUserData().userId);
+     HttpRequests.postRequest(mp, 'address');
       
       Navigator.pushReplacement(
         context,

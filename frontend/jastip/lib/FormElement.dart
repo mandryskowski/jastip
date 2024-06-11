@@ -248,12 +248,16 @@ class SubmitButton extends StatefulWidget {
   final VoidCallback onPressed;
   final String buttonText;
   final bool enabled;
+  final String disabledTitle;
+  final Size minimumSize;
 
   const SubmitButton({
     super.key,
     required this.onPressed,
     required this.buttonText,
     this.enabled = true,
+    this.disabledTitle = '',
+    this.minimumSize = const Size(200, 48),
   });
 
   @override
@@ -308,11 +312,11 @@ class _SubmitButtonState extends State<SubmitButton> {
             },
           ),
           minimumSize: WidgetStateProperty.all<Size>(
-            const Size(200, 48), // Adjust the width and height as needed
+            widget.minimumSize, // Adjust the width and height as needed
           ),
         ),
         child: Text(
-          widget.buttonText,
+          widget.enabled ? widget.buttonText : widget.disabledTitle,
           style: const TextStyle(fontSize: 18),
         ),
       ),

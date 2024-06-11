@@ -84,7 +84,8 @@ class _ReviewPageOverlayState extends State<ReviewPageOverlay> {
       child: SubmitButton(
         onPressed: overlayPortalController.toggle,
         buttonText: 'Review',
-        enabled: true,
+        enabled: !widget.listing.hasReview,
+        disabledTitle: 'Already reviewed',
       ),
     );
   }
