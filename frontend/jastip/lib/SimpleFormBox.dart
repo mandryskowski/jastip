@@ -40,6 +40,7 @@ class _SimpleFormBoxState extends State<SimpleFormBox> {
     for (var group in widget.fields) {
       for (var field in group.value) {
         final controller = TextEditingController();
+        controller.text = field.initContent;
         _controllers[field.dbQueryParam] = controller;
       }
     }

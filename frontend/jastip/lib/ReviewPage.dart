@@ -94,7 +94,7 @@ class _ReviewPageOverlayState extends State<ReviewPageOverlay> {
     final Map<String, String> mp = {
       'auctionId': widget.listing.auctionId.toString(),
       'author': LoggedInUserData().userInfo.id.toString(),
-      'about': widget.listing.userInfo.id.toString(),
+      'about': LoggedInUserData().userInfo.id != widget.listing.userInfo.id ? widget.listing.userInfo.id.toString() : widget.listing.auctionWinner.id.toString(),
       'rating': _currentRating.toString(),
       'content': reviewController.text,
     };

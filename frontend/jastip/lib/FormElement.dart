@@ -175,8 +175,9 @@ class SearchBarContentsTuple {
   Type type;
   String dbQueryParam;
   bool searchable;
+  String initContent;
 
-  SearchBarContentsTuple(this.content, this.type, this.dbQueryParam, {this.searchable = false});
+  SearchBarContentsTuple(this.content, this.type, this.dbQueryParam, {this.searchable = false, this.initContent = ''});
 }
 
 class DateSearchBar extends StatefulWidget {
