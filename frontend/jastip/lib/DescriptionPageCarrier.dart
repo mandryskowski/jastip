@@ -103,9 +103,9 @@ class DescriptionPageCarrier extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          _sectionTitle('Trip Plan'),
+          _sectionTitle('Package information'),
           _buildTripPlanDetail('Mon 9th May', '01:45 (UTC+8)', 'Pickup package', 'Pickup Address: Jl. Kebon Jeruk No.27, Jakarta, Indonesia'),
-          _buildTripPlanDetail('Mon 13th May', '12:25 (UTC+0)', 'Landing at LHR airport', 'Destination Address: ${listing.address?.line1} ${listing.address?.line2}'),
+          _buildTripPlanDetail('Mon 13th May', '12:25 (UTC+0)', 'Drop off package', 'Destination Address: ${listing.address?.line1} ${listing.address?.line2}'),
         ],
       ),
     );
