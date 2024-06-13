@@ -42,7 +42,7 @@ class MyDeliveriesState extends ToggablePageState<MyDeliveries> {
             initialRoute: '/Menu', 
             args: {'userId': LoggedInUserData().userInfo.id.toString(), 'status': 'inTransit'}, 
             table: 'deliveryAuctions', 
-            listingDescription: (listing) => DescriptionPage(overlays: [SetAddressOverlay(listing: listing,)], listing: listing,),
+            listingDescription: (listing) => DescriptionPage(overlays: [SetAddressOverlay(listing: listing, title: 'Set pickup'), SetAddressOverlay(listing: listing, title: 'Set dropoff')], listing: listing,),
             additionalListingInfo: inTransitListingInfo,),
         );
       case 2:

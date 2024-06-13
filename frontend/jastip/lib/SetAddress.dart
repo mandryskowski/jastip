@@ -8,8 +8,9 @@ import 'Constants.dart';
 
 class SetAddressOverlay extends StatefulWidget {
   final Listing listing;
+  final String title;
 
-  const SetAddressOverlay({super.key, required this.listing});
+  const SetAddressOverlay({super.key, required this.listing, required this.title});
 
   @override
   SetAddressOverlayState createState() => SetAddressOverlayState();
@@ -79,7 +80,7 @@ class SetAddressOverlayState extends State<SetAddressOverlay> {
         overlayEntry = _createOverlayEntry();
         Overlay.of(context)?.insert(overlayEntry!);
       },
-      buttonText: 'Set address',
+      buttonText: widget.title,
       enabled: true,
     );
   }
