@@ -140,6 +140,7 @@ class _SearchBarJastipState extends State<SearchBarJastip> {
   }
 }
 
+
 class NumberSearchBar extends StatelessWidget {
   final SearchBarContentsTuple hint;
   final TextEditingController controller;
@@ -196,10 +197,16 @@ class DateSearchBar extends StatefulWidget {
 
 class _DateSearchBarState extends State<DateSearchBar> {
   final _dateFormatRegex = RegExp(r'^\d{4}-\d{2}-\d{2}$'); // YYYY-MM-DD format
-  
-  _selectDate(BuildContext context) async {
+
+  Future<void> _selectDate(BuildContext context) async {
+    // Get the root context
+    BuildContext rootContext = context;
+    while (rootContext.findAncestorWidgetOfExactType<Overlay>() != null) {
+      rootContext = rootContext.findAncestorStateOfType<NavigatorState>()!.context;
+    }
+
     DateTime? selectedDate = await showDatePicker(
-      context: context,
+      context: rootContext,  // Use root context here
       initialDate: DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
@@ -207,36 +214,29 @@ class _DateSearchBarState extends State<DateSearchBar> {
 
     if (selectedDate != null) {
       setState(() {
-        widget.controller.text = "${"${selectedDate.toLocal()}".split(' ')[0]} 12:00:00";
+        widget.controller.text = "${selectedDate.toLocal()}".split(' ')[0];
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            GestureDetector(
-              onTap: () {
-                _selectDate(context);
-              },
-              child: AbsorbPointer(
-                child: TextField(
-                  controller: widget.controller,
-                  decoration: InputDecoration(
-                    hintText: widget.hintText,
-                    prefixIcon: Icon(Icons.calendar_today),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                  ),
-                ),
-              ),
+    return GestureDetector(
+      onTap: () {
+        _selectDate(context);
+      },
+      child: AbsorbPointer(
+        child: TextField(
+          controller: widget.controller,
+          decoration: InputDecoration(
+            hintText: widget.hintText,
+            prefixIcon: Icon(Icons.calendar_today),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.0),
             ),
-          ],
+          ),
         ),
+      ),
     );
   }
 
@@ -244,6 +244,7 @@ class _DateSearchBarState extends State<DateSearchBar> {
     return input == '' || _dateFormatRegex.hasMatch(input);
   }
 }
+
 
 class SubmitButton extends StatefulWidget {
   final VoidCallback onPressed;

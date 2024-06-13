@@ -42,26 +42,29 @@ class SetAddressOverlayState extends State<SetAddressOverlay> {
                   width: MediaQuery.of(context).size.width * 0.9,
                   child: Material(
                     borderRadius: BorderRadius.circular(10),
-                    child: SimpleFormBox(
-                      fields: [
-                        MapEntry('Full name', [
-                          SearchBarContentsTuple('eg. John Bob Smith', String, 'name'),
-                        ]),
-                        MapEntry('Address Line 1', [
-                          SearchBarContentsTuple('eg. Downing Street 3', String, 'line1'),
-                        ]),
-                        MapEntry('Address Line 2', [
-                          SearchBarContentsTuple('eg. Room 7B', String, 'line2'),
-                        ]),
-                        MapEntry('City', [
-                          SearchBarContentsTuple('eg. London', String, 'city'),
-                        ]),
-                        MapEntry('Postal Code', [
-                          SearchBarContentsTuple('eg. SW1A 2AA', String, 'postal'),
-                        ]),
-                      ],
-                      action: 'Set address',
-                      submitAction: submitAction,
+                    child: GestureDetector(
+                      onTap: () {},
+                      child: SimpleFormBox(
+                        fields: [
+                          MapEntry('Full name', [
+                            SearchBarContentsTuple('eg. John Bob Smith', String, 'name'),
+                          ]),
+                          MapEntry('Address Line 1', [
+                            SearchBarContentsTuple('eg. Downing Street 3', String, 'line1'),
+                          ]),
+                          MapEntry('Address Line 2', [
+                            SearchBarContentsTuple('eg. Room 7B', String, 'line2'),
+                          ]),
+                          MapEntry('City', [
+                            SearchBarContentsTuple('eg. London', String, 'city'),
+                          ]),
+                          MapEntry('Postal Code', [
+                            SearchBarContentsTuple('eg. SW1A 2AA', String, 'postal'),
+                          ]),
+                        ],
+                        action: 'Set address',
+                        submitAction: submitAction,
+                      ),
                     ),
                   ),
                 ),
@@ -82,6 +85,7 @@ class SetAddressOverlayState extends State<SetAddressOverlay> {
       },
       buttonText: widget.title,
       enabled: true,
+      minimumSize: const Size(150, 48),
     );
   }
 

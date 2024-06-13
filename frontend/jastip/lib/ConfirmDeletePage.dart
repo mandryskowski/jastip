@@ -25,6 +25,8 @@ class _ConfirmDeleteOverlayState extends State<ConfirmDeleteOverlay> {
     setState(() {
       _isLoading = false;
     });
+    // Delete logic.
+    Navigator.pop(context);
   }
 
   @override
@@ -90,8 +92,6 @@ class _ConfirmDeleteOverlayState extends State<ConfirmDeleteOverlay> {
       child: SubmitButton(
         onPressed: () {
           overlayPortalController.toggle();
-          // Delete logic.
-          Navigator.pop(context);
         },
         buttonText: 'Delete Auction',
          minimumSize: Size(150, 48),
