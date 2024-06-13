@@ -98,7 +98,7 @@ class EditAucitonOverlayState extends State<EditAucitonOverlay> {
       buttonText: 'Edit details',
       minimumSize: const Size(150, 48),
       disabledTitle: 'Cannot edit',
-      enabled: widget.listing.bidCnt == 0,
+      //enabled: widget.listing.bidCnt == 0,
     );
   }
 

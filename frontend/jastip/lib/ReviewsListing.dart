@@ -48,11 +48,18 @@ class ProfileHeader extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    userInfo.username,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 28,
+                  Container(
+                    width: 150, // You can set a max width based on your design
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        userInfo.username,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 28,
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -102,7 +109,6 @@ class ProfileHeader extends StatelessWidget {
     );
   }
 }
-
 
 class ReviewsSection extends StatelessWidget {
   final int userId;
