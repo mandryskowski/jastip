@@ -128,7 +128,7 @@ class ListingWidget extends StatelessWidget {
         Navigator.push(context, MaterialPageRoute(builder: (context) => listingDescription(listing)));
       },
       child: Container(
-        padding: const EdgeInsets.all(3.0),
+        padding: const EdgeInsets.all(8.0),
         decoration: BoxDecoration(
           border: Border.all(color: const Color(0xFFDA2222)),
         ),
@@ -144,44 +144,52 @@ class ListingWidget extends StatelessWidget {
     );
   }
 
-  Row _listingChild() {
-    return Row(
+  Widget _listingChild() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          child: Column(
-            children: [
-              Align(
-                alignment: Alignment(-1.0, -0.5),
-                child: Text("${listing.source} (${listing.departureDate.toString().split(" ")[0]})"),
+        Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "${listing.source} (${listing.departureDate.toString().split(" ")[0]})",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 4),
+                  const Text("→", style: TextStyle(fontSize: 24)),
+                  const SizedBox(height: 4),
+                  Text(
+                    "${listing.destination} (${listing.arrivalDate.toString().split(" ")[0]})",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ],
               ),
-              Align(
-                alignment: Alignment(-1.0, 0.0),
-                child: Text("->"),
-              ),
-              Align(
-                alignment: const Alignment(-1.0, 0.5),
-                child: Text("${listing.destination} (${listing.arrivalDate.toString().split(" ")[0]})"),
-              ),
-            ],
-          ),
-        ),
-        Expanded(
-          child: Column(
-            children: [
-              Align(
-                alignment: Alignment(1.0, -1.0),
-                child: Text("Current bid: \$${listing.getCurrentBid()}"),
-              ),
-              Align(
-                alignment: Alignment(1.0, 0.5),
-                child: Text("Size: ${listing.dimensions}"),
-              ),
-              Align(
-                alignment: Alignment(1.0, 1.0),
-                child: Text("End: ${listing.auctionEnd.toString().split(" ")[0]} ${listing.auctionEnd.toString().split(" ")[1].split('.')[0]} UTC"),
-              ),
-            ],
-          ),
+            ),
+            const SizedBox(width: 8),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  "Current bid: \$${listing.getCurrentBid()}",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  "Size: ${listing.dimensions}",
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  "End: ${listing.auctionEnd.toString().split(" ")[0]} ${listing.auctionEnd.toString().split(" ")[1].split('.')[0]} UTC",
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ],
         ),
       ],
     );

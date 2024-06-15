@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:jastip/MyDropOffs.dart';
+
 import 'FormElement.dart';
 
 import 'package:flutter/material.dart';
@@ -55,7 +57,7 @@ class _FormboxState extends State<Formbox> {
     super.dispose();
   }
 
-  void _submit() {
+  void _submit() async {
     Map<String, String> mp = {};
     for (var entry in _controllers.entries) {
       mp[entry.key] = entry.value.text;
@@ -67,9 +69,9 @@ class _FormboxState extends State<Formbox> {
     String currentRoute = ModalRoute.of(context)?.settings.name ?? '/';
 
     if(widget.httpMethod == "POST") {
-      HttpRequests.postRequest(mp, 'auctions');
+      await HttpRequests.postRequest(mp, 'auctions');
       Navigator.push(context,
-        MaterialPageRoute(builder: (context) => ListingPage(initialRoute:  currentRoute), settings: RouteSettings(name: '/ListingPage')));
+        MaterialPageRoute(builder: (context) => MyDropoffs(), settings: RouteSettings(name: '/MyDropoffs0')));
     }
     else if(widget.httpMethod == "GET") {
       Navigator.push(context,

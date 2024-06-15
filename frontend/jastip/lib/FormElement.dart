@@ -213,8 +213,17 @@ class _DateSearchBarState extends State<DateSearchBar> {
     );
 
     if (selectedDate != null) {
+      // Set the hour, minute, second, and millisecond to 12:00:00
+      selectedDate = DateTime(
+        selectedDate.year,
+        selectedDate.month,
+        selectedDate.day,
+        12, 0, 0, 0, 0,
+      );
+
       setState(() {
-        widget.controller.text = "${selectedDate.toLocal()}".split(' ')[0];
+        widget.controller.text = "${selectedDate?.toLocal()}".split(' ')[0] + " 12:00:00";
+        print(widget.controller.text + ' date\n');
       });
     }
   }
