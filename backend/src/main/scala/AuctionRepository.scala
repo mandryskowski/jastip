@@ -113,7 +113,7 @@ class AuctionRepository(db: Database)(implicit ec: ExecutionContext) {
   }
 
   def getUserAuctions(params: Map[String, String], limit : Int): Future[Seq[AuctionWithPricesAndWinnerId]] = {
-    val userId = params.get("userId").get.toInt
+    val userId = params.get("bidderId").get.toInt
     val status = params.get("status")
 
     val currentTime = Instant.now()
