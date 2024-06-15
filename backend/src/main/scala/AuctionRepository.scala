@@ -49,7 +49,15 @@ class AuctionRepository(db: Database)(implicit ec: ExecutionContext) {
       }
     }
 
-    filteredQuery
+    val currentTime = Instant.now()
+    val statusQuery = params.get("status") match {
+      case Some("ongoing") => filteredQuery.filter(_.auctionEnd > Timestamp.from(currentTime))
+      case Some("inTransit") => filteredQuery.filter(a => a.auctionEnd <= Timestamp.from(currentTime) && a.auctionEnd > Timestamp.from(currentTime.minus(30, ChronoUnit.DAYS)))
+      case Some("completed") => filteredQuery.filter(_.auctionEnd <= Timestamp.from(currentTime.minus(30, ChronoUnit.DAYS)))
+      case _ => filteredQuery
+    }
+
+    statusQuery
   }
 
   def mapAuctionToPricedAndWinnerId(auction : Auction, bids : List[Bid]) = {
@@ -119,14 +127,7 @@ class AuctionRepository(db: Database)(implicit ec: ExecutionContext) {
     val currentTime = Instant.now()
     val query = auctions
 
-    val statusQuery = status match {
-      case Some("ongoing") => query.filter(_.auctionEnd > Timestamp.from(currentTime))
-      case Some("inTransit") => query.filter(a => a.auctionEnd <= Timestamp.from(currentTime) && a.auctionEnd > Timestamp.from(currentTime.minus(30, ChronoUnit.DAYS)))
-      case Some("completed") => query.filter(_.auctionEnd <= Timestamp.from(currentTime.minus(30, ChronoUnit.DAYS)))
-      case _ => query
-    }
-
-    val filteredQuery = filters(params, limit, statusQuery)
+    val filteredQuery = filters(params, limit, query)
 
     val joinedQuery = for {
       (auction, bid) <- filteredQuery joinLeft bids on (_.auctionId === _.auctionId)
