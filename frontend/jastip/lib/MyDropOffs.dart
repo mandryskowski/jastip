@@ -33,7 +33,7 @@ class MyDropoffsState extends ToggablePageState<MyDropoffs> {
           child: GenericAuctionListing(
             initialRoute: '/Menu', 
             args: {'userId': LoggedInUserData().userInfo.id.toString(), 'status': 'ongoing'}, 
-            table: 'deliveryAuctions', 
+            table: 'auctions', 
             listingDescription: (listing) => DescriptionPage(overlays: [EditAucitonOverlay(listing: listing), ConfirmDeleteOverlay(listing: listing)], listing: listing,),
             ),
         );
@@ -43,14 +43,14 @@ class MyDropoffsState extends ToggablePageState<MyDropoffs> {
           child: GenericAuctionListing(
             initialRoute: '/Menu', 
             args: {'userId': LoggedInUserData().userInfo.id.toString(), 'status': 'inTransit'}, 
-            table: 'deliveryAuctions', 
+            table: 'auctions', 
             listingDescription: (listing) => DescriptionPageCarrier(overlays: [ConfirmPackagePickup(listing: listing,)], listing: listing,),
             ),
         );
       case 2:
         return Container(
           key: ValueKey<int>(2),
-          child: GenericAuctionListing(initialRoute: '/Menu', args: {'userId': LoggedInUserData().userInfo.id.toString(), 'status': 'completed'}, table: 'deliveryAuctions', 
+          child: GenericAuctionListing(initialRoute: '/Menu', args: {'userId': LoggedInUserData().userInfo.id.toString(), 'status': 'completed'}, table: 'auctions', 
           listingDescription: (listing) => DescriptionPageCarrier(overlays: [ReviewPageOverlay(listing: listing)], listing: listing,),),
         );
       default:

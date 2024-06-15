@@ -113,7 +113,6 @@ class SetAddressOverlayState extends State<SetAddressOverlay> {
   @override
   void dispose() {
     reviewController.dispose();
-    overlayEntry?.remove();
     super.dispose();
   }
 }

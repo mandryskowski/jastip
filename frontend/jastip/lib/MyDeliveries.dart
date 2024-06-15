@@ -30,7 +30,7 @@ class MyDeliveriesState extends ToggablePageState<MyDeliveries> {
           key: ValueKey<int>(0),
           child: GenericAuctionListing(
             initialRoute: '/Menu', 
-            args: {'userId': LoggedInUserData().userInfo.id.toString(), 'status': 'ongoing'}, 
+            args: {'bidderId': LoggedInUserData().userInfo.id.toString(), 'status': 'ongoing'}, 
             table: 'deliveryAuctions', 
             listingDescription: (listing) => DescriptionPage(overlays: [BidPageOverlay(listing: listing)], listing: listing,),
             additionalListingInfo: ongoingListingInfo,),
@@ -40,7 +40,7 @@ class MyDeliveriesState extends ToggablePageState<MyDeliveries> {
           key: ValueKey<int>(1),
           child: GenericAuctionListing(
             initialRoute: '/Menu', 
-            args: {'userId': LoggedInUserData().userInfo.id.toString(), 'status': 'inTransit'}, 
+            args: {'bidderId': LoggedInUserData().userInfo.id.toString(), 'status': 'inTransit'}, 
             table: 'deliveryAuctions', 
             listingDescription: (listing) => DescriptionPage(overlays: [SetAddressOverlay(listing: listing, title: 'Set pickup'), SetAddressOverlay(listing: listing, title: 'Set dropoff')], listing: listing,),
             additionalListingInfo: inTransitListingInfo,),
@@ -48,7 +48,7 @@ class MyDeliveriesState extends ToggablePageState<MyDeliveries> {
       case 2:
         return Container(
           key: ValueKey<int>(2),
-          child: GenericAuctionListing(initialRoute: '/Menu', args: {'userId': LoggedInUserData().userInfo.id.toString(), 'status': 'completed'}, table: 'deliveryAuctions', listingDescription: (listing) => DescriptionPage(overlays: [ReviewPageOverlay(listing: listing,)], listing: listing,),),
+          child: GenericAuctionListing(initialRoute: '/Menu', args: {'bidderId': LoggedInUserData().userInfo.id.toString(), 'status': 'completed'}, table: 'deliveryAuctions', listingDescription: (listing) => DescriptionPage(overlays: [ReviewPageOverlay(listing: listing,)], listing: listing,),),
         );
       default:
         return Container();

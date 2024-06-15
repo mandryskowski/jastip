@@ -69,7 +69,7 @@ class _FormboxState extends State<Formbox> {
     String currentRoute = ModalRoute.of(context)?.settings.name ?? '/';
 
     if(widget.httpMethod == "POST") {
-      await HttpRequests.postRequest(mp, 'auctions');
+      HttpRequests.postRequest(mp, 'auctions');
       Navigator.push(context,
         MaterialPageRoute(builder: (context) => MyDropoffs(), settings: RouteSettings(name: '/MyDropoffs0')));
     }
