@@ -38,7 +38,8 @@ class AuctionRepository(db: Database)(implicit ec: ExecutionContext) {
       "width" -> ((auction: Auctions) => (v: String) => auction.width >= v.toFloat),
       "height" -> ((auction: Auctions) => (v: String) => auction.height >= v.toFloat),
       "weight" -> ((auction : Auctions) => (v: String) => auction.weight >= v.toFloat),
-      "auctionId" -> ((auction: Auctions) => (v: String) => auction.auctionId === v.toLong)
+      "auctionId" -> ((auction: Auctions) => (v: String) => auction.auctionId === v.toLong),
+      "userId" -> ((auction: Auctions) => (v: String) => auction.userId === v.toInt)
     )
 
     val filteredQuery = filters.foldLeft(initialQuery) { case (query, (paramName, filterFunc)) =>
