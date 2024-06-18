@@ -1,4 +1,7 @@
-class Listing {
+import 'dart:math';
+import 'JsonSerializable.dart';
+
+class Listing implements JsonSerializable {
   Listing({
     required this.source,
     required this.destination,
@@ -6,8 +9,22 @@ class Listing {
     required this.departureDate,
     required this.arrivalDate,
     required this.dimensions,
+    this.weight = 1,
     required this.price,
+    required this.fragile,
+    required this.description,
+    this.lastBid = 0,
+    this.bidCnt = 0,
+    this.userInfo = UserInfo.aUserInfo,
+    this.auctionWinner = UserInfo.aUserInfo,
+    this.auctionId = 4,
+    this.hasReview = false,
+    this.address,
   });
+
+  double getCurrentBid() {
+    return max(lastBid, price);
+  }
 
   static Listing aListing() {
     return Listing(
@@ -17,7 +34,11 @@ class Listing {
         departureDate: DateTime.now(),
         arrivalDate: DateTime.now(),
         dimensions: const Dimension(width: 10, height: 10, length: 10),
-        price: 10);
+        weight: 1.0,
+        price: 10,
+        fragile: false,
+        description: "Yes",
+        auctionId: 4);
   }
 
   static List<Listing> aLotOfListings() {
@@ -30,9 +51,20 @@ class Listing {
   final DateTime departureDate;
   final DateTime arrivalDate;
   final Dimension dimensions;
+  final double weight;
   final double price;
+  final bool fragile;
+  final String description;
+  final double lastBid;
+  final int bidCnt;
+  UserInfo userInfo;
+  final int auctionId;
+  final UserInfo auctionWinner;
+  final bool hasReview;
+  final Address? address;
 
   factory Listing.fromJson(Map<String, dynamic> json) {
+    final bidPrices = List<double>.from(json['bidPrices'].map((price) => double.parse(price.toString())));
     return Listing(
       source: json['from'].toString(),
       destination: json['to'].toString(),
@@ -42,6 +74,16 @@ class Listing {
       price: json['startingPrice'],
       dimensions: Dimension(
           length: json['length'], width: json['width'], height: json['height']),
+      weight: double.parse(json['weight'].toString()),
+      fragile: bool.parse(json['fragile'].toString()),
+      description: json['description'],
+      bidCnt: bidPrices.length,
+      lastBid: bidPrices.length > 0 ? bidPrices.last : 0,
+      auctionId: int.parse(json['auctionId'].toString()),
+      userInfo: UserInfo.fromJson(json['userInfo']),
+      auctionWinner: UserInfo.fromJson(json['winner']),
+      hasReview: bool.parse(json['hasReview'].toString()),
+      address: json['address'] != null ? Address.fromJson(json['address']) : null,
     );
   }
 }
@@ -65,4 +107,92 @@ class Dimension {
   final double height;
   final double width;
   final double length;
+}
+
+class UserInfo {
+  const UserInfo({
+    required this.id,
+    this.username = "topG",
+    this.profileImage = "https://cdn-icons-png.flaticon.com/512/3140/3140525.png",
+    this.rating = 4.0,
+    this.reviewsCount = 3,
+    this.email = "topG@gmail.com",
+    this.phone = "+44444444444",
+  });
+
+  final int id;
+  final String username;
+  final String profileImage;
+  final double rating;
+  final int reviewsCount;
+  final String phone;
+  final String email;
+
+  factory UserInfo.fromJson(Map<String, dynamic> json) {
+    return UserInfo(
+      rating: roundOffToXDecimal(double.parse(json['averageRating'].toString())),
+      id: int.parse(json['id'].toString()),
+      reviewsCount: int.parse(json['ratings'].toString()),
+      username: json['username'].toString(),
+      phone: json['phone'].toString(),
+      email: json['email'].toString(),
+    );
+  }
+
+  static double roundOffToXDecimal(double number, {int numberOfDecimal = 2}) {
+  // To prevent number that ends with 5 not round up correctly in Dart (eg: 2.275 round off to 2.27 instead of 2.28)
+  String numbersAfterDecimal = number.toString().split('.')[1];
+  if (numbersAfterDecimal != '0') {
+    int existingNumberOfDecimal = numbersAfterDecimal.length;
+    double incrementValue = 1 / (10 * pow(10, existingNumberOfDecimal));
+    if (number < 0) {
+      number -= incrementValue;
+    } else {
+      number += incrementValue;
+    }
+  }
+  return double.parse(number.toStringAsFixed(numberOfDecimal));
+}
+
+
+  static const UserInfo aUserInfo = 
+    const UserInfo(
+        id: 4,
+        username: "topG",
+        profileImage: "https://cdn-icons-png.flaticon.com/512/3140/3140525.png",
+        rating: 4.0,
+        reviewsCount: 3
+    );
+}
+
+class Address {
+  final int id;
+  final int auctionId;
+  final String city;
+  final String line1;
+  final String line2;
+  final String name;
+  final String postal;
+
+  Address({
+    required this.id,
+    required this.auctionId,
+    required this.city,
+    required this.line1,
+    required this.line2,
+    required this.name,
+    required this.postal,
+  });
+
+  factory Address.fromJson(Map<String, dynamic> json) {
+    return Address(
+      id: int.parse(json['address_id'].toString()),
+      auctionId: int.parse(json['auction_id'].toString()),
+      city: json['city'].toString(),
+      line1: json['line1'].toString(),
+      line2: json['line2'].toString(),
+      name: json['name'].toString(),
+      postal: json['postal'].toString(),
+    );
+  }
 }

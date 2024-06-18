@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import "package:jastip/DeliveryCarrierPage.dart";
+import 'LoginPage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:async';
+import 'Constants.dart';
 
 class LoadingScreen extends StatefulWidget {
   const LoadingScreen({super.key});
@@ -21,7 +23,8 @@ class _LoadingScreenState extends State<LoadingScreen> {
         // Navigate to the new page
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => HomePage()),
+          MaterialPageRoute(builder: (context) => LoginPage(), settings: RouteSettings(name: '/LoadingPage')),
+          //MaterialPageRoute(builder: (context) => HomePage(), settings: RouteSettings(name: '/HomePage0')),
         );
       });
     });
@@ -46,20 +49,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
             children: [
               Text(
                 'JASTIP+',
-                style: GoogleFonts.caveat(
-                  textStyle: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 40,
-                    fontWeight: FontWeight.bold,
-                    shadows: [
-                      BoxShadow(
-                        color: Colors.black,
-                        blurRadius: 10,
-                        offset: Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                ),
+                style: tradeMarkStyle,
               ),
               const SizedBox(height: 20), // Adds some space between the two text widgets
               Text(

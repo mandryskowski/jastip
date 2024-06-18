@@ -1,6 +1,4 @@
 import 'dart:convert';
-import 'package:jastip/MyDropOffs.dart';
-
 import 'FormElement.dart';
 
 import 'package:flutter/material.dart';
@@ -8,30 +6,33 @@ import 'package:jastip/Constants.dart';
 import 'package:jastip/ListingPage.dart';
 import 'package:http/http.dart' as http;
 
-class Formbox extends StatefulWidget {
-  const Formbox({
+class SimpleFormBox extends StatefulWidget {
+  const SimpleFormBox({
     super.key,
-    required this.title,
+    this.title = '',
     required this.fields,
     this.checkboxTitles = const [],
     this.constraints = const BoxConstraints(),
-    this.httpMethod = "GET"
+    required this.action,
+    required this.submitAction,
+    this.suffix,
   });
 
   final String title;
   final List<MapEntry<String, List<SearchBarContentsTuple>>> fields;
   final List<String> checkboxTitles;
   final BoxConstraints constraints;
-  final String httpMethod;
+  final String action;
+  final void Function(Map<String, String>, BuildContext) submitAction; 
+  final Widget? suffix;
 
   @override
-  _FormboxState createState() => _FormboxState();
+  _SimpleFormBoxState createState() => _SimpleFormBoxState();
 }
 
-class _FormboxState extends State<Formbox> {
+class _SimpleFormBoxState extends State<SimpleFormBox> {
   final Map<String, TextEditingController> _controllers = {};
   final Map<String, bool> _checkboxValues = {};
-  int _resultCount = 0;
 
   @override
   void initState() {
@@ -39,14 +40,13 @@ class _FormboxState extends State<Formbox> {
     for (var group in widget.fields) {
       for (var field in group.value) {
         final controller = TextEditingController();
-        controller.addListener(_fetchResultCount);
+        controller.text = field.initContent;
         _controllers[field.dbQueryParam] = controller;
       }
     }
     for (var title in widget.checkboxTitles) {
       _checkboxValues[title] = false;
     }
-    _fetchResultCount();
   }
 
   @override
@@ -55,46 +55,6 @@ class _FormboxState extends State<Formbox> {
       entry.value.dispose();
     }
     super.dispose();
-  }
-
-  void _submit() async {
-    Map<String, String> mp = {};
-    for (var entry in _controllers.entries) {
-      mp[entry.key] = entry.value.text;
-    }
-    for (var entry in _checkboxValues.entries) {
-      mp[entry.key] = entry.value.toString();
-    }
-
-    String currentRoute = ModalRoute.of(context)?.settings.name ?? '/';
-
-    if(widget.httpMethod == "POST") {
-      HttpRequests.postRequest(mp, 'auctions');
-      Navigator.push(context,
-        MaterialPageRoute(builder: (context) => MyDropoffs(), settings: RouteSettings(name: '/MyDropoffs0')));
-    }
-    else if(widget.httpMethod == "GET") {
-      Navigator.push(context,
-        MaterialPageRoute(builder: (context) => ListingPage(args: mp, initialRoute: currentRoute,), settings: RouteSettings(name: '/ListingPage')));
-    } else {
-      print("INVALID HTTP METHOD");
-    }
-  }
-
-  void _fetchResultCount() async {
-    if (widget.httpMethod != 'GET')
-      return;
-    var uri = Uri.parse("https://jastip-backend-3b036fb5403c.herokuapp.com/auctions${getParameters()}");
-    var response = await http.get(uri);
-
-    if (response.statusCode == 200) {
-      Iterable list = json.decode(response.body);
-      setState(() {
-        _resultCount = list.length;
-      });
-    } else {
-      print('GET request failed with status: ${response.statusCode}');
-    }
   }
 
   String getParameters() {
@@ -111,27 +71,42 @@ class _FormboxState extends State<Formbox> {
     return sb.toString();
   }
 
+  void _submit() {
+    Map<String, String> mp = {};
+    for (var entry in _controllers.entries) {
+      mp[entry.key] = entry.value.text;
+    }
+    for (var entry in _checkboxValues.entries) {
+      mp[entry.key] = entry.value.toString();
+    }
+
+    widget.submitAction(mp, context);
+  }
+
   @override
   Widget build(BuildContext context) {
     return ConstrainedBox(
       constraints: widget.constraints,
       child: Container(
         decoration: BoxDecoration(
-        color: backgroundColorData,
-        borderRadius: BorderRadius.circular(15.0),
+          color: backgroundColorData,
+          borderRadius: BorderRadius.circular(15.0),
         ),
         child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Padding(
-                padding: paddingAll15,
-                child: Text(
-                  widget.title,
-                  style: titleTextStyle,
+              if (widget.title != '')
+              ...{
+                Padding(
+                  padding: paddingAll15,
+                  child: Text(
+                    widget.title,
+                    style: titleTextStyle,
+                  ),
                 ),
-              ),
+              },
               ...widget.fields.map((group) {
                 return Padding(
                   padding: const EdgeInsets.symmetric(
@@ -170,23 +145,20 @@ class _FormboxState extends State<Formbox> {
                     setState(() {
                       _checkboxValues[widget.checkboxTitles[index]] = value!;
                     });
-                    _fetchResultCount();
                   },
                 ),
               ),
-              if (widget.httpMethod == 'GET')
-              ...{
-                Center(
-                  child: Text('Number of results: $_resultCount'),
-                )
-              },
               Center(
                 child: SubmitButton(
                   onPressed: _submit,
-                  buttonText: 'Submit',
-                  enabled: widget.httpMethod != 'GET' ||  _resultCount > 0,
+                  buttonText: widget.action,
+                  enabled: true,
                 ),
               ),
+              if (widget.suffix != null) 
+              ...{
+                widget.suffix!
+              },
             ],
           ),
         ),

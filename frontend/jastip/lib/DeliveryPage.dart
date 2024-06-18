@@ -12,8 +12,8 @@ class DeliveryContent extends StatelessWidget {
       title: "Where do we go today?",
       fields: [
         MapEntry('Destination', [
-          SearchBarContentsTuple('From', String, 'startCity'),
-          SearchBarContentsTuple('To', String, 'endCity')
+          SearchBarContentsTuple('From', String, 'startCity', searchable: true),
+          SearchBarContentsTuple('To', String, 'endCity', searchable: true)
         ]),
         MapEntry('Date', [SearchBarContentsTuple('When', DateTime, 'endDate')]),
         MapEntry('Dimensions', [

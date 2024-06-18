@@ -2,14 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:jastip/Constants.dart';
 import 'package:jastip/FilterPage.dart';
-import 'package:jastip/Listing.dart';
 import 'package:jastip/ListingPage.dart';
+import 'GenericAuctionListing.dart';
 
 class Orderingbar extends StatelessWidget {
-  Orderingbar({super.key, required this.args, required this.orderIndex});
+  Orderingbar({
+    super.key, 
+    required this.args, 
+    required this.orderIndex, 
+    required this.initialRoute, 
+    required this.onOrderChanged});
   
   Map<String, String> args;
   int orderIndex;
+  final String initialRoute;
+  final VoidCallback onOrderChanged; 
 
   @override
   Widget build(BuildContext context) {
@@ -21,14 +28,7 @@ class Orderingbar extends StatelessWidget {
         children: [
           Expanded(
               child: GestureDetector(
-                  onTap: () {
-                    orderIndex = (orderIndex + 1) % orderings.length;
-                    args['orderedBy'] = orderings[orderIndex].toLowerCase();
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => ListingPage(args: args, orderingIndex: orderIndex)));
-                  },
+                  onTap: onOrderChanged,
                   child: Container(
                       padding: const EdgeInsets.symmetric(
                           vertical: 16, horizontal: 16),
@@ -58,7 +58,7 @@ class Orderingbar extends StatelessWidget {
               child: GestureDetector(
                   onTap: () {
                     Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => FilterPage()));
+                        MaterialPageRoute(builder: (context) => FilterPage(), settings: RouteSettings(name: '/FilterPage'),));
                   },
                   child: Container(
                       padding: const EdgeInsets.symmetric(
