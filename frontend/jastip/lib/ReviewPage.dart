@@ -17,6 +17,7 @@ class _ReviewPageOverlayState extends State<ReviewPageOverlay> {
   final OverlayPortalController overlayPortalController = OverlayPortalController();
   final TextEditingController reviewController = TextEditingController();
   int _currentRating = 0;
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +31,16 @@ class _ReviewPageOverlayState extends State<ReviewPageOverlay> {
             onDismiss: overlayPortalController.toggle,
           ),
           Center(
-            child: Dialog(
+            child: _isLoading
+              ? Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircularProgressIndicator(),
+                    SizedBox(height: 16),
+                    Text('Submitting your review...'),
+                  ],
+                )
+              : Dialog(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
@@ -90,7 +100,11 @@ class _ReviewPageOverlayState extends State<ReviewPageOverlay> {
     );
   }
 
-  void _submit() {
+  void _submit() async {
+    setState(() {
+      _isLoading = true;
+    });
+
     final Map<String, String> mp = {
       'auctionId': widget.listing.auctionId.toString(),
       'author': LoggedInUserData().userInfo.id.toString(),
@@ -100,7 +114,14 @@ class _ReviewPageOverlayState extends State<ReviewPageOverlay> {
     };
     //print('${LoggedInUserData().userInfo.id} and ${LoggedInUserData().userInfo.username}');
 
-    HttpRequests.postRequest(mp, 'reviews');
+    await HttpRequests.postRequest(mp, 'reviews');
+    Map<String, dynamic> response = await HttpRequests.postRequest({'username': widget.listing.userInfo.username}, 'login', ret: true);
+    widget.listing.userInfo = UserInfo.fromJson(response);
+    
+
+    setState(() {
+      _isLoading = false;
+    });
 
     Navigator.pushReplacement(
       context,

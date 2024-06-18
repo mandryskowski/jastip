@@ -57,7 +57,7 @@ class Listing implements JsonSerializable {
   final String description;
   final double lastBid;
   final int bidCnt;
-  final UserInfo userInfo;
+  UserInfo userInfo;
   final int auctionId;
   final UserInfo auctionWinner;
   final bool hasReview;
