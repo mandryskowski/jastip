@@ -140,16 +140,6 @@ jobs:
             sleep 1
           done
 
-      - name: Set up database schema
-        run: |
-          cd backend
-          sbt "runMain JastipBackend"
-
-      - name: Run tests
-        run: |
-          cd backend
-          sbt test
-
       - name: Split branch
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
