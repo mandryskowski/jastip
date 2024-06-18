@@ -84,7 +84,7 @@ class _ReviewPageOverlayState extends State<ReviewPageOverlay> {
       child: SubmitButton(
         onPressed: overlayPortalController.toggle,
         buttonText: 'Review',
-        //enabled: !widget.listing.hasReview,
+        enabled: !widget.listing.hasReview,
         disabledTitle: 'Already reviewed',
       ),
     );
@@ -98,6 +98,7 @@ class _ReviewPageOverlayState extends State<ReviewPageOverlay> {
       'rating': _currentRating.toString(),
       'content': reviewController.text,
     };
+    //print('${LoggedInUserData().userInfo.id} and ${LoggedInUserData().userInfo.username}');
 
     HttpRequests.postRequest(mp, 'reviews');
 

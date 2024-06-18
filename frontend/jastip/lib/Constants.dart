@@ -75,6 +75,7 @@ class HttpRequests {
       return ret ? json.decode(response.body) : {};
     } else {
       print('POST request failed with status: ${response.statusCode}');
+      print('Response: ${response.body}');
       print('Failed body: ${body}');
       throw Exception('Failed to load data');
     }
