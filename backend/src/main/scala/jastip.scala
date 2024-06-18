@@ -91,7 +91,7 @@ object JastipBackend extends App {
 
           // If auction has not ended/does not exist, disallow post.
           
-          onSuccess(auctionRepository.getUserAuctions(Map("userId" -> review.author), 10000).map{_.filter(_.auctionId == newReview.auctionId)}) { matching =>
+          onSuccess(auctionRepository.getUserAuctions(Map("bidderId" -> review.author), 10000).map{_.filter(_.auctionId == newReview.auctionId)}) { matching =>
             if (matching.isEmpty)
               complete(StatusCodes.BadRequest, "Auction does not exist")
             else if (matching.head.auctionEnd.after(currentTimestamp))
